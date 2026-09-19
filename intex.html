@@ -1443,7 +1443,7 @@
   #a4GalV, #a4GalB{ visibility:hidden; }
   #a4GalBg{ display:none; }   /* 398: no backing -- each band sits over ITS OWN opaque card */
   .a4-card{ position:absolute; left:50%; top:50%; width:var(--a4-cw, 295px); height:var(--a4-ch, 223px);
-    margin:calc(var(--a4-ch, 223px) / -2) 0 0 calc(var(--a4-cw, 295px) / -2); will-change:transform; backface-visibility:visible; overflow:hidden; background:rgba(0,0,0,.06); }   /* 491: the box clips its overscanned cover; 497: a quiet ground while a frame decodes */
+    margin:calc(var(--a4-ch, 223px) / -2) 0 0 calc(var(--a4-cw, 295px) / -2); will-change:transform; backface-visibility:visible; overflow:hidden; background:rgba(0,0,0,.06); contain:strict; pointer-events:none; }   /* 491: the box clips its overscanned cover; 497: a quiet ground while a frame decodes; 500: contained and untouchable -- no recalc bleed, no hit-testing 168 layers */
   /* 386: 223x295 (aspect 1.3229 held) -- the nearest edge projects to 273
      inside the 274 band, so every corner survives by construction */
   .a4-card img{ display:block; position:relative; left:-1px; top:-1px; width:calc(100% + 2px); height:calc(100% + 2px); object-fit:cover; }   /* 491: same overscan law */
@@ -7915,6 +7915,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const n = ((vi % A4_IMGS) + A4_IMGS) % A4_IMGS + 1;
       c._img.src = encodeURI(A4_GAL + 'G' + String(n).padStart(2, '0') + '.jpeg');
     }
+    /* 499: warm the 31 frames once the landing is long over -- low priority,
+       far off the loader's budget -- so About opens with a local cache and
+       every deferred swap is a cache-hit, never a blank. */
+    addEventListener('load', () => setTimeout(() => {
+      for (let n = 1; n <= A4_IMGS; n++){
+        const im = new Image(); im.fetchPriority = 'low'; im.decoding = 'async';
+        im.src = encodeURI(A4_GAL + 'G' + String(n).padStart(2, '0') + '.jpeg');
+      }
+    }, 2500));
     function place(){
       /* the magazine's spread, straightened: a chevron track -- both edges
          near, the centre receding (z = -|x| * CK) -- each card tilted
@@ -7933,8 +7942,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            resync teleports a card already wearing its new frame. */
         if (c._pm !== undefined){
           const dW = xm - c._pm;
-          if (dW > half) a4Img(c, c._vi + A4_N);
-          else if (dW < -half) a4Img(c, c._vi - A4_N);
+          if (dW > half){ c._vi += A4_N; c._dirty = true; }
+          else if (dW < -half){ c._vi -= A4_N; c._dirty = true; }
         }
         c._pm = xm;
         /* 484: the wrap stands down while the train holds the body displaced.
@@ -7953,9 +7962,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           if (Math.abs(xs - xm) < 1 || Math.abs(xs) > half + 380){ c._B = undefined; xs = xm; }
         } else xs = xm;
         const x = xs + (c._D || 0) * (1 - swE);   /* 423: THE TRAIN -- one compressing body on one eased clock */
-        c.style.visibility = (c._hideL && swE < 1) ? 'hidden' : '';
-        c.style.transform = 'translate3d(' + x.toFixed(2) + 'px,0,0) rotateY(90deg)';
-        c.style.zIndex = (1000 - Math.round(Math.abs(x) / 4)) | 0;   /* nearer the middle paints on top, as a fanned row occludes */
+        if (c._dirty && Math.abs(x) < 24){ c._dirty = false; a4Img(c, c._vi); }   /* 499: the swap lands in the lens's blind spot -- edge-on at the centre, the card projects to nothing */
+        /* 500: CHANGE-GATED WRITES. Same-value style assignments still cost
+           recalc against a stylesheet this size, and z churn re-stacks 168
+           textured layers; z now steps in 24px bands and nothing is written
+           twice. */
+        const vz = (c._hideL && swE < 1) ? 'hidden' : '';
+        if (c._v !== vz){ c._v = vz; c.style.visibility = vz; }
+        const tf = 'translate3d(' + x.toFixed(2) + 'px,0,0) rotateY(90deg)';
+        if (c._tf !== tf){ c._tf = tf; c.style.transform = tf; }
+        const zi = (1000 - Math.round(Math.abs(x) / 24)) | 0;   /* nearer the middle paints on top, as a fanned row occludes */
+        if (c._zi !== zi){ c._zi = zi; c.style.zIndex = zi; }
       });
     }
     /* ---- the journey's lines, solved at layout ------------------------ */
