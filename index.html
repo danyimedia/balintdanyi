@@ -9181,6 +9181,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     document.body.classList.remove('ld-on', 'ld-hold', 'ld-veil', 'ld-black');
     [ldName, ldCopy, ldCnt, ldSheet].forEach(el => el && el.remove());
     ldLock = false; siteReady = true;
+    /* 505: THE VALVE MUST FREE THE HERO TOO. The intro waits on the loader's
+       own ld-out/ld-fly, and a bypass never sets them -- so a bypassed boot
+       (a route, or 501's watchdog on a boot slower than 30s) left body.vsi
+       and vsi-in standing for good: the deck held at visibility:hidden, the
+       sides and caption held out, and the input gate shut. The page read as
+       an empty sheet under the header and could not be clicked. Dropping the
+       three classes here is exactly what the intro's own non-landing branch
+       does, and it lands the hero at rest instead of animating it in. */
+    document.body.classList.remove('vsi', 'vsi-in', 'vsi-deck');
   }
   // Hashes v147 wrote for the landing slides are stale under this rule: strip
   // them so the URL heals itself, then run the loader as for any landing load.
