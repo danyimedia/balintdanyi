@@ -1457,7 +1457,18 @@
   .a4-cp{ position:fixed; left:50%; top:50%; transform:translate(-50%, calc(-50% + var(--a4-cpo, 18.585px)));
     text-align:center; z-index:1; color:#F5F5F5;
     font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em; line-height:.8843; text-transform:uppercase;
-    white-space:nowrap; transition:transform .45s cubic-bezier(.22,.61,.36,1); }   /* the middle register; 422: the container re-centres in two smooth TRIGGERED steps (18.36 / 9.18 / 0), the transition carrying each */
+    transition:transform .45s cubic-bezier(.22,.61,.36,1); }   /* the middle register; 422: the container re-centres in two smooth TRIGGERED steps (18.36 / 9.18 / 0), the transition carrying each */
+  /* 503: it was nowrap at a fixed 21px, so a tall/narrow window ran the
+     statement straight off both edges. The three authored lines stand as
+     long as they fit -- the max-width only bites when one would otherwise
+     overflow the margins, and then it breaks into more lines instead of
+     leaving the window. width:max-content is load-bearing: the box is
+     left:50% with no right, so shrink-to-fit offers it only HALF the window
+     and it would wrap to a needlessly narrow column (and the max-width
+     would never bite); max-content asks for the line's own width and lets
+     the max-width do the clamping. balance evens the broken pair where the
+     browser has it, and is ignored where it does not. */
+  .a4-cp{ width:max-content; max-width:calc(100vw - 2 * var(--pad, 36px)); text-wrap:balance; }
   .a4-cp .w{ display:inline-block; font-style:normal; opacity:0; filter:blur(4px); }
   .a4-cp .dots{ font-style:normal; }
   .a4-big{ font-size:var(--big); font-weight:1000; letter-spacing:-.045em; line-height:.78;
@@ -3341,6 +3352,12 @@
   body.c3-fs #c3Layer{ z-index:1200; }
   body.c3-fs #c3Cards{ transform:none !important; }
   body.c3-fs .c3-case{ pointer-events:none !important; }
+  /* 502: the DECK stands down. #c3Cards is preserve-3d, so the flank doors
+     hinge in FRONT of the film's plane and kept painting over a fullscreen
+     film at the window's edges -- z-index cannot answer that, only hiding
+     them can. visibility is untouched by cardsPaint, so the boxed state
+     comes back exactly as it left (its transform/opacity caches stand). */
+  body.c3-fs #viewCase3 .c3-case:not(.fs){ visibility:hidden !important; }
   #viewCase3 .c3-case.fs{ transform:none !important; left:0 !important; top:0 !important; width:100vw !important; height:100vh !important; opacity:1 !important; background:#000; }
   #viewCase3 .c3-case.fs iframe{ left:0 !important; top:0 !important; width:100% !important; height:100% !important; transform:none !important; }
   #viewCase3 .c3-case.fs .still{ display:none; }
@@ -3365,7 +3382,7 @@
   /* 501: the showreel's .vm (the Vimeo mark, top right) is gone -- the reel
      burns SHOWREEL into that corner and the mark sat on it. The case players
      keep theirs (#viewCase3 scope, above). */
-  #black .c3-ctl.b .pp, #black .c3-ctl.b .tl, #black .c3-ctl.b .mu{ pointer-events:auto; }
+  #black .c3-ctl.b .pp, #black .c3-ctl.b .tl, #black .c3-ctl.b .mu, #black .c3-ctl.b .fs{ pointer-events:auto; }
   #black .film .shot{ position:relative; }
   #black .c3-ctl{
     /* 501: no opacity:1 pin -- .on drives it, so the chrome comes on hover
@@ -3379,7 +3396,28 @@
     font-size:var(--ui-size); font-weight:700; letter-spacing:var(--track-s); text-transform:uppercase;
     -webkit-font-smoothing:antialiased;
   }
-  #black .c3-ctl .pp, #black .c3-ctl .tl, #black .c3-ctl .mu{ pointer-events:auto; }
+  #black .c3-ctl .pp, #black .c3-ctl .tl, #black .c3-ctl .mu, #black .c3-ctl .fs{ pointer-events:auto; }
+  /* 502: the showreel's own fullscreen button, the case chrome's at 14px */
+  #black .c3-ctl .fs{ flex:0 0 auto; position:relative; width:14px; height:14px; margin-top:calc(var(--ink-t) + var(--c3-cap) / 2 - 7px); padding:0; border:0; background:none; color:inherit; cursor:pointer; }
+  #black .c3-ctl .fs svg{ position:absolute; inset:0; width:100%; height:100%; fill:currentColor; display:none; }
+  #black .c3-ctl .fs .fon{ display:block; }
+  #black .c3-ctl.fs-on .fs .fon{ display:none; }
+  #black .c3-ctl.fs-on .fs .foff{ display:block; }
+  /* 502 THE SHOWREEL FULLSCREEN. The slide is already fixed at inset:0, so
+     nothing needs to move in the DOM (a moved iframe reloads): the film box
+     -- normally inset by --film-pad and seated under the header -- is
+     squared to the slide and the shot fills it, Vimeo letterboxing inside
+     exactly as the case player does. paint() writes .film's top/height and
+     .black's transform INLINE every frame, so these must be !important. The
+     header, the SHOWREEL cue and the corner links are HIDDEN rather than
+     out-stacked: #home carries a transform, so the slide's z-index competes
+     only inside it and can never rise over a body-level band (the 3638
+     law). */
+  body.sr-fs{ overflow:hidden !important; }
+  body.sr-fs .hdr, body.sr-fs .black .showreel, body.sr-fs #vsSocial{ visibility:hidden; }
+  body.sr-fs .black{ transform:translate3d(0,0,0) !important; }
+  body.sr-fs .black .film{ inset:0 !important; height:auto !important; }
+  body.sr-fs .black .shot{ width:100% !important; height:100% !important; aspect-ratio:auto !important; background:#000; }
   /* 501: the reel burns type into all four corners (BALINT DANYI / SHOWREEL
      up top, CREATIVE LEAD + lower-thirds / 2026 along the foot, the widest
      reaching ~16% in from an edge), so the bar keeps to the middle half of
@@ -5954,6 +5992,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     routeWheel(d0, ptrX, ptrY);
   }, { passive:false });
   function routeWheel(d, ptrX, ptrY){
+    if (srFs) return;   /* 502: fullscreen holds the journey still -- this is the one funnel the wheel, the keys and touch all come through */
     /* If the contact slide has outgrown the frame and the pointer is over it,
        the wheel belongs to that slide rather than to the page scroll. */
     const pane = document.elementFromPoint(ptrX, ptrY);
@@ -6060,6 +6099,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      explicit Mute from the chrome -- arrivals honour it and stay silent.
      srUiSync is the chrome's label refresh, registered by srCtl far below. */
   let soundOn = false, soundVeto = false, srUiSync = null;
+  /* 502: the showreel's fullscreen state, read by the input gates below and
+     driven by srCtl's own button (assigned when the chrome is built). */
+  let srFs = false, srFsToggle = null;
 
   const wireFilm = () => {
     if (film || !window.Vimeo || !Vimeo.Player) return !!film;   /* 451a: the 444b law -- wire the moment the API exists; never a one-shot boot race */
@@ -6126,6 +6168,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     startFilm();
   }
   function stopFilm(){
+    if (srFs && srFsToggle) srFsToggle();   /* 502: no navigation may leave the reel fullscreen behind it */
     if (!wantPlay) return;
     wantPlay = false;
     if (film) film.pause().catch(() => {});
@@ -6136,15 +6179,24 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      it vanished under a view. Sound now belongs to the film's own surface:
      the arrival attempt (above), the chrome's UNMUTE, and this veil click,
      which is a real gesture on the film itself. */
-  document.getElementById('veil').addEventListener('click', () => {
+  /* 502: the single click waits out the double click's window -- instant, a
+     double click on the picture fired play/pause/play as a visible stutter.
+     The double click is fullscreen, both ways, as the case player's is. */
+  let srClkT = 0;
+  const veilEl = document.getElementById('veil');
+  veilEl.addEventListener('click', () => {
     if (!film) return;
-    film.getPaused().then(paused => {
-      if (paused){
-        if (!soundVeto && !soundOn) film.setMuted(false).then(() => { soundOn = true; if (srUiSync) srUiSync(); }).catch(() => {});
-        film.play().catch(() => {});
-      } else film.pause().catch(() => {});
-    }).catch(() => {});
+    clearTimeout(srClkT);
+    srClkT = setTimeout(() => {
+      film.getPaused().then(paused => {
+        if (paused){
+          if (!soundVeto && !soundOn) film.setMuted(false).then(() => { soundOn = true; if (srUiSync) srUiSync(); }).catch(() => {});
+          film.play().catch(() => {});
+        } else film.pause().catch(() => {});
+      }).catch(() => {});
+    }, 250);
   });
+  veilEl.addEventListener('dblclick', () => { clearTimeout(srClkT); if (srFsToggle) srFsToggle(); });
 
   /* ================= loading screen =================================
      Placed at the foot of the script deliberately: it reads `names`, `stripe`
@@ -8000,12 +8052,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          (rotateY 90), a row along X through one lens. A card at the window's
          middle projects to nothing; either side, the lens alone opens the
          face -- monotone, symmetric, nothing rotating against it. */
-      const sp = A4_SP * gK4, ring = A4_N * sp, half = ring / 2;   /* 409: the whole picture scales with the band */
       const halfVis4 = (innerWidth - 72) / 2;   /* 501: the projected clip's half-width, for the two swap zones and the release gate */
       const _gV = document.getElementById('a4GalV'), _gB = document.getElementById('a4GalB');
       const hidV = _gV && _gV.style.visibility !== 'visible', hidB = _gB && _gB.style.visibility !== 'visible';   /* 501: band() drives these inline; the base sheet hides both */
       cards.forEach((c, i) => {
-        const xm = mod4(i * sp - cur + half, ring) - half;
+        /* 503: the row is the band's own -- spacing and the shared drift
+           take its scale, as the card box and the lens do, so each band is
+           a true uniform scale of the one design. */
+        const kC = c.parentElement === _gB ? kBB : (c.parentElement === _gV ? 1 : kB1);
+        const sp = A4_SP * gK4 * kC, ring = A4_N * sp, half = ring / 2;
+        const xm = mod4(i * sp - cur * kC + half, ring) - half;
         /* 497: the sequence advances at the wrap. The ring edge sits past
            the frame, so the src swap is never on the lens; the mod counts
            under the 484 bank too, so the virtual index stays true and the
@@ -8070,16 +8126,65 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* ---- the journey's lines, solved at layout ------------------------ */
     let slotRest = 0, visGalTop = 0, visSlitT = 0, visSlitB = 0, uS = 1, uT4 = 0;
     let bandH4 = 274, gK4 = 1;   /* 409: the band's breathing height on short windows, and its scale */
+    const A4_CW = 295, A4_CH = 223;   /* 503: the design card, named -- the scale reads it */
+    const A4_KMIN = 0.42, A4_BAND_GAP = 10;   /* the floor a band may shrink to, and the air it keeps under the header */
+    let kB1 = 1, kBB = 1, bh1 = 274, bhB = 274;   /* 503: the INTRO and BACKGROUND bands' own scales and box heights */
+    /* 503 THE BAND SCALES, IT NEVER CROPS.
+       The 409 comments describe a band that yields on short windows, but the
+       code pinned bandH4 = 274, gK4 = 1 and the card box at 295x223, so the
+       only thing that ever gave was the CLIP -- and by the 386 law a 223
+       card projects to 273 inside the 274 band, so ANY clip under 274 cuts
+       its corners. That is the BACKGROUND band's chopped cards (its height
+       rode uS while the cards did not), and the INTRO band's overlap with
+       the header on short windows (it is centred in the window at a fixed
+       274, so the header's foot eventually meets it).
+       Each band now carries its OWN scale, and everything that makes the
+       picture moves together: card box, row spacing, perspective and the
+       band's height. Scaling the perspective with the rest is what keeps it
+       a true uniform scale -- the projection law (face ~ |x| * cardW / P)
+       and the 501 swap zones (0.84 = P / (P + cardW / 2)) are both
+       invariant under it, so no corner is ever cut and no swap ever shows. */
+    function bandScale(){
+      const vh = innerHeight, vw = innerWidth;
+      /* BACKGROUND rides the unit sheet: its box height was already uS of
+         the design, so the CARDS take that same scale instead of the clip. */
+      kBB = Math.max(A4_KMIN, Math.min(1, (vw - 72) / (A4_UD.w - 72)));
+      /* INTRO rests centred in the window, so the half-band above its centre
+         is all the room it has. The journey nav hangs BELOW the header's own
+         box on this page (position:absolute, top:100%), so the box alone
+         under-reads the foot the band must clear -- measure the nav. */
+      const off = parseFloat(getComputedStyle(view).getPropertyValue('--a4-off')) || 0;
+      const nav = document.getElementById('a4Nav'), hEl = document.querySelector('.hdr');
+      let foot = 0;
+      if (nav && nav.offsetParent) foot = nav.getBoundingClientRect().bottom;
+      else if (hEl && hEl.offsetParent) foot = hEl.getBoundingClientRect().bottom + 52;
+      if (!(foot > 0)) foot = off + 52;
+      kB1 = Math.max(A4_KMIN, Math.min(1, (vh / 2 - foot - A4_BAND_GAP) / (bandH4 / 2)));
+      bh1 = bandH4 * kB1; bhB = bandH4 * kBB;
+      const put = (el, k, h) => { if (!el) return;
+        el.style.setProperty('--a4-cw', (A4_CW * k).toFixed(2) + 'px');
+        el.style.setProperty('--a4-ch', (A4_CH * k).toFixed(2) + 'px');
+        el.style.setProperty('--a4-p', (A4_P * k).toFixed(2) + 'px');
+        el.style.height = h.toFixed(2) + 'px';
+      };
+      put(document.getElementById('a4Gal'), kB1, bh1);
+      put(document.getElementById('a4GalV'), 1, bandH4);   /* VISION keeps the design: its clip is the SLIT opening, by design, not a crop */
+      put(document.getElementById('a4GalB'), kBB, bhB);
+      view.style.setProperty('--a4-galh', bh1.toFixed(2) + 'px');   /* the slot is the INTRO band's own anchor */
+      const slotEl = document.getElementById('a4GalSlot');
+      if (slotEl) slotEl.style.top = (0.5 * vh - off - bh1 / 2).toFixed(1) + 'px';   /* 422's true vertical centre, at the scaled height */
+    }
     let beltRing = 0, curB = 0;
     const A4_R1 = 0.15, A4_R2 = 0.75;   /* ONE transition law at HALF speed: the fast card at x0.75 over the slow layer at x0.15; NO holds -- the slowness is the dwell */
     const A4_V = { slitT:432, slitB:443.7 };   /* 412: the same 33.6 pad, the shorter composition recentred; the 11.7 height holds */
     const A4_UD = { w:1486, h:870 };   /* the SCOPE sheet (409: its slit cutout removed with its band; 411: the groups re-rhythmed, see the position rules) */
     function lines(){
       const vh = innerHeight, vw = innerWidth;
+      bandScale();   /* 503: the bands take their scale BEFORE the seat is measured -- the slot's height and top are its output */
       /* the intro gallery seat, measured at rest (the card untransformed) */
       const sl1 = document.getElementById('a4Sl1');
       const keep = sl1.style.transform; sl1.style.transform = 'none';
-      slotRest = document.getElementById('a4GalSlot').getBoundingClientRect().top + bandH4 / 2;
+      slotRest = document.getElementById('a4GalSlot').getBoundingClientRect().top + bh1 / 2;
       bwiEl = view.querySelector('.a4-brk.b1 .bwi');
       rw2Solve(); a4Seat();
       apSolve();
@@ -8365,9 +8470,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         if (!swSnap){
           const ic2 = [...gal.children];
           if (ic2.length){
-            const spT = A4_SP * gK4, ringT = ic2.length * spT, halfT = ringT / 2;
+            const spT = A4_SP * gK4 * kB1, ringT = ic2.length * spT, halfT = ringT / 2;   /* 503: the train reads the INTRO band's own row */
             const halfVis = (innerWidth - 72) / 2;
-            const rows = ic2.map((c, i) => ({ c, x: mod4(i * spT - cur + halfT, ringT) - halfT }));
+            const rows = ic2.map((c, i) => ({ c, x: mod4(i * spT - cur * kB1 + halfT, ringT) - halfT }));
             const train = rows.filter(r => r.x >= -halfVis - 20).sort((a, b) => a.x - b.x);
             rows.forEach(r => { if (r.x < -halfVis - 20){ r.c._D = 0; r.c._hideL = true; } else r.c._hideL = false; });
             const M = train.length;
@@ -8436,31 +8541,35 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            rides its card at the slit, transitioning by the HOLE ITSELF (the
            clip opening from nothing to the slit's height and back, no
            corner can ever show). BACKGROUND keeps the stateless lag. */
-        const introTop = slotRest - bandH4 / 2 + par1;
+        const introTop = slotRest - bh1 / 2 + par1;
         gal.style.top = introTop.toFixed(1) + 'px';
         gal.style.zIndex = 2; gal.style.clipPath = 'none';   /* 399: above its own card only -- every later card covers it */
         const gV = document.getElementById('a4GalV'), gB = document.getElementById('a4GalB');
-        const band = (el, top, h, z) => {
-          const on = h > 0.5 && top > -(bandH4 + 6) && top < vh + 6;
+        /* 503: `box` is the band's OWN height -- a band that scaled its cards
+           needs no clip at all, and only the VISION slit still asks for one. */
+        const band = (el, top, h, z, box) => {
+          const on = h > 0.5 && top > -(box + 6) && top < vh + 6;
           el.style.visibility = on ? 'visible' : 'hidden';
           if (!on) return;
           el.style.top = top.toFixed(1) + 'px';
           el.style.zIndex = z;
-          const c = Math.max(0, (bandH4 - h) / 2);
+          const c = Math.max(0, (box - h) / 2);
           el.style.clipPath = 'inset(' + c.toFixed(1) + 'px -120px ' + c.toFixed(1) + 'px -120px)';   /* 426: the clip breathes SIDEWAYS -- the outer faces bleed past the margins instead of chopping */
         };
         const slitV = visSlitB - visSlitT;
         const hV = slitV * Math.min(
           Math.min(1, Math.max(0, (x2 - .40 * vh) / (.24 * vh))),
           1 - Math.min(1, Math.max(0, (e4 - .42 * vh) / (.24 * vh))));
-        band(gV, visY + (visSlitT + visSlitB) / 2 - bandH4 / 2, hV, 4);
+        band(gV, visY + (visSlitT + visSlitB) / 2 - bandH4 / 2, hV, 4, bandH4);
         /* 419: the band is a UNIT-SPACE container -- box [417..691] on the
            sheet, scaling with everything anchored to it (the equal pads
            above and below are unit constants, so the layout is responsive
            by construction). Locked to its slide, no lag. */
-        const gh4 = bandH4 * uS;
-        const bTop = bgTop + bg4BandW - Math.max(0, (bandH4 - gh4) / 2) - P4 * (1 - e4 / vh);   /* 423: the band seats where the GROUP put it (window-true), riding its content's pull */
-        band(gB, bTop, e4 > 2 ? gh4 : 0, 8);
+        /* 503: the band's box IS its scaled height now, so its top is the
+           seat outright -- the old term compensated a clip that no longer
+           exists (it was that clip which ate the cards' corners). */
+        const bTop = bgTop + bg4BandW - P4 * (1 - e4 / vh);   /* 423: the band seats where the GROUP put it (window-true), riding its content's pull */
+        band(gB, bTop, e4 > 2 ? bhB : 0, 8, bhB);
         /* the belt is always on: the drift and the scroll keep it alive */
         curB += ((sc * A4_LB_K + drift4) - curB) * lagF;   /* 501: the belt rides the same accumulated drift -- its own (now - T0) sprinted on a late open exactly as the gallery's did */
         beltPlace(curB);
@@ -10611,7 +10720,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         '</button>' +
         '<div class="tl"><i></i></div>' +
         '<span class="mu t">Unmute</span>' +
-      '</div>';   /* 501: no .vm mark -- the reel burns SHOWREEL into that corner */
+        '<button class="fs" type="button" aria-label="Fullscreen">' +
+          '<svg class="fon" viewBox="0 0 12 12" aria-hidden="true"><path d="M0 4.5V0h4.5v1.5h-3v3zM7.5 0H12v4.5h-1.5v-3h-3zM0 7.5h1.5v3h3V12H0zM10.5 7.5H12V12H7.5v-1.5h3z"/></svg>' +
+          '<svg class="foff" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 0v4.5H0V3h3V0zM12 3v1.5H7.5V0H9v3zM0 9V7.5h4.5V12H3V9zM7.5 12V7.5H12V9H9v3z"/></svg>' +
+        '</button>' +
+      '</div>';   /* 501: no .vm mark -- the reel burns SHOWREEL into that corner. 502: the fullscreen button, right of UNMUTE */
       host.appendChild(el);
       /* 444b: the chrome stands even before the Vimeo API arrives (offline
          it never does); the player wires the moment it exists. */
@@ -10643,6 +10756,26 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       el.querySelector('.mu').addEventListener('click', e => { e.stopPropagation(); if (!wire() && !p) return;
         soundOn = !soundOn; soundVeto = !soundOn;   /* 501: an explicit Mute holds across arrivals; an Unmute lifts it */
         p.setMuted(!soundOn).catch(() => {}); st(); });
+      /* 502: FULLSCREEN. Entered only with the slide at rest on the reel --
+         mid-journey the shot is half off the window and the pinned box would
+         read as a jump. The body class does the rest (the CSS above); the
+         inputs stand off through routeWheel, and Escape is taken in the
+         capture phase so the pager's own Escape (which would run home) never
+         sees it. */
+      const fsToggle = () => {
+        if (!srFs){
+          if (viewOpen() || Math.abs(page - 1) > 0.02) return;
+          srFs = true;
+        } else srFs = false;
+        document.body.classList.toggle('sr-fs', srFs);
+        el.classList.toggle('fs-on', srFs);
+        wake();
+      };
+      srFsToggle = fsToggle;
+      el.querySelector('.fs').addEventListener('click', e => { e.stopPropagation(); fsToggle(); });
+      addEventListener('keydown', e => {
+        if (srFs && e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); fsToggle(); }
+      }, { capture:true });
       el.querySelector('.tl').addEventListener('click', e => {
         e.stopPropagation(); if (!wire() && !p) return;
         const r = e.currentTarget.getBoundingClientRect();
