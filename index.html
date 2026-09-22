@@ -85,6 +85,12 @@
        cursor, always on) `cursor:none !important` overrides them all. */
     --big:clamp(26px, 4.6vw, 74px);   /* display size, shared by blog + contact */
     --ui-size:11px;      /* one size for menu, labels and showreel */
+    /* 504: RUNNING COPY has its own dial. --ui-size is the UI register (menu,
+       labels, showreel, the case intro's caps); the sentence-case body text --
+       the case study's sections below BRIEF, and About's APPROACH and
+       BACKGROUND columns -- reads this multiple of it instead, so the body can
+       grow without touching a single label. 1.0909 = 12 / 11. */
+    --body-k:1.0909;
     --menu-inset:12px;   /* gap from a menu cell's left edge to its word */
     --ui-weight:700;     /* 383: the register emboldened (was 300 Light); measured off the V4 sheet */
     --gap-names:.02em;   /* clear air above the caps */
@@ -1300,7 +1306,7 @@
   body.aboutopen.about4 .a4-sl1{ visibility:visible; }
   .a4-s1{ position:absolute; left:var(--pad); right:var(--pad); top:var(--a4-off, 0px);
     height:calc(100vh - var(--a4-off, 0px)); display:flex; flex-direction:column;
-    justify-content:center; padding-bottom:var(--a4-fz, 70px); }   /* 391: the composition CENTRES between header and foot */
+    justify-content:center; padding-bottom:var(--a4-fz, 36px); }   /* 391: the composition CENTRES between header and foot */
   /* THE CARDS ARE OPAQUE (principle 3): nothing beneath a card can ever
      show through it. ROLE RIDES ABOVE VISION: their transition is the
      role EXITING up at x1.5 over vision settling from its x0.3 offset --
@@ -1346,8 +1352,8 @@
   .a4-bgk.k3{ left:36px; margin-left:-.005em; top:342.1px; }
   .a4-rw4{ left:36px; right:36px; top:304.6px; text-align:right; margin-right:0; }   /* WATCHING ends G: the .045 track less the G side = 0 */
   .a4-bgp{ position:absolute; top:372.1px; }
-  .a4-bgp p{ margin:0; font-size:var(--a4-ivs, 11px); font-weight:var(--ui-weight);
-    line-height:var(--sm-lh); }   /* 416: the WORDS carry the reveal; 421: sentence case, on the approach's 4-column grid */
+  .a4-bgp p{ margin:0; font-size:calc(var(--a4-ivs, 11px) * var(--body-k)); font-weight:var(--ui-weight);
+    line-height:var(--sm-lh); }   /* 504: the body register. --a4-ivs stays counter-scaled by uS, so the multiple rides it and lands at 12px on the window */   /* 416: the WORDS carry the reveal; 421: sentence case, on the approach's 4-column grid */
   .a4-bgp.p1{ left:36px; width:350px; }
   .a4-bgp.p2{ left:408px; width:350px; }
   .a4-bgp.p3{ left:780px; width:350px; }
@@ -1386,8 +1392,8 @@
      to the right exactly as the case grid seats them. */
   .a4-ap{ position:absolute; left:36px; right:36px; top:475px; }
   .a4-ap p{ position:absolute; left:0; top:0; width:350px; margin:0;
-    font-size:var(--a4-ivs, 11px); font-weight:var(--ui-weight); line-height:var(--sm-lh);
-    color:#F5F5F5; }   /* 413: dark card, own ink; 415: the menu's size (--a4-ivs); 416: the WORDS carry the reveal */
+    font-size:calc(var(--a4-ivs, 11px) * var(--body-k)); font-weight:var(--ui-weight); line-height:var(--sm-lh);
+    color:#F5F5F5; }   /* 504: the body register, counter-scaled as above */   /* 413: dark card, own ink; 415: the menu's size (--a4-ivs); 416: the WORDS carry the reveal */
   .a4-ap p.ap2{ left:372px; }
   .a4-sl2{ position:fixed; inset:0; z-index:5; background:#F5F5F5; visibility:hidden;
     pointer-events:none; will-change:transform; transform:translate3d(0,100vh,0); }
@@ -1452,7 +1458,7 @@
      corner links. The slide (a transformed ancestor) is the containing
      block, so these anchors read the WINDOW. */
   .a4-row1{ display:none; }
-  .a4-row3{ position:fixed; left:36px; right:36px; bottom:calc(var(--a4-fz, 58px) + 22px); margin:0; }   /* fixed under the transformed slide = the slide's own window coordinates */
+  .a4-row3{ position:fixed; left:36px; right:36px; bottom:var(--a4-fz, 36px); margin:0; }   /* 504: on the bottom margin, now the corner links have gone up to the header */   /* fixed under the transformed slide = the slide's own window coordinates */
   .a4-row3 .a4-big{ text-align:left; margin-left:-.035em; }   /* CREATIVE LEAD's C lands the left ink */
   .a4-cp{ position:fixed; left:50%; top:50%; transform:translate(-50%, calc(-50% + var(--a4-cpo, 18.585px)));
     text-align:center; z-index:1; color:#F5F5F5;
@@ -1578,7 +1584,8 @@
   .a4-row4 .ta-c{ justify-self:center; }
   .a4-row4 .ta-r{ justify-self:end; }
   .a4-more{ height:120vh; }   /* the journey's continuation -- his next three sheets land here; holds the scroll open meanwhile */
-  .a4-foot{ position:fixed; left:var(--pad); right:var(--pad); bottom:var(--pad); z-index:9;   /* 385: static in the window's margin corners, riding the scheme, above the belt */
+  .a4-foot{ display:none;   /* 504 INACTIVE: About's corner links live in the header now; the block and its three anchors stay for the laws that pin them. Delete at final cleanup if the header keeps them. */
+    position:fixed; left:var(--pad); right:var(--pad); bottom:var(--pad); z-index:9;   /* 385: static in the window's margin corners, riding the scheme, above the belt */
     display:grid; grid-template-columns:max-content max-content; justify-content:space-between; align-items:end;
     font-size:var(--ui-size); font-weight:var(--ui-weight); line-height:var(--sm-lh);
     letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase; }
@@ -1863,12 +1870,24 @@
   body.hdr3 .hdr .menu span{ display:block; padding:0; }
   /* Explicit placement, not flow: the columns hold different numbers of
      items, so auto-flow cannot produce 3 and 2. */
+  /* 504: FOUR rows down the left column -- Selected Works, Showreel, Contact,
+     About -- and the corner links are four more down the right. nth-child(4)
+     is the parked blog routing span: display:none, so it is not a grid item at
+     all; its cell is declared for the day it comes back. About loses the
+     -.127em optical pull it carried as a right-margin word; the right column
+     takes it instead. */
   body.hdr3 .hdr .menu span:nth-child(1){ grid-area:1 / 1; }
   body.hdr3 .hdr .menu span:nth-child(2){ grid-area:2 / 1; }
   body.hdr3 .hdr .menu span:nth-child(3){ grid-area:3 / 1; }
-  body.hdr3 .hdr .menu span:nth-child(4){ grid-area:1 / 2; justify-self:end; }
-  body.hdr3 .hdr .menu span:nth-child(5){ grid-area:2 / 2; justify-self:end;
-                                            margin-right:-.127em; }
+  body.hdr3 .hdr .menu span:nth-child(4){ grid-area:5 / 1; }
+  body.hdr3 .hdr .menu span:nth-child(5){ grid-area:4 / 1; }
+  body.hdr3 .hdr .menu span.soc{ justify-self:end; margin-right:-.127em; }
+  body.hdr3 .hdr .menu span:nth-child(6){ grid-area:1 / 2; }
+  body.hdr3 .hdr .menu span:nth-child(7){ grid-area:2 / 2; }
+  body.hdr3 .hdr .menu span:nth-child(8){ grid-area:3 / 2; }
+  body.hdr3 .hdr .menu span:nth-child(9){ grid-area:4 / 2; }
+  body.hdr3 .hdr .menu span.soc a{ color:inherit; text-decoration:none; }
+  body.hdr3 .hdr .menu span.soc-off{ pointer-events:none; }   /* 504: parked, not clickable */
   /* No hover, for now: kill the band fill and the colour swap. */
   body.hdr3 .hdr .menu::before{ display:none; }
   body.hdr3 .hdr .menu span:hover{ color:inherit; }
@@ -1985,7 +2004,7 @@
   /* the header V3 menu's own treatment, at the corners, riding with the
      landing page because it lives inside .vs and .vs is what the page lift
      moves. Real links, header V4's URLs. */
-  body.hero-v8 .vs-social{ display:grid; }
+  body.hero-v8 .vs-social{ display:none; }   /* 504 INACTIVE: the landing's corner links live in the header now. The node and its JS writers stay (a law pins #vsSocial inside #home); restore display:grid to bring them back. */
   /* the hero's corner links are a sibling of .vs (they ride the film's slide,
      not the deck), so hiding .vs under a view did not hide them: they sat
      over the About cards at z 1130. Under any view they are gone. */
@@ -2127,6 +2146,44 @@
   body.vsi.vsi-cap #h4title, body.vsi.vsi-cap #h4num{ opacity:1; filter:blur(0);
     transition:opacity .7s ease, filter .7s ease; }
   body.vsi-in .hdr, body.vsi-in .st, body.vsi-in .vs-nav, body.vsi-in .vs-tag2, body.vsi-in .vs-card{ pointer-events:none !important; }   /* 448e->487: non-reactive while the deck arrives -- keyed on the INPUT gate, which falls at the perceptual landing; body.vsi keeps only the sides' styling tail */
+  /* 504 INACTIVE -- the rail, the role text and the caption row stand down for
+     the SELECTED | WORKS composition. visibility, never display: layout() caps
+     the rail from its own box, tag2Solve MEASURES the role's spans to place
+     them, and the caption is read back for the page title -- all of which
+     return zero from a display:none node. Every JS writer keeps running, so
+     restoring these is deleting two rules. Delete at final cleanup if the
+     composition stands. */
+  body.hero-v8 .vs-nav, body.hero-v8 .vs-tag2{ visibility:hidden; }
+  body.hero-v8 .h4-num, body.hero-v8 .h4-title{ visibility:hidden; }
+  /* 504: the two margin words, on the case subtitle's own type spec. */
+  .vs-sw{ display:none; position:absolute; top:var(--vs-navTop); height:var(--vs-navH);
+    z-index:6; pointer-events:none; color:var(--ink);
+    font-size:21px; font-weight:1000; letter-spacing:-.04em; line-height:.8843;
+    text-transform:uppercase; }
+  body.hero-v8 .vs-sw{ display:flex; align-items:center; }   /* centred on the card, which is itself centred on the window */
+  .vs-sw.l{ left:var(--pad); }
+  .vs-sw.r{ right:var(--pad); }
+  .vs-sw span{ display:block; white-space:nowrap; writing-mode:vertical-rl; }
+  .vs-sw.l span{ transform:rotate(180deg); }   /* the left word reads up, the right word down */
+  body.vsi .vs-sw{ opacity:0; filter:blur(8px); }
+  body.vsi .vs-sw.l{ transform:translateX(-26px); }
+  body.vsi .vs-sw.r{ transform:translateX(26px); }
+  body.vsi.vsi-sides .vs-sw{ opacity:1; filter:blur(0); transform:none;
+    transition:opacity .8s ease, filter .8s ease, transform .8s cubic-bezier(.16,1,.3,1); }
+  /* 504: the bottom corners. The subtitle is the case page's own block; the
+     logo's MEASURED ink is scaled to that block's height, because the six
+     marks run 29%-42% ink by height -- sizing by the file's box would render
+     them at visibly different weights. */
+  .h4-sub{ position:absolute; right:0; bottom:var(--pad); text-align:right; color:var(--ink);
+    font-size:21px; font-weight:1000; letter-spacing:-.04em; line-height:.8843;
+    text-transform:uppercase; }
+  .h4-sub i{ display:block; font-style:normal; line-height:.8843; }
+  .h4-cmark{ position:absolute; left:0; bottom:var(--pad); overflow:hidden; }   /* 504: -cmark, not -mark: .h4-mark is the dormant hdr4 wordmark and its later rule would win */
+  .h4-cmark img{ display:block; filter:brightness(0); }   /* black, whatever the artwork's own colour */
+  body.vsi .h4-cmark, body.vsi .h4-sub{ opacity:0; filter:blur(9px); }
+  body.vsi:not(.vsi-cap) .h4-cmark, body.vsi:not(.vsi-cap) .h4-sub{ transition:none; }
+  body.vsi.vsi-cap .h4-cmark, body.vsi.vsi-cap .h4-sub{ opacity:1; filter:blur(0);
+    transition:opacity .7s ease, filter .7s ease; }
   body.vsi .vs-nav{ opacity:0; filter:blur(8px); transform:translateX(-26px); }
   body.vsi .vs-tag2{ opacity:0; filter:blur(8px); transform:translateX(26px); }
   body.vsi.vsi-sides .vs-nav, body.vsi.vsi-sides .vs-tag2{ opacity:1; filter:blur(0); transform:none;
@@ -3242,7 +3299,7 @@
   /* 427 (4): from 01 BRIEF onward the body copy drops the caps -- the
      sections' own text only; the intro, the hint and every subtitle keep
      theirs. */
-  #viewCase3 .c3-sec .t{ text-transform:none; letter-spacing:normal; word-spacing:normal; line-height:var(--sm-lh); }   /* 429: the body text wears About's small register (measured: normal tracking, 1.13 leading) -- the caps tracking and 1.34 leading were built for uppercase */
+  #viewCase3 .c3-sec .t{ text-transform:none; letter-spacing:normal; word-spacing:normal; line-height:var(--sm-lh); font-size:calc(var(--ui-size) * var(--body-k)); }   /* 504: the running copy below BRIEF at the body register (11 -> 12px); the intro above it keeps the UI size, and --sm-lh is unitless so the leading follows */   /* 429: the body text wears About's small register (measured: normal tracking, 1.13 leading) -- the caps tracking and 1.34 leading were built for uppercase */
   /* Credits: position left, name right, a hairline between them at cap-mid. */
   #viewCase3 .c3-cred .cr{ display:flex; align-items:baseline; }
   #viewCase3 .c3-cred .cr i{
@@ -3589,7 +3646,7 @@
 <div class="stripe" id="stripe">
   <div class="rule"></div>
   <nav class="menu">
-    <span data-go="home" aria-current="page">Case Studies</span>
+    <span data-go="home" aria-current="page">Selected Works</span>
     <span data-go="showreel">Showreel</span>
     <span data-go="contact">Contact</span>
     <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
@@ -3633,6 +3690,10 @@
   <div class="h4-title" id="h4title"></div>
   <div class="h4-role" id="h4role"></div>
   <div class="h4-sum" id="h4sum"></div>
+  <!-- 504: the bottom corners -- the selected case study's logo at the left
+       margin, its subtitle at the right. Both follow the scroll-UI. -->
+  <div class="h4-cmark" id="h4cmark" aria-hidden="true"><img alt=""></div>
+  <div class="h4-sub" id="h4sub" aria-hidden="true"></div>
 </div>
   <!-- the hero's caption chrome (z 1050) came along in 348: at body level it painted over a deck now inside #home; here it is under the deck (1100) as before, and recedes with the page -->
 
@@ -3658,6 +3719,10 @@
     <div class="vs-tag2-s">Position</div>
     <div class="vs-tag2-big"></div>
   </div>
+  <!-- 504: SELECTED | WORKS. They take the margins the rail and the role text
+       held, and the same sides gate brings them in. -->
+  <div class="vs-sw l" id="vsSwL" aria-hidden="true"><span>Selected</span></div>
+  <div class="vs-sw r" id="vsSwR" aria-hidden="true"><span>Works</span></div>
   <div class="vs-deck" id="vsDeck"></div>
 </div>
 <!-- V8's social links: a sibling of .vs, not a child -- they ride the film's
@@ -3770,11 +3835,18 @@
   <div class="masthead flat">
     <div class="rule"></div>
     <nav class="menu">
-      <span class="has-pick" data-go="home" aria-current="page">Case Studies<div class="cs-pick" id="csPick"></div></span>
+      <span class="has-pick" data-go="home" aria-current="page">Selected Works<div class="cs-pick" id="csPick"></div></span>
       <span data-go="showreel">Showreel</span>
       <span data-go="contact">Contact</span>
       <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
       <span data-view="about">About</span>
+      <!-- 504: the corner links, moved up out of the page footers. Plain <a>s:
+           the router keys on [data-view]/[data-go] through closest(), so these
+           are invisible to it and behave as ordinary links. -->
+      <span class="soc"><a href="https://www.instagram.com/balintdanyifilm/" target="_blank" rel="noopener">Instagram</a></span>
+      <span class="soc"><a href="https://www.linkedin.com/in/balintdanyi/" target="_blank" rel="noopener">LinkedIn</a></span>
+      <span class="soc"><a href="https://vimeo.com/balintdanyi" target="_blank" rel="noopener">Vimeo</a></span>
+      <span class="soc soc-off" aria-disabled="true">Blog</span><!-- 504 INACTIVE: the blog page is not built. Rendered at full weight per the mock, inert until it is; delete at final cleanup if still unconnected. -->
     </nav>
     <div class="rule"></div>
   </div>
@@ -3789,7 +3861,7 @@
 <header class="h4" id="h4">
   <a class="h4-mark h4-mk-a" href="#" data-go="home"><span class="h4-full">Balint</span><span class="h4-init">B</span></a>
   <nav class="h4-nav">
-    <span data-go="case">Case Studies</span>
+    <span data-go="case">Selected Works</span>
     <span data-go="reel">Showreel</span>
     <span data-go="about" data-view="about">About</span>
   </nav>
@@ -3842,7 +3914,7 @@
     </div>
     <div class="rule"></div>
     <nav class="menu">
-      <span data-go="home">Case Studies</span>
+      <span data-go="home">Selected Works</span>
       <span data-go="showreel">Showreel</span>
       <span data-go="contact">Contact</span>
       <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
@@ -3948,7 +4020,7 @@
     </div>
     <div class="rule"></div>
     <nav class="menu">
-      <span data-go="home">Case Studies</span>
+      <span data-go="home">Selected Works</span>
       <span data-go="showreel">Showreel</span>
       <span data-go="contact">Contact</span>
       <span aria-current="page">Blog</span>
@@ -7908,7 +7980,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* the sheet's air, scaled to the window's spare height: content is
          fixed (ink, band, type); only the four gaps breathe. */
       const vh2 = innerHeight, s1H = vh2 - off;
-      const footRm = 2 * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sm-lh')) || 1.13) * (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui-size')) || 11) + 36 + 10;   /* the foot keeps the FULL register */
+      /* 504: the corner links left the foot for the header, so the reserve is
+         just the bottom margin now -- it was two link rows plus the margin
+         plus air (70.9px). Everything that rode it comes down with it. */
+      const footRm = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad')) || 36;
       /* 409: THE BAND JOINS THE BREATHING. The gaps compress first; once
          they stand at 60% of full, the band -- cards, spacing and every
          seat constant with it -- yields the remaining deficit, up to 20%
@@ -8624,7 +8699,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const U4T = un4El.getBoundingClientRect().top;
       sl4.style.transform = keep4; un4El.style.transform = keepU;
       const off2 = parseFloat(getComputedStyle(view).getPropertyValue('--a4-off')) || 140;
-      const footRm2 = parseFloat(getComputedStyle(view).getPropertyValue('--a4-fz')) || 58;
+      const footRm2 = parseFloat(getComputedStyle(view).getPropertyValue('--a4-fz')) || 36;
       const hMax = Math.max(...ps.map(p => p.offsetHeight));   /* unit px: offsetHeight is pre-transform */
       const aboveU = 51.8 + 15.75 + (hMax - 2.47);             /* kicker/title cap .. paragraph ink foot */
       const clu = view.querySelector('.a4-bgc');
@@ -9262,7 +9337,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* 0.92, not 0.85 -- the cards sit closer in width, so the stack reads as
        one deck rather than a rapid taper. */
     let SCL = 0.92;                            /* 431: the WIDTH taper -- responsive, layout writes it */
-    const VTAPER = 0.92, PEEK = 0.143, HH7 = 0.52, MAXW7 = 0.82, LOWER = 0;   /* 451e: HIS AMEND -- the HERO CARD itself sits at dead centre; the peek stack takes all its room ABOVE (LOWER was 0.35: the composition used to ride 20px low to balance the peeks). `over` still guards the header on short windows. 431: vertical rhythm pinned at the median taper; the UI a step larger (his room) */
+    const VTAPER = 0.92, PEEK = 0.143, HH7 = 0.62, HH7F = 0.52, MAXW7 = 0.82, LOWER = 0;   /* 504: HH7 0.52 -> 0.62 now the caption row and the rail have gone; the clamp below is what actually binds, and HH7F floors it at the old value so no window ever gets a SMALLER deck than it had. */   /* 451e: HIS AMEND -- the HERO CARD itself sits at dead centre; the peek stack takes all its room ABOVE (LOWER was 0.35: the composition used to ride 20px low to balance the peeks). `over` still guards the header on short windows. 431: vertical rhythm pinned at the median taper; the UI a step larger (his room) */
     /* PEEK is now a CEILING, not the value. See layout(): the stack is given
        the room there actually is between the header's foot and the card, and
        the peek falls out of it. TOP7 is the clear air kept above the topmost
@@ -9747,7 +9822,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const capOf = h => Math.floor(h * dial('--vs-tag-hk', .7) / ((1 + 2 * padVK) * (N * selK + gapKK * (N - 1))));
       const chEst = s4() ? (W - 2 * m4(W)) * 0.528 * 0.5625 : Math.min(H * (v7() ? HH7 : HH6), W * (v7() ? MAXW7 : MAXW6) * 0.5625);
       let navT0  = Math.max(6, Math.min(capOf(chEst), Math.round(NAV * cl(W * 0.085, 96, 150) / WIDEST * dial('--vs-nav-k', 1.15))));
-      const navBox = 1.35 * navT0 * WIDEST * NAVMAX;   /* 431: the label's slide room retired with the label */
+      const navBox = 0;   /* 504: the rail stood down, so it reserves nothing and the deck takes the width it used to hold (the old term: 1.35 * navT0 * WIDEST * NAVMAX) */
       const clear  = W - 2 * (PADX + navBox + CLEARX);
 
       /* The gap under the card exists to hold the caption, so it only needs
@@ -9771,6 +9846,24 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         hh = H * (v7() ? HH7 : HH6);
         hw = Math.min(hh / 0.5625, W * (v7() ? MAXW7 : MAXW6), clear);
         hh = hw * 0.5625;
+        /* 504: THE TWO PRINCIPLES, MADE A CLAMP. The card stays roughly centred
+           AND the peek stack above it clears the header, so the card may only
+           be as tall as both allow: the stack's own height plus the header's
+           clearance, DOUBLED, because a centred card gives the same room back
+           below it. Raising HH7 without this merely pushed the composition
+           down through `over` and lost the centring. The stack's height is
+           nearly constant (STEP1 is bounded 10..20), so two passes settle it. */
+        if (v7()){
+          let sumK = 0; for (let i = 1; i <= N - 1; i++) sumK += Math.pow(VTAPER, i);
+          const tb = Math.max(0, (N - 1) - BLUR_FROM + 1) * BLUR_STEP;
+          const clearC = headFoot() + TOP7 + tb * BLEED7 * .5;
+          const aboveOf = c => Math.min(20, Math.max(10, 12 + (c - 280) * .010)) * sumK / VTAPER;
+          for (let p = 0; p < 3; p++){
+            const chCap = Math.max(H * HH7F, H - 2 * (clearC + aboveOf(hh)));   /* never below what it was */
+            if (chCap > 80 && hh > chCap) hh = chCap;
+          }
+          hw = hh / 0.5625;
+        }
       }
       cw = Math.round(hw); ch = Math.round(hh);
       navT0 = Math.max(6, Math.min(navT0, capOf(ch)));   // tightened to the card as it actually is
@@ -10810,8 +10903,58 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         if (ready()){ o.disconnect(); fire(); }
       }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
     });
+    /* 504: the two bottom corners. The subtitle is the case registry's own
+       three rows -- the same '/'-or-space split the case page uses -- and the
+       logo is scaled so its MEASURED ink matches that block's height. The ink
+       is read once per mark from the alpha channel and cached. */
+    const SUBS = (() => { try { const c = JSON.parse(document.getElementById('c3Data').textContent).cases, m = {};
+      for (const k in c) m[k] = c[k].subtitle || ''; return m; } catch (e) { return {}; } })();
+    const inkBox = {};
+    function logoInk(src, cb){
+      if (inkBox[src]){ cb(inkBox[src]); return; }
+      const im = new Image();
+      im.onload = () => {
+        let box = { x:0, y:0, w:im.naturalWidth, h:im.naturalHeight, W:im.naturalWidth, H:im.naturalHeight };
+        try {
+          const cv = document.createElement('canvas'); cv.width = im.naturalWidth; cv.height = im.naturalHeight;
+          const cx = cv.getContext('2d', { willReadFrequently:true }); cx.drawImage(im, 0, 0);
+          const d = cx.getImageData(0, 0, cv.width, cv.height).data;
+          let t = cv.height, bo = -1, l = cv.width, r = -1;
+          for (let y = 0; y < cv.height; y++) for (let x = 0; x < cv.width; x++){
+            if (d[(y * cv.width + x) * 4 + 3] > 8){ if (y < t) t = y; if (y > bo) bo = y; if (x < l) l = x; if (x > r) r = x; }
+          }
+          if (bo >= t && r >= l) box = { x:l, y:t, w:r - l + 1, h:bo - t + 1, W:cv.width, H:cv.height };
+        } catch (e) {}   /* an unreadable canvas falls back to the file's own box */
+        inkBox[src] = box; cb(box);
+      };
+      im.onerror = () => cb(null);
+      im.src = src;
+    }
+    function markSub(i){
+      const sub = byId('h4sub'), mk = byId('h4cmark');
+      if (!sub || !mk) return;
+      const txt = SUBS[L[i][KEY]] || '';
+      sub.innerHTML = (txt.indexOf('/') >= 0 ? txt.split('/') : txt.split(' '))
+        .map(w => '<i>' + w.trim() + '</i>').join('');
+      const src = encodeURI(ROOT + L[i][2]);   /* row 2 is the logo: see L's shape above */
+      const img = mk.querySelector('img'); if (!img) return;
+      mk._src = src; img.src = src;
+      logoInk(src, box => {
+        if (!box || mk._src !== src) return;   /* a later case won the race */
+        const h = sub.getBoundingClientRect().height;
+        if (!(h > 0) || !(box.h > 0)) return;
+        const k = h / box.h;                   /* the INK, seated on the subtitle block */
+        mk.style.width  = (box.w * k).toFixed(2) + 'px';
+        mk.style.height = (box.h * k).toFixed(2) + 'px';
+        img.style.width  = (box.W * k).toFixed(2) + 'px';
+        img.style.height = (box.H * k).toFixed(2) + 'px';
+        img.style.marginLeft = (-box.x * k).toFixed(2) + 'px';
+        img.style.marginTop  = (-box.y * k).toFixed(2) + 'px';
+      });
+    }
     function chrome(i){
       railShift(i);
+      markSub(i);   /* 504: the corners answer the scroll-UI along with the caption */
       const a = byId('h4num'), b = byId('h4title'), c = byId('h4sum'), d = byId('h4role');
       /* A SEQUENCE, not a cut. The old text blurs out, the swap happens only
          once it is soft, and the new text comes back sharp. Writing the text
