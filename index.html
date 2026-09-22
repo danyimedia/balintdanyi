@@ -1350,7 +1350,13 @@
   .a4-bgk.k1{ left:36px; margin-left:-.015em; top:305.4px; }
   .a4-bgk.k2{ left:36px; margin-left:-.03em; top:323.8px; }
   .a4-bgk.k3{ left:36px; margin-left:-.005em; top:342.1px; }
-  .a4-rw4{ left:36px; right:36px; top:304.6px; text-align:right; margin-right:0; }   /* WATCHING ends G: the .045 track less the G side = 0 */
+  .a4-rw4{ left:36px; right:36px; top:304.6px; text-align:right; margin-right:0; }
+  /* 507: that 0 was a hand calculation -- "WATCHING ends G: the .045 track
+     less the G side = 0". Measured, it is not 0: the trailing track is
+     -3.33px at 74px and the G's right bearing is +2.22, so the ink sat
+     1.11px PAST the right margin while the box sat exactly on it. a4Seat
+     now seats the last word by ink like every other margin edge; this 0
+     stays as the pre-measurement fallback. */
   .a4-bgp{ position:absolute; top:372.1px; }
   .a4-bgp p{ margin:0; font-size:calc(var(--a4-ivs, 11px) * var(--body-k)); font-weight:var(--ui-weight);
     line-height:var(--sm-lh); }   /* 504: the body register. --a4-ivs stays counter-scaled by uS, so the multiple rides it and lands at 12px on the window */   /* 416: the WORDS carry the reveal; 421: sentence case, on the approach's 4-column grid */
@@ -6719,9 +6725,72 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      left-seated ink = marginLeft:-lsb; right-seated (flex end, right-aligned
      or right-anchored alike) = marginRight:-rsb. Headless there is no
      getBBox: the probe answers null and the seat is a no-op. */
+  /* 507: bearings are a property of (font, letter), not of the element, so a
+     pass that seats 28 edges does not need 28 measurements -- it needs one
+     per distinct pair. getComputedStyle is the expensive half (it forces a
+     style recalc), so the key is built from it and everything after is
+     served from the map. seatSoon flushes before each pass, so a measurement
+     is never carried across a font load or a resize. */
   function inkPx(refEl, ch, noTrack){
+    let cs0 = null;
     try {
-      const cs = getComputedStyle(refEl);
+      /* 507: the style object has to be read before the memo key can even be
+         built, so the memo alone still paid for a style resolve per ask --
+         and most elements are asked twice, once per edge. One resolve per
+         element per pass instead. A WeakMap so a removed node is collectable,
+         replaced wholesale on flush rather than cleared key by key. */
+      const csm = inkPx._csm = inkPx._csm || new WeakMap();
+      cs0 = csm.get(refEl);
+      if (!cs0){ cs0 = getComputedStyle(refEl); csm.set(refEl, cs0); }
+      const key = cs0.fontStyle + '|' + cs0.fontWeight + '|' + cs0.fontSize + '|' +
+                  cs0.fontFamily + '|' + (noTrack ? '0' : cs0.letterSpacing) + '|' +
+                  cs0.textTransform + '|' + ch;
+      const mem = inkPx._mem = inkPx._mem || {};
+      if (key in mem) return mem[key];
+      return (mem[key] = inkPxRaw(refEl, ch, noTrack, cs0));
+    } catch (e) { return inkPxRaw(refEl, ch, noTrack, cs0); }
+  }
+  inkPx.flush = function (){ inkPx._mem = {}; inkPx._csm = new WeakMap(); };
+  function inkPxRaw(refEl, ch, noTrack, cs0){
+    try {
+      const cs = cs0 || getComputedStyle(refEl);
+      /* 507 FAST PATH FIRST. The SVG probe below appends an element, sets ten
+         longhands and forces two layouts (getBBox + getComputedTextLength)
+         on EVERY call -- and since the canvas block then overwrote its
+         answer whenever canvas metrics exist, that whole measurement was
+         discarded every time on any modern browser. Seating grew from a
+         handful of words to the header columns and the hero corners this
+         round, so that waste now lands squarely in the boot path the brief
+         cares about. Same arithmetic as before, same return shape -- the
+         only change is that the SVG is not built unless it is needed. */
+      try {
+        const REF0 = parseFloat(cs.fontSize) || 16;
+        const up0 = cs.textTransform === 'uppercase' ? ch.toUpperCase() : ch;
+        if (inkPx._cx === undefined){
+          /* undefined = never asked; null = asked and this browser has none */
+          try { inkPx._cx = document.createElement('canvas').getContext('2d') || null; }
+          catch (e) { inkPx._cx = null; }
+        }
+        const cx0 = inkPx._cx;
+        if (cx0){
+          cx0.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + REF0 + 'px ' + cs.fontFamily;
+          const m0 = cx0.measureText(up0);
+          if (m0 && m0.actualBoundingBoxLeft !== undefined && m0.width > 0){
+            const ls0 = noTrack ? 0 : ((cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing)) || 0);
+            let l0 = -m0.actualBoundingBoxLeft;
+            const r0 = (m0.width - m0.actualBoundingBoxRight) + ls0;
+            const rl0 = inkPx._rasterL(cx0.font, up0, REF0);
+            if (rl0 !== null) l0 = rl0;
+            inkPx._last = { ch: up0, l: l0, r: r0, fs: cs.fontSize };
+            return { l: l0, r: r0 };
+          }
+        }
+      } catch (e) {}   /* no canvas metrics here: fall through to the SVG */
+      /* 507: if the SVG probe has already failed once it will fail every
+         time -- an engine either lays out an off-screen <text> or it does
+         not. Without this the fallback path rebuilt, styled, inserted and
+         removed an element for every single edge, purely to throw. */
+      if (inkPx._noSvg) return null;
       const NS = 'http://www.w3.org/2000/svg';
       const svg = document.createElementNS(NS, 'svg');
       svg.setAttribute('aria-hidden', 'true');
@@ -6740,13 +6809,114 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       t.style.letterSpacing = noTrack ? '0px' : cs.letterSpacing;
       t.textContent = cs.textTransform === 'uppercase' ? ch.toUpperCase() : ch;
       svg.appendChild(t); document.body.appendChild(svg);
-      const bb = t.getBBox(), adv = t.getComputedTextLength();
+      let bb, adv;
+      try { bb = t.getBBox(); adv = t.getComputedTextLength(); }
+      catch (e) { svg.remove(); inkPx._noSvg = true; return null; }
       svg.remove();
-      inkPx._last = { ch: t.textContent, l: bb.x, r: adv - (bb.x + bb.width), fs: cs.fontSize };
-      if (!bb || !(bb.width > 0)) return null;
-      return { l: bb.x, r: adv - (bb.x + bb.width) };
+      /* 507 THE PROBE WAS MEASURING THE WRONG BOX. getBBox() on an SVG <text>
+         returns Blink's LAYOUT extents, not the glyph outline: for an L at
+         74px it answers x:0 with a width WIDER than the advance, where the
+         true left bearing is 3.3px. Every bearing the engine has ever
+         returned was therefore ~0, so seatEdge / seatAll / rw2Solve wrote a
+         0px margin and the site only BELIEVED it was seating type by ink --
+         which is why display words sat a few px inside the margin while
+         small type sat on it. Canvas actualBoundingBox* is the real outline,
+         so it leads and the SVG stays as the fallback for engines without
+         it. Same return shape, so every caller is corrected at once.
+         Sign convention: actualBoundingBoxLeft counts POSITIVE going left
+         from the origin, so ink starting right of it reads negative -- the
+         left bearing is its negation. The advance carries the trailing
+         letter-space unless the caller asked for none, exactly as
+         getComputedTextLength did. */
+      const ch2 = t.textContent;
+      let l = bb.x, r = adv - (bb.x + bb.width), ok = !!bb && bb.width > 0;
+      try {
+        /* 507: measure at the RENDERED size, never at a reference size scaled
+           down. These faces are variable with optical sizing, so the glyph
+           outline -- and with it the side bearing -- is not the same shape at
+           400px as at 138px: measuring big and scaling left the contact title
+           1.2px inside the margin. */
+        const REF = parseFloat(cs.fontSize) || 16;
+        inkPx._cx = inkPx._cx || document.createElement('canvas').getContext('2d');
+        const cx = inkPx._cx;
+        cx.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + REF + 'px ' + cs.fontFamily;
+        const m = cx.measureText(ch2);
+        if (m && m.actualBoundingBoxLeft !== undefined && m.width > 0){
+          const k = 1;
+          const ls = noTrack ? 0 : ((cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing)) || 0);
+          l = (-m.actualBoundingBoxLeft) * k;
+          r = (m.width - m.actualBoundingBoxRight) * k + ls;
+          /* 507 ONE HALF OF THIS API IS QUANTISED. Chrome rounds
+             actualBoundingBoxLeft to whole pixels but not Right: measured on
+             this page at 21px, A/S/C all report a left bearing of 0 and
+             B/L/I report 1, where the real bearings are 0, .33 and .66. So
+             two items on the SAME margin disagreed by a pixel purely by which
+             letter they began with -- ABOUT seated to 37 while SHOWREEL and
+             CONTACT seated to 36, which is the ragged left edge this round is
+             here to remove. Read the left edge off the pixels instead: draw
+             the glyph and find the first column carrying ink. Cached per
+             font+glyph, so it costs one small raster per distinct letter.
+             The right edge keeps the metric, which is already exact -- an
+             independent raster scan of the whole social column agreed with it
+             to within .01px. */
+          const rl = inkPx._rasterL(cx.font, ch2, REF);
+          if (rl !== null) l = rl;
+          ok = true;
+        }
+      } catch (e) {}   /* no canvas metrics: the SVG numbers above stand */
+      inkPx._last = { ch: ch2, l: l, r: r, fs: cs.fontSize };
+      if (!ok) return null;
+      return { l: l, r: r };
     } catch (e) { return null; }
   }
+  /* 507: true left-edge probe -- see the note in inkPx. Returns the offset of
+     the first inked pixel column from the pen position, or null if the canvas
+     cannot be read (which leaves inkPx on the metric it already had). */
+  inkPx._rasterL = function (font, ch, fz){
+    const cache = inkPx._rc = inkPx._rc || {};
+    const key = font + '|' + ch;
+    if (key in cache) return cache[key];
+    let v = null;
+    try {
+      /* 507: a 3em square was ~5x more pixels than the answer needs, and
+         getImageData has to copy every one of them back -- at 138px that is
+         a 414x414 read (685KB) to locate a single column. Only the band the
+         glyph can occupy is drawn and read: a third of an em of room to the
+         left for a negative bearing, about an em of advance, and enough
+         height for an ascender over a descender. Clipping the right-hand
+         side is harmless -- the FIRST inked column is what is wanted. */
+      const pad = Math.max(4, Math.ceil(fz * 0.35));
+      const w = Math.max(16, pad + Math.ceil(fz * 1.1));
+      const h = Math.max(16, Math.ceil(fz * 1.6));
+      /* one canvas, grown as needed and cleared between glyphs -- a fresh
+         element per glyph was allocating a bitmap for every distinct letter
+         on the page. Resizing resets the context, so the handle is dropped
+         with it. */
+      if (inkPx._rcv === undefined) inkPx._rcv = document.createElement('canvas') || null;
+      const cv = inkPx._rcv;
+      if (!cv) return (cache[key] = null);
+      if (cv.width < w || cv.height < h){ cv.width = w; cv.height = h; inkPx._rctx = undefined; }
+      if (inkPx._rctx === undefined){
+        try { inkPx._rctx = cv.getContext('2d', { willReadFrequently: true }) || null; }
+        catch (e) { inkPx._rctx = null; }
+      }
+      const x = inkPx._rctx;
+      if (!x){ inkPx._rcv = null; return (cache[key] = null); }
+      x.clearRect(0, 0, cv.width, cv.height);
+      x.font = font; x.textBaseline = 'alphabetic'; x.fillStyle = '#000';
+      const ox = pad, oy = Math.max(1, Math.ceil(fz * 1.25));
+      x.fillText(ch, ox, oy);
+      /* the canvas is reused and only ever grows, so read the region this
+         glyph was drawn into rather than whatever the largest one needed */
+      const d = x.getImageData(0, 0, w, h).data;
+      for (let col = 0; col < w && v === null; col++){
+        for (let row = 0; row < h; row++){
+          if (d[(row * w + col) * 4 + 3] > 8){ v = col - ox; break; }
+        }
+      }
+    } catch (e) { v = null; }
+    return (cache[key] = v);
+  };
   function seatEdge(el, side, refEl){
     const txt = (el.textContent || '').trim(); if (!txt) return;
     const p = inkPx(refEl || el, side === 'left' ? txt[0] : txt[txt.length - 1]);
@@ -6758,12 +6928,64 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!box) return;
     const ks = [...box.children].filter(c => (c.textContent || '').trim());   /* 495: rules and empties (.nrule) are not edges */
     if (!ks.length) return;
-    seatEdge(ks[0], 'left', box); seatEdge(ks[ks.length - 1], 'right', box);
+    seatEdge(ks[0], 'left'); seatEdge(ks[ks.length - 1], 'right');   /* 507: measured on the edge child's OWN font, not the box's */
+  }
+  /* 507: SELECTED / WORKS are the only margin type on the site set in a
+     vertical writing mode, and seatEdge cannot seat them: their margin edge
+     is the line box's BLOCK edge, so the inset is half-leading plus the
+     ascent-to-cap gap, not a side bearing. Measured on the live page at the
+     hero's 21px: line box 18.57 against a 25px font box, so half-leading is
+     NEGATIVE (-3.21), and caps ink 16 of a 20 ascent -- 0.785px inside each
+     margin. Sub-pixel and symmetric, which is why it never looked wrong, but
+     it is the one margin on the page still taken on trust; computing it keeps
+     it exact if the size ever changes.
+     Rotated Latin in vertical-rl has its ascender facing the block-start edge
+     (right); the .l word carries rotate(180deg), which flips that to the left,
+     hence the side argument rather than a fixed edge. */
+  function seatVert(box, side){
+    try {
+      const sp = box && box.querySelector('span'); if (!sp) return;
+      const cs = getComputedStyle(sp);
+      const fz = parseFloat(cs.fontSize) || 0; if (!fz) return;
+      const lh = parseFloat(cs.lineHeight) || fz;
+      const cx = seatVert._cx = seatVert._cx || document.createElement('canvas').getContext('2d');
+      cx.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + fz + 'px ' + cs.fontFamily;
+      let t = (sp.textContent || '').trim();
+      if (cs.textTransform === 'uppercase') t = t.toUpperCase();
+      const m = cx.measureText(t);
+      if (!m || !(m.fontBoundingBoxAscent > 0)) return;
+      const half  = (lh - (m.fontBoundingBoxAscent + m.fontBoundingBoxDescent)) / 2;
+      const inset = half + (m.fontBoundingBoxAscent - m.actualBoundingBoxAscent);
+      box.style[side === 'left' ? 'marginLeft' : 'marginRight'] = (-inset).toFixed(2) + 'px';
+    } catch (e) {}
   }
   function seatAll(){
+    seatVert(document.getElementById('vsSwL'), 'left');
+    seatVert(document.getElementById('vsSwR'), 'right');
     document.querySelectorAll('.c2-title, .c2-line, .names, .st-name').forEach(seatFlex);
+    /* 507: the single-word margin seats join the engine. Each of these
+       carried a hand-set em trim guessing at the bearing the probe can now
+       actually measure; seatEdge writes an inline px margin, which wins over
+       the stylesheet, so the authored trims stay where they are as the
+       fallback for a browser with no canvas metrics. */
+    document.querySelectorAll('.c2-name').forEach(e => seatEdge(e, 'left'));
+    /* 507: the header's own two columns. They are the margin edges the eye
+       checks on every page, and they were the least measured things on it --
+       the left column had no trim, the right shared one -.127em constant
+       across four different words. The inline px seat overrides that trim,
+       which stays as the no-canvas fallback. */
+    document.querySelectorAll('.hdr .menu span:not(.soc)').forEach(e => seatEdge(e, 'left'));
+    document.querySelectorAll('.hdr .menu span.soc').forEach(e => seatEdge(e, 'right'));
+    document.querySelectorAll('.h4-sub').forEach(e => seatEdge(e, 'right'));
   }
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(seatAll));
+  /* 507: seating ran ONCE, behind a single requestAnimationFrame -- which
+     never fires while the page is hidden, so a site opened in a background
+     tab (or an occluded window) rendered every margin word unseated and
+     stayed that way. Seat as soon as the fonts land, refine on the next
+     frame, and seat again the first time the page actually becomes visible. */
+  function seatSoon(){ inkPx.flush(); try { seatAll(); } catch (e) {} }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(seatSoon);
+  addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') seatSoon(); });
   /* 496 THE INSTRUMENT (?ink=1): the page measures itself in HIS browser.
      Cyan guides on every seated box's content edges; per-edge readouts of
      the probe (lsb/rsb px at the rendered size) and the applied margin; the
@@ -7858,7 +8080,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function open(){
       k3 = 0; lastU3 = null;                    // About 3 opens on card 01, every time
       build(); layout();
-      tLast = 0; if (!raf) raf = requestAnimationFrame(tick);
+      /* 507: NEVER gate the loop on a possibly-stale handle. requestAnimationFrame
+         does not fire while the page is hidden, so a view opened in a background
+         or occluded tab left `raf` holding an id that never ran -- and because
+         `raf` is only cleared at the TOP of tick, every later open() was blocked
+         by the `if (!raf)` guard. The page then stayed dead for the rest of that
+         page-load, whatever the user did (this module has no close() to reset
+         it). Cancelling first is a no-op on an id that already fired. */
+      tLast = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
     }
     return { open, layout, wheel, active };
   })();
@@ -8742,6 +8971,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const pl = q('.a4-p2l i'), pr = q('.a4-p2r i');
       if (pl) seatEdge(pl, 'left'); if (pr) seatEdge(pr, 'right');
       seatEdge(q('.a4-mids.ml'), 'left'); seatEdge(q('.a4-mids.mr'), 'right');
+      /* 507: CREATIVE LEAD and FOR BRAND FILM were seated by hand (-.035em /
+         -.02em), which read ~1.4px past the margin once the probe was
+         measuring real bearings. The inline px seat overrides those trims. */
+      seatEdge(q('.a4-row3 .a4-big'), 'left'); seatEdge(q('.a4-row3 .a4-mid'), 'right');
+      /* 507: WHY ARE THEY WATCHING is right-aligned to the margin by its box,
+         so its ink hung 1.11px over. The last word carries the edge. */
+      const rw4 = view.querySelectorAll('.a4-rw4 .w');
+      if (rw4.length) seatEdge(rw4[rw4.length - 1], 'right');
     }
     function rw2Solve(){
       const ws = [...view.querySelectorAll('.a4-rw2 .w')];
@@ -8839,7 +9076,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       swP = 0; swE = 0; swDir = 0; swOn = false; swSnap = false;
       cards.forEach(c => { c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false;
         if (c._dirty){ c._dirty = false; a4Img(c, c._vi); } });
-      tLast = 0; if (!raf) raf = requestAnimationFrame(tick);
+      /* 507: NEVER gate the loop on a possibly-stale handle. requestAnimationFrame
+         does not fire while the page is hidden, so a view opened in a background
+         or occluded tab left `raf` holding an id that never ran -- and because
+         `raf` is only cleared at the TOP of tick, every later open() was blocked
+         by the `if (!raf)` guard. The page then stayed dead for the rest of that
+         page-load, whatever the user did (this module has no close() to reset
+         it). Cancelling first is a no-op on an id that already fired. */
+      tLast = 0; cancelAnimationFrame(raf); raf = requestAnimationFrame(tick);
     }
     addEventListener('resize', () => {
       if (!document.body.classList.contains('about4')) return;
@@ -10976,6 +11220,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const txt = SUBS[L[i][KEY]] || '';
       sub.innerHTML = (txt.indexOf('/') >= 0 ? txt.split('/') : txt.split(' '))
         .map(w => '<i>' + w.trim() + '</i>').join('');
+      /* 507: re-seat on the swap -- the last glyph changes with the case, so
+         a seat taken once at boot is the wrong bearing for every case after
+         the first. */
+      try { seatEdge(sub, 'right'); } catch (e) {}
       const src = encodeURI(ROOT + L[i][2]);   /* row 2 is the logo: see L's shape above */
       const img = mk.querySelector('img'); if (!img) return;
       mk._src = src;
@@ -11159,10 +11407,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      margin whatever the letter -- S included -- instead of one constant that
      suited some letters and shaved others. */
   document.fonts.ready.then(() => {
-    document.querySelectorAll('.c2-row .c2-name').forEach(el => {
-      el.style.marginLeft =
-        (-ldInk(el.textContent, 100, { left:.065, right:.065 }).left).toFixed(4) + 'em';
-    });
+    /* 507: the row titles now ride the SAME probe as every other margin
+       edge (seatAll -> seatEdge, inline px). This pass used ldInk's baked
+       em table and, running later, overwrote the measured seat -- the
+       titles sat ~4.6px inside the margin. The SEND word keeps its own
+       ldInk seat below: it is centred in a button, not seated on a margin. */
+    document.querySelectorAll('.c2-row .c2-name').forEach(el => seatEdge(el, 'left'));
     const sn = document.querySelector('.c2-send span');
     if (sn) sn.style.marginLeft =
       (-ldInk(sn.textContent, 1000, { left:.044, right:.044 }).left).toFixed(4) + 'em';
