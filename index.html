@@ -194,12 +194,11 @@
   .black.lit .shot{ opacity:1; }
   .shot iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
   /* A cross-origin iframe swallows wheel events, so the page could never be
-     scrolled back from the film. This catches them above the player, while
-     leaving the control bar at the bottom free for scrubbing. */
-  .veil{ position:absolute; left:0; right:0; top:0; bottom:76px; }
-  /* Near the control bar the veil stands aside entirely -- Vimeo then SEES
-     the hover, shows its bar, and every scrub click lands. */
-  .veil.free{ pointer-events:none; }
+     scrolled back from the film. This catches them above the player -- the
+     WHOLE player: 501 authors controls=0, the native chrome is gone, and the
+     old 76px scrub band and the .free hand-off went with it. Our own chrome
+     paints above this veil and its controls take their own pointers. */
+  .veil{ position:absolute; inset:0; }
   .showreel{
     position:absolute; top:0; right:var(--pad); height:var(--peek);
     display:flex; align-items:center; color:var(--paper);
@@ -2956,6 +2955,15 @@
   body.caseopen.case3:not(.c3-in) #home{ transform:translateY(0) scale(1); }   /* 429: the home recede waits for the same frame */
   body.caseopen.case3:not(.c3-in) #dim{ opacity:0; }
   body.caseopen.case3{ overflow:hidden auto; }      /* the document scrolls under the case, as the standalone's does */
+  /* 501: the document scrollbar (the case is the ONLY page that scrolls the
+     document) painted a classic bar on the right and cost 15-17px of layout
+     width on every open/close -- videoLayout reads innerWidth, which had the
+     bar inside it, so the film sat off visual centre too. Hidden at the root,
+     the About pattern (its inner scroller hides the same way); the wheel is
+     preventDefaulted into the spring and touch/keys scroll natively, none of
+     which need the bar. */
+  html{ scrollbar-width:none; }
+  html::-webkit-scrollbar, body::-webkit-scrollbar{ display:none; width:0; height:0; }
   #viewCase3.c3-exit{ position:fixed; top:0; left:0; width:100%; height:100vh; overflow:hidden; z-index:800; }
   .view.vv-out, #viewCase3.vv-out{ transform:translateY(-30vh) scale(.8); transform-origin:50% 0; transition:transform .7s cubic-bezier(.76,0,.24,1); }   /* 495: the HELD view recedes beneath the wipe -- the canonical drop, so view->view reads as the one figure */   /* 494: the exit curtain -- fixed to the viewport, scrolled to the on-screen slice, so the clip wipe reads at viewport speed */
   /* THE SITE'S BARE `.film` RULE (the showreel's frame: absolute, inset by
@@ -3139,7 +3147,9 @@
      blur only what is inside their own box, and their shared edge shows;
      one element, one blur. The head sticks at --c3-head-top (JS): above
      the header's foot by exactly what puts the title's cap --c3-stick-gap
-     under ABOUT's baseline. THE JOIN: the moment the glass's top touches
+     under the menu's lowest word's baseline (CONTACT since the 501 swap;
+     the seat is measured from the live lowest span, not the word). THE
+     JOIN: the moment the glass's top touches
      the header's glass foot the glass reaches the window's top and the
      header's own glass goes off -- the same pixels at that instant. The
      intro's paper begins at the head's foot and keeps rising under the
@@ -3313,7 +3323,28 @@
   #viewCase3 .c3-ctl .vm.word img{ display:none; }
   #viewCase3 .c3-ctl .vm.word b{ display:block; }
   /* the word, only if the mark fails to decode */
-  #viewCase3 .c3-ctl.b .pp, #viewCase3 .c3-ctl.b .tl, #viewCase3 .c3-ctl.b .mu, #viewCase3 .c3-ctl.b .vm{ pointer-events:auto; }
+  #viewCase3 .c3-ctl.b .pp, #viewCase3 .c3-ctl.b .tl, #viewCase3 .c3-ctl.b .mu, #viewCase3 .c3-ctl.b .vm, #viewCase3 .c3-ctl.b .fs{ pointer-events:auto; }
+  /* 501 FULLSCREEN (window-fill -- his words: "full within the window").
+     The .fs button sits right of UNMUTE, the .pp pattern at 14px. A body
+     class pins the q=0 card over the window-sized #c3Layer: the !important
+     geometry beats cardSize/cardsPaint's inline writes, the layer rises
+     over the page chrome, and every other card loses the pointer so a
+     click can never land on a covered belt card. Nothing moves in the DOM
+     (a moved iframe reloads, the belt law) and no resize fires. */
+  #viewCase3 .c3-ctl .fs{ flex:0 0 auto; position:relative; width:14px; height:14px; margin-top:calc(var(--ink-t) + var(--c3-cap) / 2 - 7px); padding:0; border:0; background:none; color:inherit; cursor:pointer; }
+  #viewCase3 .c3-ctl .fs svg{ position:absolute; inset:0; width:100%; height:100%; fill:currentColor; display:none; }
+  #viewCase3 .c3-ctl .fs .fon{ display:block; }
+  #viewCase3 .c3-ctl.fs-on .fs .fon{ display:none; }
+  #viewCase3 .c3-ctl.fs-on .fs .foff{ display:block; }
+  body.c3-fs{ overflow:hidden !important; }
+  body.c3-fs .hdr{ visibility:hidden; }   /* 501: the header floats above the raised layer -- a fullscreen film shows no nav (Escape, the button and a double click all exit) */
+  body.c3-fs #c3Layer{ z-index:1200; }
+  body.c3-fs #c3Cards{ transform:none !important; }
+  body.c3-fs .c3-case{ pointer-events:none !important; }
+  #viewCase3 .c3-case.fs{ transform:none !important; left:0 !important; top:0 !important; width:100vw !important; height:100vh !important; opacity:1 !important; background:#000; }
+  #viewCase3 .c3-case.fs iframe{ left:0 !important; top:0 !important; width:100% !important; height:100% !important; transform:none !important; }
+  #viewCase3 .c3-case.fs .still{ display:none; }
+  body.c3-fs .c3-ctl{ left:0 !important; top:0 !important; width:100% !important; height:100% !important; z-index:1210; }
   /* 444: the SHOWREEL wears the case player's chrome -- the cluster above,
      mirrored into #black, then seated absolutely over the film box. */
   #black .c3-ctl{ position:fixed; z-index:3; pointer-events:none; opacity:0; transition:opacity .3s ease; }
@@ -3331,20 +3362,15 @@
   #black .c3-ctl .tl::before{ content:''; position:absolute; left:0; right:0; top:calc(var(--ink-t) + var(--c3-cap) / 2 - var(--c3-ctl-bar) / 2); height:var(--c3-ctl-bar); background:currentColor; opacity:.35; }
   #black .c3-ctl .tl i{ position:absolute; left:0; top:calc(var(--ink-t) + var(--c3-cap) / 2 - var(--c3-ctl-bar) / 2); height:var(--c3-ctl-bar); width:0; background:currentColor; }
   #black .c3-ctl .mu{ flex:0 0 auto; color:inherit; cursor:pointer; white-space:nowrap; }
-  #black .c3-ctl .vm{ position:absolute; top:var(--c3-ctl-inset); right:var(--c3-ctl-inset); display:block; height:var(--c3-ctl-mark); color:inherit; text-decoration:none; cursor:pointer; }
-  #black .c3-ctl .vm img{ display:block; height:100%; width:auto; }
-  #black .c3-ctl.a .vm img{ filter:brightness(0) invert(1); }
-  /* the mark as a white silhouette ... */
-  #black .c3-ctl.b .vm img{ filter:brightness(0) invert(.5); }
-  /* ... and a grey one */
-  #black .c3-ctl .vm b{ display:none; }
-  #black .c3-ctl .vm.word img{ display:none; }
-  #black .c3-ctl .vm.word b{ display:block; }
-  /* the word, only if the mark fails to decode */
-  #black .c3-ctl.b .pp, #black .c3-ctl.b .tl, #black .c3-ctl.b .mu, #black .c3-ctl.b .vm{ pointer-events:auto; }
+  /* 501: the showreel's .vm (the Vimeo mark, top right) is gone -- the reel
+     burns SHOWREEL into that corner and the mark sat on it. The case players
+     keep theirs (#viewCase3 scope, above). */
+  #black .c3-ctl.b .pp, #black .c3-ctl.b .tl, #black .c3-ctl.b .mu{ pointer-events:auto; }
   #black .film .shot{ position:relative; }
   #black .c3-ctl{
-    position:absolute; inset:0; opacity:1; mix-blend-mode:difference; color:#fff;
+    /* 501: no opacity:1 pin -- .on drives it, so the chrome comes on hover
+       and while paused, as the case players' does. */
+    position:absolute; inset:0; mix-blend-mode:difference; color:#fff;
     /* 445: the case scope's tokens, re-declared here -- outside #viewCase3 the
        vars resolve to nothing and the bar ran edge to edge. */
     --c3-ctl-inset:20px; --c3-ctl-bar:3px; --c3-ctl-mark:14px; --ink-t:0px; --c3-cap:7.7px;
@@ -3353,7 +3379,12 @@
     font-size:var(--ui-size); font-weight:700; letter-spacing:var(--track-s); text-transform:uppercase;
     -webkit-font-smoothing:antialiased;
   }
-  #black .c3-ctl .pp, #black .c3-ctl .tl, #black .c3-ctl .mu, #black .c3-ctl .vm{ pointer-events:auto; }
+  #black .c3-ctl .pp, #black .c3-ctl .tl, #black .c3-ctl .mu{ pointer-events:auto; }
+  /* 501: the reel burns type into all four corners (BALINT DANYI / SHOWREEL
+     up top, CREATIVE LEAD + lower-thirds / 2026 along the foot, the widest
+     reaching ~16% in from an edge), so the bar keeps to the middle half of
+     the foot instead of running inset-to-inset like the case players'. */
+  #black .c3-ctl .bar{ left:25%; right:25%; }
   #viewCase3 .c3-case video.film-ph{ object-fit:cover; }   /* 446: only the fit is the video's own; geometry, origin and the live law come from the iframe rule above */
   #viewCase3 .c3-ctl.ph-film .bar{ display:none; }
   #viewCase3 .c3-space{ position:relative; z-index:0; }
@@ -3415,6 +3446,12 @@
     transition:opacity var(--c3-pic-in-ms) var(--c3-row-in-ease), filter var(--c3-pic-in-ms) var(--c3-row-in-ease), transform var(--c3-pic-in-ms) var(--c3-row-in-ease);
   }
   #viewCase3 .cell.media .pic.on, #viewCase3 .cell.quote .qp.on{ opacity:1; filter:blur(0); transform:scale(1); }
+  /* 501: over a LIVE, decoding video the 2s blur ramp is the priciest paint
+     on the journey -- a Gaussian re-run on every video frame for the whole
+     entrance. Video cells enter on opacity+scale alone; stills keep the
+     full fade-through-blur. :has() is a progressive optimisation: engines
+     without it keep the blur and simply pay for it. */
+  #viewCase3 .cell.media .pic:has(> video){ filter:none; transition:opacity var(--c3-pic-in-ms) var(--c3-row-in-ease), transform var(--c3-pic-in-ms) var(--c3-row-in-ease); }
   #viewCase3 .cell.quote .qn span{ opacity:0; filter:blur(var(--c3-in-blur)); }
   /* the name and the role: whole rows on the sequence (36: word-spans broke them a word to a line) */
   #viewCase3 .c3-row .ttl, #viewCase3 .c3-row .no{
@@ -3516,9 +3553,9 @@
   <nav class="menu">
     <span data-go="home" aria-current="page">Case Studies</span>
     <span data-go="showreel">Showreel</span>
-    <span data-view="about">About</span>
-    <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
     <span data-go="contact">Contact</span>
+    <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
+    <span data-view="about">About</span>
   </nav>
   <div class="rule"></div>
 </div>
@@ -3608,10 +3645,16 @@
   <div class="film">
     <div class="shot">
       <iframe id="vimeo" title="Showreel" allow="autoplay; fullscreen"
-        src="https://player.vimeo.com/video/1182514258?autoplay=1&amp;muted=1&amp;controls=1&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1"></iframe>
+        src="https://player.vimeo.com/video/1182514258?autoplay=1&amp;muted=1&amp;controls=0&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1"></iframe>
+      <div class="veil" id="veil"></div>
+      <!-- 501: the veil lives INSIDE the shot now. .film's container-type:size
+           makes it a stacking context, so as a LATER SIBLING of .film the veil
+           hit-tested above the whole film subtree -- chrome included -- and
+           srCtl's controls were reachable only through the old free band.
+           In here it covers exactly the iframe (the only wheel-swallower),
+           and the chrome, appended after it, takes its pointers above it. -->
     </div>
   </div>
-  <div class="veil" id="veil"></div>
   <div class="showreel"><span>Showreel
     <svg viewBox="0 0 100 100" fill="none" aria-hidden="true">
       <path d="M12 12 L86 86" stroke="currentColor" stroke-width="26" stroke-linecap="butt"/>
@@ -3691,9 +3734,9 @@
     <nav class="menu">
       <span class="has-pick" data-go="home" aria-current="page">Case Studies<div class="cs-pick" id="csPick"></div></span>
       <span data-go="showreel">Showreel</span>
-      <span data-view="about">About</span>
-      <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
       <span data-go="contact">Contact</span>
+      <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
+      <span data-view="about">About</span>
     </nav>
     <div class="rule"></div>
   </div>
@@ -3763,9 +3806,9 @@
     <nav class="menu">
       <span data-go="home">Case Studies</span>
       <span data-go="showreel">Showreel</span>
-      <span aria-current="page">About</span>
-      <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
       <span data-go="contact">Contact</span>
+      <span data-view="blog" style="display:none">Blog</span><!-- 444: blog parked (his call); #blog stays routable -->
+      <span aria-current="page">About</span>
     </nav>
     <div class="rule"></div>
   </header>
@@ -3869,9 +3912,9 @@
     <nav class="menu">
       <span data-go="home">Case Studies</span>
       <span data-go="showreel">Showreel</span>
-      <span data-view="about">About</span>
-      <span aria-current="page">Blog</span>
       <span data-go="contact">Contact</span>
+      <span aria-current="page">Blog</span>
+      <span data-view="about">About</span>
     </nav>
     <div class="rule"></div>
   </header>
@@ -3891,7 +3934,13 @@
   </div>
 </section>
 
-<script src="https://player.vimeo.com/api/player.js"></script>
+<script src="https://player.vimeo.com/api/player.js" defer></script>
+<!-- 501: deferred. Synchronous, a slow player.vimeo.com parked the WHOLE
+     parse at this line -- the loader markup on screen, dead, until the
+     request settled. The codebase is already built for a late API (the
+     444b/451a laws: wireFilm and filmWire re-check on every use); deferred
+     scripts run before DOMContentLoaded, where a rewire pass stands. -->
+
 
 <script type="application/json" id="c3Data">{"ring":["lions2024","lions2025","money2020","blackhat","lions2023","limits"],"start":"lions2024","cases":{"lions2024":{"hover": "Biggest organic moment for Cannes Lions. Live action film about a team's journey creating winning work.","key":"lions2024","brand":["Cannes","Lions"],"subtitle":"Brand film 2024","film":"1184554270","loop":"Lions24/Lions24Loop.mp4","poster":"Lions24/Lions24Poster.jpg","credits":[["Creative Director, Ascential Studios","Dina Elrayyes"],["Director of Photography","Marco La Nave"],["Second Camera","Kostis Nikolas"],["Head of Post-Production","Ken Coy"],["Head of Operations","Pietro Romanelli"],["Lead Producer, Casting","Naomi Hartridge-Dawes"],["Set Designer","Hany Suleiman"],["Lead Talent","Caroline Lee"],["Supporting Talent","Eni Majekodunmi"],["Design Consultant, Cannes Lions","Poppy Yeung"],["Production Assistant","Rhys Norman"],["Stakeholder, Creative Director, Cannes Lions","Clare Barry"]],"contribution":"Contribution: Creative Lead: Concept and treatment development | Storyboard | Live action direction | Casting | Edit | Motion graphics | Sound design","summary":"A film about the creative work the final cut leaves out: the friction, the setbacks, the small wins. It became the brand's biggest organic moment and opened a conversation about the industry.","details":[{"title":"The Brief","cells":[{"t":"text","p":["Cannes Lions is the world's biggest stage for creativity. Each year, a brand film opens the awards show, engages the community on social media, and represents Lions across platforms year-round."]},{"t":"text","p":["The 2023 motion graphics film earned a sequel with more resources."]},{"t":"text","p":["The 2024 brief pushed deeper into the truth of the process: the tension between creatives and decision-makers, agencies and clients, marketing and finance."]}]},{"title":"The Approach","cells":[{"t":"text","p":["The 2023 film spoke through abstraction. This time, we introduce a team of five through motion graphics, set design."]},{"t":"text","p":["The restraint carried over from 2023 to the 2024 set. Everything plays out around the desktop, physical or virtual."]},{"t":"media","src":"Lions24/CL24App1.mp4","cap":"AI previs"}]},{"title":"The Impact","cells":[{"t":"text","p":["On release, the film was the highest-engagement post in the brand's Instagram history. No paid media behind it."]},{"t":"stat","platform":"Instagram","lines":["900K views","20.4K likes","480 comments","4,720 shares"]},{"t":"text","p":["It also started something bigger: a conversation about the industry's work culture. Attention was only the start, the topic brought strong emotions to the surface. A brand that surfaces a live issue has the opportunity to lead on it. Lions is well positioned to platform the voices and create programmes that influence how the industry moves forward."]}]}],"title":"Cannes Lions 2024"},"blackhat":{"hover": "First narrative brand film for the most respected global cybersecurity event. The video inspired a new visual brand identity.","title":"Black Hat","brand":["Black","Hat"],"subtitle":"Brand / Film / 2025","film":"1184556725","loop":"BH/BHLoop.mp4","poster":"BH/BHPoster.jpg","credits":[["Script Collaboration","Grace Kelliher"],["Head of Post-Production","Ken Coy"],["Global Head of Operations","Pietro Romanelli"],["Stakeholder, Marketing Transformation Director, Informa","Geraint Jones"]],"contribution":"Contribution: Creative Lead: Concept and script development | Visual system | AI workflow behind the logo graphics | Motion graphics | Sound design","summary":"The first narrative video for the most respected global cybersecurity event. It started as an internal asset and became the reference point for a brand new visual identity.","details":[{"title":"BRIEF","cells":[{"t":"text","p":["When Informa acquired Ascential, part of the mandate was to bring our creative standards to its B2B brands. We saw an opportunity for Black Hat, a brand that’s a key revenue driver in the festival portfolio."]},{"t":"text","p":["We introduced storytelling into their content marketing so BlackHat can claim ownership of their central role in the global community of cybersecurity."]},{"t":"media","src":"BH/BHbriefLogo.mp4","cap":"Black Hat - Logo Reveal (2025)"}]},{"title":"CONCEPT","cells":[{"t":"text","p":["This was the first time Black Hat addressed its investors and its customers with narrative content. The tone had to feel native to the community's culture. The threat, and the business opportunity behind it, had to stay grounded in numbers."]},{"t":"text","p":["Original visual assets lacked cohesion. My answer was to strip back to geometric essentials and use the circle, the core element of the logo, as a storytelling device. Orange against blue, broken against whole: threat and antidote."]},{"t":"text","p":["We shaped the concept with the Marketing Transformation Director at Informa to fit our resources and a three-week turnaround."]},{"t":"media","src":"BH/BHConLogo.mp4","cap":"Geometric design"}]},{"title":"IMPACT","cells":[{"t":"text","p":["What was commissioned as an internal asset resonated so strongly with Black Hat and Informa Festivals leadership that it was immediately adopted as an external brand film."]},{"t":"stat","platform":"YouTube","lines":["454k views","nearly double the subscriber base"]},{"t":"quote","q":"\"In 90 seconds this is why I am excited to be a part of Black Hat.\"","name":"Suzy Pallett","role":"President, Black Hat","img":"BH/BHImpSuzy.jpeg"},{"t":"text","p":["The film's language inspired a full rebrand. That geometry is now a core pillar of the brand identity."]},{"t":"media","src":"BH/BHImpReb2.mp4","cap":"Black Hat 2026 Rebrand Assets"},{"t":"media","src":"BH/BHImpReb3.mp4","cap":"Black Hat 2026 Rebrand"},{"t":"media","src":"BH/BHImpReb4.mp4","cap":"Black Hat 2026 Website Redesign"}]}]},"lions2023":{"hover": "The brand film that defined the motion graphics language for Lions for the following years. Celebrated with a standing ovation at Cannes.","title":"Cannes Lions 2023","brand":["Cannes","Lions"],"subtitle":"Brand film 2023","film":"868339797","loop":"Lions23/Lions23Loop.mp4","poster":"Lions23/Lions23Poster.jpg","credits":[["Concept Development, Creative Director, Ascential Studios","Dina Elrayyes"],["Senior Motion Designer","Lisa Evernden"],["Producer","Naomi Hartridge-Dawes"],["Stakeholder, Creative Director, Cannes Lions","Clare Barry"]],"contribution":"Contribution: Creative Lead: Storyboard and script development | Motion language and briefing the motion design team | Revisions directly with Simon Cook, CEO, Cannes Lions","summary":"The brand film for Cannes Lions showed what goes on behind the scenes of the most successful campaigns. A motion graphics piece that established a new visual language for the two years that followed.","details":[{"title":"BRIEF","cells":[{"t":"text","p":["Cannes Lions, the international festival of creativity, turned 70 in 2023. To mark it, the festival honoured the teams and the process behind the winning work, not just the work itself."]},{"t":"text","p":["\"In the Making\" celebrates the journey to success: the late nights, the dead ends, the breakthroughs."]},{"t":"text","p":["The film needed to open the awards show at Cannes, engage on socials, and represent the brand year-round across platforms."]}]},{"title":"APPROACH","cells":[{"t":"text","p":["The Cannes gala is a grand spectacle. In comparison this story needed to feel intimate and authentic. To draw the viewers into the process we sourced BTS material from the awarded agencies, including the Nike and Serena Williams collaboration."]},{"t":"text","p":["We took the interfaces creatives work in, stripped them back to fit Lions' minimalist visual language. We told the story through notification storms, desperate meeting invites, full calendars and proud selfies."]}]},{"title":"IMPACT","cells":[{"t":"text","p":["The work premiered at the first awards ceremony of Cannes Lions 2023. The creative community answered with a standing ovation. It has played before awards ceremonies and across the festival's outdoor screens ever since."]},{"t":"media","src":"Lions23/CL23Impscreenloop2.mp4","cap":"Cannes - Palais Red Carpet Screen"},{"t":"media","src":"Lions23/CL23Impscreenloop1.mp4","cap":"Cannes - Palais Lumière Theatre"},{"t":"media","src":"Lions23/CL23Impscreenloop6.mp4","cap":"Cannes - Palais Terrace"},{"t":"text","p":["On social, it became the most-liked post in the brand's Instagram history at the time of release. All of it organic."]},{"t":"stat","groups":[{"platform":"Instagram","lines":["combined across two posts","257k views","8,709 likes","101 comments"]},{"platform":"YouTube","lines":["15.8k views"]}]},{"t":"quote","quotes":[{"q":"\"A witty spot that celebrates the frantic nature of campaign creation and the glory of the rewards it can bring.\"","name":"shots.net","role":"Press","img":"Lions23/CL23Imppresslogo.jpeg"}]},{"t":"text","p":["The film was a company-wide success and strengthened the relationship between our in-house studio and the brand."]},{"t":"quote","quotes":[{"q":"\"Brilliant, wonderful, absolutely incredible. Many congratulations, this really is world-class work.\"","name":"Philip Thomas","role":"CEO, Ascential Futures","img":"Lions23/CL23ImpPhilipT.jpeg"},{"q":"\"The amount of feedback on social, already, is absolutely overwhelming. Balint and Naomi were two of the most professional and positive individuals I’ve EVER worked with.\"","name":"Clare Barry","role":"Creative Director, Cannes Lions","img":"Lions23/CL23ImpClare.jpeg"}]}]},{"title":"CREATIVE SYSTEM","cells":[{"t":"text","p":["The motion language I developed became a creative system the brand adopted across subsequent campaigns. A scalable framework for personable, human stories that aren't tied to any one person or identity."]},{"t":"text","p":["Lions Intelligence / \"Love the Work\" Promo (2023) — Social-first campaign extending the interface aesthetic into product marketing. Collaboration with Lisa Evernden, Senior Motion Designer."]},{"t":"media","src":"Lions23/CL23Creativelovetheworkloop1.mp4","cap":"Lions - Love the Work Promo (2023)"},{"t":"media","src":"Lions23/CL23Creativelovetheworkloop2.mp4","cap":"Lions - Love the Work Promo (2023)"},{"t":"media","src":"Lions23/CL23Creativelovetheworkloop3.mp4","cap":"Lions - Love the Work Promo (2023)"},{"t":"text","p":["Lions Creative MBA Promo (2024) — Promotional campaign for the Lions education programme. Creative direction by me, edited by Rhys Norman, Junior Editor."]},{"t":"media","src":"Lions23/CL23CreativeMBAloop1.mp4","cap":"Lions - Lions Creative MBA Promo (2024)"}]}],"cover":"Lions23/CL23Cover.jpg"},"limits":{"hover": "Live action commercial empowering a startup to compete with brands like Garmin or Polar.","title":"Limits","brand":["Limits"],"subtitle":"Product / Launch / Video","film":"636261661","loop":"Limits/LimitsLoop.mp4","poster":"Limits/LimitsPoster.jpg","credits":[["Partner Studio, Drone Footage","Subtle Group"],["Photography","Diana Dumi"],["Voiceover","Scott Tunnicliffe"],["Operations Director, Subtle Group","Jack Young"],["Stakeholder, Creative Director, LIMITS","Stephen Arthur"]],"contribution":"Contribution: Freelance Creative Director: Concept and script development | Direction | Edit | Pitching and client communications","summary":"Power made simple. A video and photo campaign for the LIMITS rebrand and product launch. Built around the brand's core principle: what you can measure, you can improve","details":[{"title":"THE BRIEF","cells":[{"t":"text","p":["LIMITS makes power meters for cyclists who take their performance seriously. The slogan set the focus: the meter unlocks an athlete's power with insights that traditional wearables miss."]},{"t":"text","p":["My role covered content production for the flagship product launch: social cuts, product and sport photography, and, at the centre, a cinematic brand film. As well as capturing attention, these assets needed to signal competence in a category led by Garmin."]},{"t":"media","src":"Limits/LIMITSBrief2.mp4","cap":"LIMITS - Logo design"}]},{"title":"CONCEPT","cells":[{"t":"text","p":["In training, knowing your data is often the difference between improvement and stagnation. We see that play out in the story of two competing athletes. The hook pairs a moment of loss with physical struggle. Then the power meter enters, and the comeback begins."]},{"t":"text","p":["The look blends speed, technology and raw power. HUD-style graphics bring measurement and precision to the screen. Loud, atmospheric sound pulls the viewer into the race. LIMITS jerseys keep the brand in every frame."]},{"t":"text","p":["All live action was captured in one day, stills included. I directed the drone unit at Subtle Group and commissioned freelancers for the voiceover and photography."]}]},{"title":"THE IMPACT","cells":[{"t":"text","p":["For two years, the film represented the brand across socials and the website. It ran as a 90 and a 60 for promotion, a 15 for paid social, and a 30 ready for TV. The stills were repurposed for new announcements."]},{"t":"text","p":["Community engagement is a key driver of sales and credibility for LIMITS, so alongside the finished assets I built a toolkit of animated logo stings and taglines, ready to brand any UGC or fast-turnaround content."]},{"t":"media","src":"Limits/LimitsImpPhoto2.jpg","cap":"LIMITS - Installation"},{"t":"media","src":"Limits/LimitsImpPhoto4.jpg","cap":"LIMITS - Action photo"},{"t":"media","src":"Limits/LIMITSImp1.mp4","cap":"LIMITS - Logo Sting"}]}]},"money2020":{"hover": "The largest global fintech event launched its first award show. This ad turned daydreams into submissions.","title":"Money20/20 Awards","brand":["Money20/20"],"subtitle":"Award / Launch video / 2025","film":null,"loop":"M2020/M2020Loop.mp4","poster":"M2020/M2020Poster.jpg","credits":[["Director of Photography","GuanDa Chen"],["Concept and Script Development, Production","Grace Kelliher"],["Stakeholder, SVP of Brand Experience, Money20/20","Mark Slade"]],"contribution":"Contribution: Creative Lead: Direction | Casting | Concept development | Stakeholder communication","summary":"The largest global fintech event launched its first award show. The business case was strong, but the creative was missing history to build on. So we built the narrative around ambition instead. Turning daydreams into submissions.","details":[{"title":"Brief","cells":[{"t":"text","p":["Money20/20 launched the Money Awards: a programme celebrating the boldest innovations shaping the future of money."]},{"t":"text","p":["With no community behind it yet, benefit-focused content alone didn't bring in the numbers by the submission deadline."]},{"t":"text","p":["Informa Studios proposed something else: give entrants the experience of the award before the first ceremony had taken place. We matched the urgency with a five-day turnaround from concept to delivery."]},{"t":"media","src":"M2020/M2020Brief2.mp4","cap":"Money Awards - Informational Content, 2025"},{"t":"media","src":"M2020/M2020Brief3.mp4","cap":"Money Awards - Direct Response Content, 2025"}]},{"title":"Approach","cells":[{"t":"text","p":["The film opens with the hero called on stage, the room erupting. The emotion rises higher and higher, with no explanation. Then the comedic twist: it's all in their head, and they are yet to enter. The CTA lands on that gap: the opportunity is real, but they have to take action."]},{"t":"text","p":["One actor on location and a voiceover carry the entire story. For the award show itself, the footage stays atmospheric, a montage cut from our archive of past Money20/20 shows. Anything literal would promise what didn't exist. The energy on screen is the brand's own."]}]},{"title":"Impact","cells":[{"t":"text","p":["The film filled the top of the funnel and gave the team a complete customer journey."]},{"t":"text","p":["Relaunched with an extended deadline, the campaign reached its target for the first Money Awards."]},{"t":"media","src":"M2020/M2020Imp2.mp4","cap":"Money Awards - Event Video, 2025"},{"t":"media","src":"M2020/M2020Imp1.mp4","cap":"Money Awards - Promo Video, 2026"}]}]},"lions2025":{"hover": "The film about the trophy that marks every successful career in the creative industry. International production.","title":"Cannes Lions 2025","brand":["Cannes","Lions"],"subtitle":"Brand film 2025","film":null,"loop":"Lions25/Lions25Loop.mp4","poster":"Lions25/Lions25Poster.jpg","credits":[["Partner Studio","Observatory"],["Producer","Charlie Cowap"],["Director of Photography","Marco La Nave"],["Director of Photography","GuanDa Chen"],["Creative Director, Ascential Studios","Dina Elrayyes"],["Set Design","Joseph Lihou"],["Rig Build","Bluedog Group"],["Rig, Bluedog Group, Technical Director","Ollie Potter"],["Creative Director, Observatory","Ben Sheppee"],["3D Designer, Observatory","Hill Cheung"],["Head of Post-Production","Ken Coy"],["Sound Design","Tom Joyce"],["Lead Producer","Naomi Hartridge-Dawes"],["Studio Manager","Thomas Mason"],["French Location and Advisory","Sebastien Demion"],["Talent","Clara Gutiérrez Jorge"],["Studio Assistant","Kuda Mutinta"],["Stakeholder, Executive Creative Director, LIONS","Clare Barry"]],"contribution":"Contribution: Creative Lead: Direction | Concept and treatment development | Custom rig commission | 3D scene direction | Edit","summary":"There is a career before winning a Lion and a career after it. A film about the trophy that marks the win and carries it into our everyday lives.","details":[{"title":"Brief","cells":[{"t":"text","p":["Cannes Lions hands out the most coveted prize in creativity. The brand film in 2025 turns the camera on the Lion itself and the win it stands for."]},{"t":"text","p":["It plays seconds before the names are called, so the walk to the stage means even more. Beyond the ceremony, the long-term objective is growth in award entries."]},{"t":"text","p":["In 2025, Brasil was named Country of Honour for an exceptional year of creative work. As a tribute, Easter eggs from Brasilian culture hide throughout the film."]}]},{"title":"Approach","cells":[{"t":"text","p":["The trophy is the only character, and we follow it from the factory to its new home on the winning team's shelf. A purpose-built rig locks the Lion in the middle of the frame for the entire journey: it holds still while the world moves around it."]},{"t":"text","p":["We shot at Drago, Paris, France, where every Lion has been cast since the festival began. For the right pacing and dramatic lighting, I took the molten-pour and coating-bath scenes into 3D. Observatory, our partner studio, rebuilt both from discovery footage."]},{"t":"text","p":["The challenge was realism, at speed. That meant precise briefs, and research that went past art direction into how the materials behave."]},{"t":"media","src":"Lions25/CL25App3D.mp4","cap":"Lions - Brand Film 2025, 3D Trophy Model"},{"t":"media","src":"Lions25/CL25AppBOX.mp4","cap":"Lions - Brand Film 2025, Box Scene"},{"t":"media","src":"Lions25/CL25AppDip.mp4","cap":"Lions - Brand Film 2025, Dip Scene"},{"t":"media","src":"Lions25/CL25AppMould.mp4","cap":"Brand Film 2025, Mould Scene"}]},{"title":"Impact","cells":[{"t":"text","p":["The film opened the awards ceremony every evening."]},{"t":"media","src":"Lions25/CL25ImpScreen.mp4","cap":"Lions - 2025 Brand Film in Lumière Theatre","natural":true}]}]}}}</script>
 <script type="application/json" id="csData">{"blackhat": {"logo": "Black Hat", "film": "https://player.vimeo.com/video/1184556725?autoplay=1&amp;muted=1&amp;controls=1&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1", "info": "<p>The first narrative video for the most respected global cybersecurity event. It\n           started as an internal asset and became the reference point for a brand new visual\n           identity.<\/p>\n        <span class=\"cs-lbl\">My contribution<\/span>\n        <p>Creative Lead: Concept and script development &nbsp;|&nbsp; Visual system &nbsp;|&nbsp;\n           AI workflow behind the logo graphics &nbsp;|&nbsp; Motion graphics &nbsp;|&nbsp; Sound design<\/p>\n        <span class=\"cs-lbl\">Credits<\/span>\n        <p class=\"credits\">Script Collaboration &mdash; Grace Kelliher &nbsp;|&nbsp;\n           Head of Post-Production &mdash; Ken Coy &nbsp;|&nbsp;\n           Global Head of Operations &mdash; Pietro Romanelli<br>\n           Stakeholder &mdash; Geraint Jones, Marketing Transformation Director, Informa<\/p>", "rows": "<div class=\"cs-row\" style=\"--i:0;z-index:3\"><h3 class=\"cs-head\"><span>Brief<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>When Informa acquired Ascential, part of the mandate was to bring our creative standards to its B2B brands. We saw an opportunity for Black Hat, one of the key revenue drivers in the festival portfolio, to claim ownership of their central role in the global community of cybersecurity. Their content was previously either end of funnel or publishing presentations of their events. We introduced storytelling into their content marketing and created a narrative piece to elevate the connection between brand and community.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#d8623f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#1f3a5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#0e0e0e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9c4bb\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5b86b8\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:1;z-index:4\"><h3 class=\"cs-head\"><span data-short=\"Concept\">Concept / Challenge<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>We shaped the concept with the Marketing Transformation Director at Informa to fit our resources and a three-week turnaround. The film had two key objectives. The hook makes the viewer feel the threat of cybercrime and anchors this experience in data. The second part shows that it's Black Hat pulling together the forces of cybersecurity to push back.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#1f3a5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#d8623f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9c4bb\"><i><\/i><\/div><div class=\"g\" style=\"--c:#0e0e0e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5b86b8\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:2;z-index:5\"><h3 class=\"cs-head\"><span>Approach<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>This was the first time Black Hat addressed its investors and its customers with narrative content. The tone had to feel native to the community's culture. The threat, and the business opportunity behind it, had to stay grounded in numbers.<\/p><p>The visual assets I inherited had lived in isolation, each made for its own moment. My answer was to strip back to geometric essentials and use the circle, the core element of the logo, as a storytelling device. Orange against blue, broken against whole: threat and antidote.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#0e0e0e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5b86b8\"><i><\/i><\/div><div class=\"g\" style=\"--c:#d8623f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#1f3a5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9c4bb\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:3;z-index:6\"><h3 class=\"cs-head\"><span>Impact<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>What was commissioned as an internal asset resonated so strongly with Black Hat and Informa Festivals leadership that it was immediately adopted as an external brand film.<\/p><p>YouTube: 454k views (nearly double the subscriber base)<\/p><p>&ldquo;In 90 seconds this is why I am excited to be a part of Black Hat.&rdquo; &mdash; Suzy Pallett, President, Black Hat<\/p><p>The film's language inspired a full rebrand. That geometry is now a core pillar of the brand identity.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#d8623f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#0e0e0e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5b86b8\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9c4bb\"><i><\/i><\/div><div class=\"g\" style=\"--c:#1f3a5f\"><i><\/i><\/div><\/div><\/div>", "name": "Black Hat"}, "lions2023": {"logo": "Lions 2023", "film": "https://player.vimeo.com/video/868339797?autoplay=1&amp;muted=1&amp;controls=1&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1", "info": "<p>The brand film for Cannes Lions showed what goes on behind the scenes of the most\n           successful campaigns. A motion graphics piece that established a new visual language\n           for the two years that followed.<\/p>\n        <span class=\"cs-lbl\">My contribution<\/span>\n        <p>Creative Lead: Storyboard and script development &nbsp;|&nbsp; Motion language and\n           briefing the motion design team &nbsp;|&nbsp; Revisions directly with Simon Cook, CEO,\n           Cannes Lions<\/p>\n        <span class=\"cs-lbl\">Credits<\/span>\n        <p class=\"credits\">Concept Development &mdash; Dina Elrayyes, Creative Director, Ascential Studios &nbsp;|&nbsp;\n           Senior Motion Designer &mdash; Lisa Evernden &nbsp;|&nbsp; Producer &mdash; Naomi Hartridge-Dawes<br>\n           Stakeholder &mdash; Clare Barry, Creative Director, Cannes Lions<\/p>", "rows": "<div class=\"cs-row\" style=\"--i:0;z-index:3\"><h3 class=\"cs-head\"><span>Brief<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>Cannes Lions, the international festival of creativity, turned 70 in 2023. To mark it, the festival honoured the teams and the process behind the winning work, not just the work itself. &ldquo;In the Making&rdquo; celebrates the journey to success: the late nights, the dead ends, the breakthroughs. The effort it takes to create real change. The film needed to open the awards show at Cannes, engage on socials, and represent the brand year-round across platforms.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#8a6f2e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:1;z-index:4\"><h3 class=\"cs-head\"><span>Approach<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The Cannes gala is a grand spectacle. This story needed to feel intimate and authentic. Inspired by how Airbnb lets photography carry the emotion, we sourced BTS material from the awarded agencies, including the Nike and Serena Williams collaboration.<\/p><p>We took the interfaces creatives work in, stripped them back to Lions' minimalist style, and told the story through notification storms, desperate meeting invites, full calendars and proud selfies.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#8a6f2e\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:2;z-index:5\"><h3 class=\"cs-head\"><span>Impact<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The work premiered at the first awards ceremony of Cannes Lions 2023. The creative community answered with a standing ovation. It has played before awards ceremonies and across the festival's outdoor screens ever since. On social, it became the most-liked post in the brand's Instagram history at the time of release. All of it organic.<\/p><p>Instagram, combined across two posts: 257k views &nbsp;|&nbsp; 8,709 likes &nbsp;|&nbsp; 101 comments<\/p><p>YouTube: 15.8k views<\/p><p>Press: shots.net &mdash; &ldquo;A witty spot that celebrates the frantic nature of campaign creation and the glory of the rewards it can bring.&rdquo;<\/p><p>The film was a company-wide success and strengthened the relationship between our in-house studio and the brand.<\/p><span class=\"cs-lbl\">Leadership<\/span><p>&ldquo;Brilliant, wonderful, absolutely incredible. Many congratulations, this really is world-class work.&rdquo; &mdash; Philip Thomas, CEO, Ascential Futures<\/p><p>&ldquo;The amount of feedback on social, already, is absolutely overwhelming. Balint and Naomi were two of the most professional and positive individuals I've EVER worked with. You made the entire process so unbelievably easy and were incredibly patient with me &mdash; but creative AF when you needed to be.&rdquo; &mdash; Clare Barry, Creative Director, Cannes Lions<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#8a6f2e\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:3;z-index:6\"><h3 class=\"cs-head\"><span data-short=\"System\">Creative System<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The motion language I developed became a creative system the brand adopted across subsequent campaigns. A scalable framework for personable, human stories that aren't tied to any one person or identity.<\/p><p>Lions Intelligence / &ldquo;Love the Work&rdquo; Promo (2023) &mdash; Social-first campaign extending the interface aesthetic into product marketing. Collaboration with Lisa Evernden, Senior Motion Designer.<\/p><p>Lions Creative MBA Promo (2024) &mdash; Promotional campaign for the Lions education programme. Creative direction by me, edited by Rhys Norman, Junior Editor.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#8a6f2e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><\/div><\/div>", "name": "Lions 2023"}, "lions2024": {"logo": "Lions 2024", "film": "https://player.vimeo.com/video/1184554270?autoplay=1&amp;muted=1&amp;controls=1&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1", "info": "<p>A film about the creative work the final cut leaves out: the friction, the setbacks,\n           the small wins. It became the brand's biggest organic moment and opened a conversation\n           about the industry.<\/p>\n        <span class=\"cs-lbl\">My contribution<\/span>\n        <p>Creative Lead: Concept and treatment development &nbsp;|&nbsp; Storyboard &nbsp;|&nbsp;\n           Live action direction &nbsp;|&nbsp; Casting &nbsp;|&nbsp; Edit &nbsp;|&nbsp; Motion graphics\n           &nbsp;|&nbsp; Sound design<\/p>\n        <span class=\"cs-lbl\">Credits<\/span>\n        <p class=\"credits\">Creative Director &mdash; Dina Elrayyes, Ascential Studios &nbsp;|&nbsp;\n           Director of Photography &mdash; Marco La Nave &nbsp;|&nbsp; Second Camera &mdash; Kostis Nikolas &nbsp;|&nbsp;\n           Head of Post-Production &mdash; Ken Coy &nbsp;|&nbsp; Head of Operations &mdash; Pietro Romanelli &nbsp;|&nbsp;\n           Lead Producer, Casting &mdash; Naomi Hartridge-Dawes &nbsp;|&nbsp; Set Designer &mdash; Hany Suleiman &nbsp;|&nbsp;\n           Lead Talent &mdash; Caroline Lee &nbsp;|&nbsp; Supporting Talent &mdash; Eni Majekodunmi &nbsp;|&nbsp;\n           Design Consultant &mdash; Poppy Yeung, Cannes Lions &nbsp;|&nbsp; Production Assistant &mdash; Rhys Norman<br>\n           Stakeholder &mdash; Clare Barry, Creative Director, Cannes Lions<\/p>", "rows": "<div class=\"cs-row\" style=\"--i:0;z-index:3\"><h3 class=\"cs-head\"><span>Brief<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>Cannes Lions is the world's biggest stage for creativity. Each year, a brand film opens the awards show, engages the community on social media, and represents Lions across platforms year-round. In 2023, a motion graphics film we created was received so well it earned a sequel with more resources. The 2024 brief pushed deeper into the truth of the process: thoughtful, painful, uncomfortable. The tension between creatives and decision-makers, agencies and clients, marketing and finance. The script relies on humour as the pressure valve.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#8a6f2e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:1;z-index:4\"><h3 class=\"cs-head\"><span>Approach<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The path to great work is never finished. For all the grind, the win pulls you back for more. That cycle drives our story: a creative's day where the evening circles right back to the morning.<\/p><p>The 2023 film spoke through abstraction. This time, like Apple's Underdogs series, we introduce a team of five through motion graphics, set design and the way they move through their world. Real people. A real workspace. Real frustration.<\/p><p>The restraint carried over from 2023 to the 2024 set. Like the Post-it campaign, everything plays out around the desktop, physical or virtual.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#8a6f2e\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:2;z-index:5\"><h3 class=\"cs-head\"><span>Impact<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>On release, the film was the highest-engagement post in the brand's Instagram history. No paid media behind it.<\/p><p>Instagram: 900k views &nbsp;|&nbsp; 20.4k likes &nbsp;|&nbsp; 480 comments &nbsp;|&nbsp; 4,720 shares<\/p><p>It also started something bigger: a conversation about the industry's work culture.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#8a6f2e\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:3;z-index:6\"><h3 class=\"cs-head\"><span>Conversation<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The work reached more people than any brand-produced content before it. Attention was only the start. The issues the film explored brought strong emotions to the surface.<\/p><p>The intent was to celebrate the reality of creative work. The audiences at the festival received it exactly that way. They live it and came to be recognised for it. Some of the wider social audience saw it differently: they felt exposed, without relief.<\/p><p>A brand that surfaces a live issue has the opportunity to lead on it. Lions is well positioned to platform the voices and create programmes that influence how the industry moves forward.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#8a6f2e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><\/div><\/div>", "name": "Lions 2024"}, "lions2025": {"logo": "Lions 2025", "film": null, "info": "<p>There is a career before winning a Lion and a career after it. A film about the\n           trophy that marks the win and carries it into our everyday lives.<\/p>\n        <span class=\"cs-lbl\">My contribution<\/span>\n        <p>Creative Lead: Direction &nbsp;|&nbsp; Concept and treatment development &nbsp;|&nbsp;\n           Custom rig commission &nbsp;|&nbsp; 3D scene direction &nbsp;|&nbsp; Edit<\/p>\n        <span class=\"cs-lbl\">Credits<\/span>\n        <p class=\"credits\">Partner Studio &mdash; Observatory<br>\n           Producer &mdash; Charlie Cowap &nbsp;|&nbsp; Director of Photography &mdash; Marco La Nave &nbsp;|&nbsp;\n           Director of Photography &mdash; GuanDa Chen &nbsp;|&nbsp; Creative Director &mdash; Dina Elrayyes, Ascential Studios &nbsp;|&nbsp;\n           Set Design &mdash; Joseph Lihou &nbsp;|&nbsp; Rig Build &mdash; Bluedog Group &nbsp;|&nbsp; Rig &mdash; Ollie Potter, Bluedog Group, Technical Director &nbsp;|&nbsp;\n           Creative Director &mdash; Ben Sheppee, Observatory &nbsp;|&nbsp; 3D Designer &mdash; Hill Cheung, Observatory &nbsp;|&nbsp;\n           Head of Post-Production &mdash; Ken Coy &nbsp;|&nbsp; Sound Design &mdash; Tom Joyce &nbsp;|&nbsp;\n           Lead Producer &mdash; Naomi Hartridge-Dawes &nbsp;|&nbsp; Studio Manager &mdash; Thomas Mason &nbsp;|&nbsp;\n           French Location and Advisory &mdash; Sebastien Demion &nbsp;|&nbsp; Talent &mdash; Clara Guti&eacute;rrez Jorge &nbsp;|&nbsp;\n           Studio Assistant &mdash; Kuda Mutinta<br>\n           Stakeholder &mdash; Clare Barry, Executive Creative Director, LIONS<\/p>", "rows": "<div class=\"cs-row\" style=\"--i:0;z-index:3\"><h3 class=\"cs-head\"><span>Brief<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>Cannes Lions hands out the most coveted prize in creativity. The brand film in 2025 turns the camera on the Lion itself and the win it stands for. It plays seconds before the names are called, so the walk to the stage means even more. Beyond the ceremony, the long-term objective is growth in award entries.<\/p><p>In 2025, Brasil was named Country of Honour for an exceptional year of creative work. As a tribute, Easter eggs from Brasilian culture hide throughout the film.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#8a6f2e\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:1;z-index:4\"><h3 class=\"cs-head\"><span>Approach<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The trophy is the only character, and we follow it from the factory to its new home on the winning team's shelf. A purpose-built rig locks the Lion in the middle of the frame for the entire journey: it holds still while the world moves around it.<\/p><p>We shot at Drago, Paris, France, where every Lion has been cast since the festival began. For the right pacing and dramatic lighting, I took the molten-pour and coating-bath scenes into 3D. Observatory, our partner studio, rebuilt both from discovery footage. The challenge was realism, at speed. That meant precise briefs, and research that went past art direction into how the materials behave.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#111111\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9a227\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#8a6f2e\"><i><\/i><\/div><\/div><\/div>", "name": "Lions 2025"}, "money2020": {"logo": "Money20/20", "film": null, "info": "<p>The largest global fintech event launched its first award show. The business case\n           was strong, but the creative was missing history to build on. So we built the\n           narrative around ambition instead. Turning daydreams into submissions.<\/p>\n        <span class=\"cs-lbl\">My contribution<\/span>\n        <p>Creative Lead: Direction &nbsp;|&nbsp; Casting &nbsp;|&nbsp; Concept development\n           &nbsp;|&nbsp; Stakeholder communication<\/p>\n        <span class=\"cs-lbl\">Credits<\/span>\n        <p class=\"credits\">Director of Photography &mdash; GuanDa Chen &nbsp;|&nbsp;\n           Concept and Script Development, Production &mdash; Grace Kelliher<br>\n           Stakeholder &mdash; Mark Slade, SVP of Brand Experience, Money20/20<\/p>", "rows": "<div class=\"cs-row\" style=\"--i:0;z-index:3\"><h3 class=\"cs-head\"><span>Brief<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>Money20/20 launched the Money Awards: a programme celebrating the boldest innovations shaping the future of money. With no community behind it yet, benefit-focused content alone didn't bring in the numbers by the submission deadline. Informa Studios proposed something else: give entrants the experience of the award before the first ceremony had taken place. We matched the urgency with a five-day turnaround from concept to delivery.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#e5007d\"><i><\/i><\/div><div class=\"g\" style=\"--c:#141414\"><i><\/i><\/div><div class=\"g\" style=\"--c:#00a3e0\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:1;z-index:4\"><h3 class=\"cs-head\"><span>Approach<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The film opens with the hero called on stage, the room erupting. The emotion rises higher and higher, with no explanation. Then the comedic twist: it's all in their head, and they are yet to enter. The CTA lands on that gap: the opportunity is real, but they have to take action.<\/p><p>One actor on location and a voiceover carry the entire story. For the award show itself, the footage stays atmospheric, a montage cut from our archive of past Money20/20 shows. Anything literal would promise what didn't exist. The energy on screen is the brand's own.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#141414\"><i><\/i><\/div><div class=\"g\" style=\"--c:#00a3e0\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e5007d\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:2;z-index:5\"><h3 class=\"cs-head\"><span>Impact<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The film filled the top of the funnel and gave the team a complete customer journey. Relaunched with an extended deadline, the campaign reached its target for the first Money Awards.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#00a3e0\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e5007d\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#141414\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5f5f5f\"><i><\/i><\/div><\/div><\/div>", "name": "Money20/20 Awards"}, "limits": {"logo": "LIMITS", "film": "https://player.vimeo.com/video/636261661?autoplay=1&amp;muted=1&amp;controls=1&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1", "info": "<p>Power made simple. A video and photo campaign for the LIMITS rebrand and product\n           launch. Built around the brand's core principle: what you can measure, you can\n           improve<\/p>\n        <span class=\"cs-lbl\">My contribution<\/span>\n        <p>Freelance Creative Director: Concept and script development &nbsp;|&nbsp; Direction\n           &nbsp;|&nbsp; Edit &nbsp;|&nbsp; Pitching and client communications<\/p>\n        <span class=\"cs-lbl\">Credits<\/span>\n        <p class=\"credits\">Partner Studio, Drone Footage &mdash; Subtle Group<br>\n           Photography &mdash; Diana Dumi &nbsp;|&nbsp; Voiceover &mdash; Scott Tunnicliffe &nbsp;|&nbsp;\n           Operations Director &mdash; Jack Young, Subtle Group<br>\n           Stakeholder &mdash; Stephen Arthur, Creative Director, LIMITS<\/p>", "rows": "<div class=\"cs-row\" style=\"--i:0;z-index:3\"><h3 class=\"cs-head\"><span>Brief<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>LIMITS makes power meters for cyclists who take their performance seriously. For the Bia, its flagship, a rebrand had already locked the design language. My role covered every asset: social cuts, product and sport photography, and at the centre a cinematic brand film. It had one job: signal competence in a category led by Garmin.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#d8ff2b\"><i><\/i><\/div><div class=\"g\" style=\"--c:#141414\"><i><\/i><\/div><div class=\"g\" style=\"--c:#4a4a4a\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#7a7a7a\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:1;z-index:4\"><h3 class=\"cs-head\"><span>Concept<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The slogan set the focus. The meter unlocks an athlete's power with insights that traditional wearables miss. Data awareness is often the difference between winning and losing. Between progress and standing still. A message best told through competition. The film fronts the narrative; everything else falls in behind.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#141414\"><i><\/i><\/div><div class=\"g\" style=\"--c:#d8ff2b\"><i><\/i><\/div><div class=\"g\" style=\"--c:#7a7a7a\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#4a4a4a\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:2;z-index:5\"><h3 class=\"cs-head\"><span>Approach<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The hook pairs a moment of loss with physical struggle. Then the power meter enters, and the comeback begins. The narration steers the story and lands the product benefits. The look blends speed, technology and raw power. HUD-style graphics bring measurement and precision to the screen. Loud, atmospheric sound puts the viewer in the race. LIMITS jerseys on the riders keep the brand in every frame.<\/p><p>All live action was captured in one day, stills included. I directed the drone unit at Subtle Group and commissioned freelancers for the voiceover and photography.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#d8ff2b\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#141414\"><i><\/i><\/div><div class=\"g\" style=\"--c:#7a7a7a\"><i><\/i><\/div><div class=\"g\" style=\"--c:#4a4a4a\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:3;z-index:6\"><h3 class=\"cs-head\"><span>Impact<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>For two years, the film represented the brand across socials and the website. It went out at 90 and 60 seconds for promotion and at 15 for paid social, with a 30 ready for TV. The stills were repurposed for new announcements.<\/p><p>Community engagement is a key driver of sales and credibility for LIMITS. So alongside the finished assets, I put together a toolkit of animated logo stings and taglines, ready to brand any UGC or fast-turnaround content.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#4a4a4a\"><i><\/i><\/div><div class=\"g\" style=\"--c:#141414\"><i><\/i><\/div><div class=\"g\" style=\"--c:#d8ff2b\"><i><\/i><\/div><div class=\"g\" style=\"--c:#e8e3d9\"><i><\/i><\/div><div class=\"g\" style=\"--c:#7a7a7a\"><i><\/i><\/div><\/div><\/div>", "name": "LIMITS"}, "template": {"logo": "Lions", "film": "https://player.vimeo.com/video/868339797?autoplay=1&amp;muted=1&amp;controls=1&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1", "info": "<p>The brand film that opens the Cannes Lions awards show and carries the\n           festival's voice across social for the rest of the year. A day in the life\n           of one creative, told honestly enough that the room recognised itself.<\/p>\n        <span class=\"cs-lbl\">My contribution<\/span>\n        <p>Creative lead. Concept and treatment development, storyboard, directing the\n           live action, casting, edit, motion graphics and sound design.<\/p>\n        <span class=\"cs-lbl\">Credits<\/span>\n        <p class=\"credits\">Creative Lead &mdash; Balint Danyi &nbsp;|&nbsp; Creative Director, Cannes Lions &mdash; Clare Barry &nbsp;|&nbsp;\n           Creative Director, Ascential Studios &mdash; Dina Elrayyes &nbsp;|&nbsp; Director of Photography &mdash; Marco La Nave &nbsp;|&nbsp;\n           Post-Production Supervision &mdash; Ken Coy &nbsp;|&nbsp; Lead Producer &amp; Casting &mdash; Naomi Hartridge-Dawes &nbsp;|&nbsp;\n           Set Designer &mdash; Hany Suleiman &nbsp;|&nbsp; Art Director &mdash; Poppy Yeung<\/p>", "rows": "<div class=\"cs-row\" style=\"--i:0;z-index:3\"><h3 class=\"cs-head\"><span>Brief<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The Lions brand film opens the awards show at Cannes, carries the brand across social through the year, and has to work on a festival screen and a phone alike. The 2023 film had landed because it showed the creative process honestly — thoughtful, uncomfortable, occasionally painful. The 2024 brief asked us to stay on that line of thinking and push further into it: the chaos, the butting heads, the tension between creatives and decision-makers, agencies and clients, marketing and finance. Humour was the tool for relief, and the thing that would let an audience recognise themselves without feeling accused.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#c9c4bb\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5b86b8\"><i><\/i><\/div><div class=\"g\" style=\"--c:#d8623f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#2f6f63\"><i><\/i><\/div><div class=\"g\" style=\"--c:#7a4c16\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:1;z-index:4\"><h3 class=\"cs-head\"><span>Concept<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>Live action was the natural evolution: real people, a real workspace, real frustration. The aim was identification — bringing the viewer close enough to the experience that they stopped watching and started remembering. We followed one creative through an entire day, start to finish. Her desk, her team, her boss, her forty-seven and counting Slack notifications. Is this really the last round of amends? The story runs cyclically, tying the evening back to the morning, so the ending lands as recognition rather than resolution. Set design and motion graphics were written into the concept from the first treatment.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#5b86b8\"><i><\/i><\/div><div class=\"g\" style=\"--c:#7a4c16\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9c4bb\"><i><\/i><\/div><div class=\"g\" style=\"--c:#2f6f63\"><i><\/i><\/div><div class=\"g\" style=\"--c:#d8623f\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:2;z-index:5\"><h3 class=\"cs-head\"><span>Approach<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>The urgency, the nervousness and the chaos all had to flow continuously between set design, performance and motion graphics — one language rather than three layered on top of each other. Draft graphics were combined with generated scenes in the final storyboard, which is what got the concept approved intact. The overhead shots of the team's desks became the key reference in every conversation with the set designer: they fixed the geometry of the room before anything was built. On the day, the motion language from 2023 met a physical environment for the first time.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#2f6f63\"><i><\/i><\/div><div class=\"g\" style=\"--c:#d8623f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5b86b8\"><i><\/i><\/div><div class=\"g\" style=\"--c:#7a4c16\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9c4bb\"><i><\/i><\/div><\/div><\/div>\n        <div class=\"cs-row\" style=\"--i:3;z-index:6\"><h3 class=\"cs-head\"><span data-short=\"Results\">Results &amp; Numbers<\/span><\/h3>\n      <div class=\"cs-body\"><\/div>\n        <div class=\"cs-copy\"><p>Screened before the award ceremonies and between talks across the 2024 festival, and played throughout the venue for the full week. On release it became the highest-engagement post on the Cannes Lions Instagram account at that time, and the second highest in the account's history to date — all of it organic, none of it paid. Nine hundred thousand views, twenty-four thousand likes, four hundred and eighty comments, four thousand seven hundred shares. More usefully than any of those figures, it started a conversation about the industry's working culture that is still going.<\/p><\/div>\n        <div class=\"cs-gal\"><div class=\"g on\" style=\"--c:#7a4c16\"><i><\/i><\/div><div class=\"g\" style=\"--c:#c9c4bb\"><i><\/i><\/div><div class=\"g\" style=\"--c:#d8623f\"><i><\/i><\/div><div class=\"g\" style=\"--c:#5b86b8\"><i><\/i><\/div><div class=\"g\" style=\"--c:#2f6f63\"><i><\/i><\/div><\/div><\/div>", "name": "Old template (reference)"}}</script>
@@ -4714,7 +4763,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        down past half. */
     if (v67Ready && V67.v8()){
       const bp = blockP();
-      if (!film8 && bp >= V67.FILM_AT && contP() <= 0.3 && !pagePassing()){ film8 = true; playFilm(); }   // not on a run that only passes the showreel, and not under contact (the stop's own gate: without it, at rest on contact, start and stop took turns every frame)
+      if (!film8 && bp >= V67.FILM_AT && contP() <= 0.3 && !pagePassing() && !viewOpen()){ film8 = true; playFilm(); }   // not on a run that only passes the showreel, and not under contact (the stop's own gate: without it, at rest on contact, start and stop took turns every frame); 501: nor under a view -- the stop at the view's open must not be re-armed one frame later
       else if (film8 && (bp < 0.5 || contP() > 0.3)){ film8 = false; stopFilm(); }   // gone back below half, or contact over it: the film stops, re-armed
     }
     /* V8's social links are attached to the film's slide for motion: at rest
@@ -5360,6 +5409,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     clearTimeout(c3ExitT); const xEl = document.getElementById('viewCase3'); if (xEl) xEl.classList.remove('c3-exit');   /* 494: a re-open cancels a pending exit */
     caseKeyOpen = key || caseKeyOpen;
     setRoute('case');
+    film8 = false; stopFilm();   /* 501: the showreel never plays on under a case */
     document.body.classList.add('caseopen');
     if (chosen.case >= 3 && c3Ready){ C3.open(key); return; }
     if (key) loadCase(key);
@@ -5793,6 +5843,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const v = vw.dataset.view;
       viewSettle();                     // finalise any swap still in flight
       if (document.body.classList.contains(v + 'open')) return;
+      film8 = false; stopFilm();        /* 501: a view over the landing means no audible film beneath it */
       /* 493 THE DECISION TABLE.
            landing slide <-> landing slide : no transition (the page runs)
            landing -> view                 : view wipes up, home recedes, dim
@@ -6005,6 +6056,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      parked at 0 -- so what shows is the film's own first frame, never Vimeo's
      poster thumbnail. It is revealed only once that swap has happened. */
   let film = null, primed = false, wantPlay = false, ready = false, tries = 0;
+  /* 501: sound's single truth. soundOn mirrors the player; soundVeto is an
+     explicit Mute from the chrome -- arrivals honour it and stay silent.
+     srUiSync is the chrome's label refresh, registered by srCtl far below. */
+  let soundOn = false, soundVeto = false, srUiSync = null;
 
   const wireFilm = () => {
     if (film || !window.Vimeo || !Vimeo.Player) return !!film;   /* 451a: the 444b law -- wire the moment the API exists; never a one-shot boot race */
@@ -6029,34 +6084,32 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     return true;
   };
   wireFilm();
+  addEventListener('DOMContentLoaded', wireFilm, { once:true });   /* 501: player.js is deferred now -- it executes before this fires, so the common path wires here rather than waiting for window load */
 
-  /* The veil exists to catch wheel events over the cross-origin player; near
-     the CONTROL BAR it must do the opposite and vanish, or Vimeo never sees
-     the hover, never shows the bar, and the playbar reads as dead. The free
-     zone is generous -- the bar's height varies with the player size. */
-  {
-    const veil = document.getElementById('veil');
-    const shot = document.querySelector('.shot');
-    black.addEventListener('pointermove', e => {
-      const r = shot.getBoundingClientRect();
-      veil.classList.toggle('free',
-        e.clientY > r.bottom - Math.max(110, r.height * .18));
-    });
-    black.addEventListener('pointerleave', () => veil.classList.remove('free'));
-  }
+  /* 501: the veil covers the whole player now -- controls=0 killed the native
+     bar that the old .free hand-off band served, so nothing under the veil
+     needs the pointer any more. Wheel and click land on the veil everywhere;
+     our chrome takes its own pointers above it. */
   setTimeout(() => black.classList.add('lit'), 4000);   /* 451a: the fallback reveal stands WITHOUT the API -- offline it never arrives; the slide is never its hostage */
 
-  /* Muted playback is always permitted, so the player is explicitly muted
-     before every attempt. It is never unmuted here: switching sound on without
-     a user gesture makes the browser pause what it just allowed, which is why
-     playback looked intermittent. Sound is turned on by a real click instead. */
+  /* 501: the film tries to START WITH SOUND. Arrival is usually inside a
+     real click (the menu) or covered by the iframe's allow="autoplay"
+     delegation; the old always-muted start read as broken sound. When the
+     browser refuses the unmuted play, the same attempt falls back to muted
+     in one breath and the chrome's UNMUTE stands. An explicit Mute from the
+     chrome (soundVeto) keeps arrivals silent. */
   function startFilm(){
     wireFilm();   /* 451a: a late API wires on the first request; ready's held replay does the rest */
     if (!film || !ready) return;
-    const attempt = () => film.setMuted(true)
+    const attempt = snd => film.setMuted(!snd)
       .then(() => film.play())
-      .catch(() => { if (wantPlay && ++tries < 5) setTimeout(attempt, 350); });
-    attempt();
+      .then(() => { soundOn = snd; if (srUiSync) srUiSync(); })
+      .catch(() => {
+        if (!wantPlay) return;
+        if (snd) attempt(false);
+        else if (++tries < 5) setTimeout(() => { if (wantPlay) attempt(false); }, 350);
+      });
+    attempt(!soundVeto);
 
     // A play() that resolves can still be overridden, so the state is checked.
     setTimeout(function verify(){
@@ -6078,17 +6131,19 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (film) film.pause().catch(() => {});
   }
 
-  /* Scrolling is not a user gesture as far as autoplay policy is concerned, so
-     sound cannot be switched on from the commit itself. The first real click
-     anywhere unmutes it; the control bar is there for anyone who doesn't. */
-  // A click is a genuine user gesture, so sound may be switched on here.
-  addEventListener('pointerdown', () => {
-    if (film && wantPlay) film.setMuted(false).catch(() => {});
-  }, { passive:true });
-
+  /* 501: the old window-wide pointerdown unmute is gone -- it made the NAV
+     click the thing that switched sound on, so the reel went loud exactly as
+     it vanished under a view. Sound now belongs to the film's own surface:
+     the arrival attempt (above), the chrome's UNMUTE, and this veil click,
+     which is a real gesture on the film itself. */
   document.getElementById('veil').addEventListener('click', () => {
     if (!film) return;
-    film.getPaused().then(paused => paused ? film.play() : film.pause()).catch(() => {});
+    film.getPaused().then(paused => {
+      if (paused){
+        if (!soundVeto && !soundOn) film.setMuted(false).then(() => { soundOn = true; if (srUiSync) srUiSync(); }).catch(() => {});
+        film.play().catch(() => {});
+      } else film.pause().catch(() => {});
+    }).catch(() => {});
   });
 
   /* ================= loading screen =================================
@@ -7691,6 +7746,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const A4_IC = { handle:[280,278,5,17,266,250], circ:[446,425,71,47,329,307] };
     const mod4 = (n, m) => ((n % m) + m) % m;
     let built = false, raf = 0, tLast = 0, cur = 0, cards = [], T0 = performance.now();
+    let drift4 = 0;   /* 501: the standing drift, ACCUMULATED per clamped frame-dt -- never (now - T0), which anchored the target at page load and made a late open (or a tab waking) sprint the gallery thousands of px */
     /* the case study's own scroll: a critically damped spring (its SCROLL_W)
        between the wheel's target and the page, adopted if something else
        (touch, keys) moves the view natively. */
@@ -7913,7 +7969,18 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function a4Img(c, vi){
       c._vi = vi;
       const n = ((vi % A4_IMGS) + A4_IMGS) % A4_IMGS + 1;
-      c._img.src = encodeURI(A4_GAL + 'G' + String(n).padStart(2, '0') + '.jpeg');
+      const url = encodeURI(A4_GAL + 'G' + String(n).padStart(2, '0') + '.jpeg');
+      /* 501: STAGED swap. Assigning src on the live img dropped its bitmap
+         before the replacement had decoded -- on weak machines the card
+         painted half-drawn. The frame decodes off-DOM first and lands whole;
+         with the 499 warm this is a same-tick cache hit. The token voids a
+         stale landing when the card is re-dressed again mid-flight. */
+      if (!c._img.src){ c._img.src = url; return; }   /* the INITIAL dress is synchronous -- first paint never waits on a decode */
+      const tok = c._tok = (c._tok || 0) + 1;
+      const im = new Image(); im.decoding = 'async'; im.src = url;
+      const land = () => { if (c._tok === tok) c._img.src = url; };
+      if (im.decode) im.decode().then(land, land);   /* rejection lands too -- a broken frame behaves as before */
+      else land();   /* no decode() (jsdom, old engines): the old direct assign */
     }
     /* 499: warm the 31 frames once the landing is long over -- low priority,
        far off the loader's budget -- so About opens with a local cache and
@@ -7934,6 +8001,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          middle projects to nothing; either side, the lens alone opens the
          face -- monotone, symmetric, nothing rotating against it. */
       const sp = A4_SP * gK4, ring = A4_N * sp, half = ring / 2;   /* 409: the whole picture scales with the band */
+      const halfVis4 = (innerWidth - 72) / 2;   /* 501: the projected clip's half-width, for the two swap zones and the release gate */
+      const _gV = document.getElementById('a4GalV'), _gB = document.getElementById('a4GalB');
+      const hidV = _gV && _gV.style.visibility !== 'visible', hidB = _gB && _gB.style.visibility !== 'visible';   /* 501: band() drives these inline; the base sheet hides both */
       cards.forEach((c, i) => {
         const xm = mod4(i * sp - cur + half, ring) - half;
         /* 497: the sequence advances at the wrap. The ring edge sits past
@@ -7959,14 +8029,36 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           xs = c._B - cur;
         } else if (c._B !== undefined){
           xs = c._B - cur;
-          if (Math.abs(xs - xm) < 1 || Math.abs(xs) > half + 380){ c._B = undefined; xs = xm; }
+          /* 501: the 484 release proves the DESTINATION too -- xs at
+             -(half+380) resynced to xm = +684, a ~47px strip in plain view,
+             wearing a stale frame. A destination is safe off the projected
+             clip OR edge-on (<=2.3px face). On windows wider than ~1750px no
+             xm is ever off-lens (0.84 * half < halfVis), so without the
+             edge-on door a banked card would never release -- a permanent
+             hole, worse than the pop. half + ring is the hard bound: a card
+             a full ring adrift releases wherever it stands. */
+          if (Math.abs(xs - xm) < 1 || (Math.abs(xs) > half + 380 && (0.84 * Math.abs(xm) > halfVis4 + 60 || Math.abs(xm) < 6 || Math.abs(xs) > half + ring))){ c._B = undefined; xs = xm; }
         } else xs = xm;
         const x = xs + (c._D || 0) * (1 - swE);   /* 423: THE TRAIN -- one compressing body on one eased clock */
-        if (c._dirty && Math.abs(x) < 24){ c._dirty = false; a4Img(c, c._vi); }   /* 499: the swap lands in the lens's blind spot -- edge-on at the centre, the card projects to nothing */
+        /* 501: the 499 "blind spot" was not blind -- at |x|=24 the lens still
+           opens a ~9px face 20-29px right of centre (the file's own law:
+           face ~ |x| * cardW / P, strip at x * P / (P + z)), which is exactly
+           the "right-side frames change" report. Two zones ARE imperceptible:
+           edge-on within 6px (face <= 2.3px), or provably outside the
+           projected clip (0.84 = P / (P + cardW/2), conservative). */
+        if (c._dirty && (Math.abs(x) < 6 || 0.84 * Math.abs(x) > halfVis4 + 60)){ c._dirty = false; a4Img(c, c._vi); }
         /* 500: CHANGE-GATED WRITES. Same-value style assignments still cost
            recalc against a stylesheet this size, and z churn re-stacks 168
            textured layers; z now steps in 24px bands and nothing is written
            twice. */
+        /* 501: a hidden band's cards keep their books (wrap detection above
+           must never skip a frame) but skip the DOM entirely -- the per-frame
+           write load drops from 168 cards to the visible bands'. A pending
+           swap lands at once: nothing shows. */
+        if ((c.parentElement === _gV && hidV) || (c.parentElement === _gB && hidB)){
+          if (c._dirty){ c._dirty = false; a4Img(c, c._vi); }
+          return;
+        }
         const vz = (c._hideL && swE < 1) ? 'hidden' : '';
         if (c._v !== vz){ c._v = vz; c.style.visibility = vz; }
         const tf = 'translate3d(' + x.toFixed(2) + 'px,0,0) rotateY(90deg)';
@@ -8155,12 +8247,24 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function tick(now){
       raf = 0;
       if (!active()) return;
+      /* 501: dt-honest clocks. The old line set tLast BEFORE the ovfC easing
+         read it (that dt was always 0, falling back to the constant 16), and
+         cur's easing was per-frame, so a 120Hz display ran the gallery at
+         double the designed pace and a struggling 25fps machine at half --
+         while big steps hopped the swap zones entirely. dtF is clamped so a
+         woken tab cannot inject an hour; the per-frame step is capped under
+         the wrap detector's half-ring ambiguity, so a card can never cross
+         a swap zone between two samples. */
+      const dtF = Math.min(100, Math.max(1, now - (tLast || now)));
       tLast = now;
       scrollStep(now);
-      const sc = view.scrollTop, vh = innerHeight, t = (now - T0) / 1000;
-      ovfC += (ovfT - ovfC) * (1 - Math.exp(-3 * (((now - tLast) || 16) / 1000)));
-      const tgt = (sc + ovfC) * A4_K + A4_DRIFT * t;
-      cur += (tgt - cur) * A4_LAG;
+      const sc = view.scrollTop, vh = innerHeight;
+      drift4 += A4_DRIFT * dtF / 1000;
+      ovfC += (ovfT - ovfC) * (1 - Math.exp(-3 * (dtF / 1000)));
+      const tgt = (sc + ovfC) * A4_K + drift4;
+      const lagF = 1 - Math.pow(1 - A4_LAG, dtF / 16.7);   /* 501: A4_LAG was tuned at 60Hz; this holds that pace at any refresh */
+      const capF = A4_SP * gK4 * 0.6;
+      cur += Math.max(-capF, Math.min(capF, (tgt - cur) * lagF));
       place();
       const trg0 = (typeof A4S !== 'undefined' && A4S) ? sc >= A4S.g0.trig : false;
       if (trg0 !== swOn){ swOn = trg0; document.body.classList.toggle('a4nl', swOn);
@@ -8358,7 +8462,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const bTop = bgTop + bg4BandW - Math.max(0, (bandH4 - gh4) / 2) - P4 * (1 - e4 / vh);   /* 423: the band seats where the GROUP put it (window-true), riding its content's pull */
         band(gB, bTop, e4 > 2 ? gh4 : 0, 8);
         /* the belt is always on: the drift and the scroll keep it alive */
-        curB += ((sc * A4_LB_K + A4_DRIFT * ((now - T0) / 1000)) - curB) * A4_LAG;
+        curB += ((sc * A4_LB_K + drift4) - curB) * lagF;   /* 501: the belt rides the same accumulated drift -- its own (now - T0) sprinted on a late open exactly as the gallery's did */
         beltPlace(curB);
       }
             raf = requestAnimationFrame(tick);
@@ -8492,10 +8596,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         prev = p;
         const e = p * p * (3 - 2 * p);
         const b = e >= 1 ? '' : ' blur(' + (4 * (1 - e)).toFixed(2) + 'px)';
-        it[0].forEach(w => {
-          w.style.opacity = e.toFixed(3);
-          w.style.filter = ((w.dataset.bf || '') + b).trim() || 'none';
-        });
+        /* 501: change-gated, the 500 card pattern -- a resting frame writes
+           nothing, a scrubbing frame touches only the items actually moving
+           (hundreds of same-value blur/opacity writes per frame starved weak
+           rasters and read as page-wide flicker). */
+        const eS = e.toFixed(3);
+        if (it._eS !== eS || it._bS !== b){ it._eS = eS; it._bS = b;
+          it[0].forEach(w => {
+            w.style.opacity = eS;
+            w.style.filter = ((w.dataset.bf || '') + b).trim() || 'none';
+          });
+        }
       });
     }
     /* the brackets stay TRIGGERED (they open and complete), the second pair
@@ -8523,6 +8634,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       build(); beltBuild(); layout(); bootIn();
       view.scrollTop = 0; view.classList.remove('v4c'); cur = 0; curB = 0;
       vTr = vS = 0; vV = 0; vOwn = 0;
+      /* 501: a FULL engine reset per open. The old open() kept the drift
+         anchor, the overscroll ratchet, the sweep state and every per-card
+         memory from the last visit -- a reopen woke with stale banks and
+         _pm deltas that read as wraps, dressing a page of cards wrongly.
+         Dirty cards are re-dressed here, before the first painted frame. */
+      drift4 = 0; ovfT = 0; ovfC = 0;
+      swP = 0; swE = 0; swDir = 0; swOn = false; swSnap = false;
+      cards.forEach(c => { c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false;
+        if (c._dirty){ c._dirty = false; a4Img(c, c._vi); } });
       tLast = 0; if (!raf) raf = requestAnimationFrame(tick);
     }
     addEventListener('resize', () => {
@@ -8883,6 +9003,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   if (location.hash === '#showreel' || location.hash === '#contact') setRoute('');
   const ldRoute = ['#blog', '#case', '#about'].indexOf(location.hash);
 
+  /* 501: fonts.ready has hung on real engines (old WebKit), and BOTH boot
+     paths hang off it with no other exit. The race costs at most 4s of
+     fallback-face solving; the ink engine re-solves on the true face the
+     moment it lands (its own fonts.ready passes stand untouched). */
+  const fontsUp = () => Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 4000))]);
+
   if (ldRoute >= 0){
     /* Teardown is synchronous -- the loader must never be seen -- but the
        ROUTING waits for the fonts, exactly as the normal boot does and for
@@ -8890,7 +9016,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        arrival (the blog entrance, the case text fit, the whole About solve),
        and solving against the fallback face sizes it wrong and then jumps. */
     ldBypass();
-    document.fonts.ready.then(() => {
+    fontsUp().then(() => {
       if (s3()){ hdrSolve(); measure(); }
       if (location.hash === '#blog'){ document.body.classList.add('blogopen'); playStack(); }
       if (location.hash === '#case')  openCase();
@@ -8900,8 +9026,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   } else {
     /* Started on the font rather than on load: solving the name against the
        fallback face would size it wrong and then jump when DM Sans arrived.
-       document.fonts.ready settles either way, so this cannot stall. */
-    document.fonts.ready.then(() => {
+       501: raced -- "settles either way" was not true of every engine. */
+    fontsUp().then(() => {
       ldSolve();
       hdrSolve();                    // the first REAL header solve (post-parse)
       if (s3()){ measure(); paint(); }   // the deck re-clears against true hdrH
@@ -8920,6 +9046,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       });
     });
   }
+
+  /* 501: THE SAFETY VALVE. An exception anywhere in the boot chain (or a
+     promise that never settles) used to leave the wall up forever -- a dead
+     loading sheet with no exit. ldBypass is the teardown that already exists
+     for routed loads; here it fires only on evidence of a stuck boot: an
+     uncaught error with the lock still held two seconds later, or the lock
+     still held at 30s -- past the summed legitimate worst case (fonts race
+     4s + count ramp + the 12s asset bail + grace + flight). */
+  setTimeout(() => { if (ldLock){ try { ldBypass(); } catch (e) {} } }, 30000);
+  addEventListener('error', () => setTimeout(() => { if (ldLock){ try { ldBypass(); } catch (e) {} } }, 2000));
 
   measure();
   paint();
@@ -9196,7 +9332,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        stretched by the eye's magnification of the slabs below it (~1.15 at
        these depths). Measured against the projected geometry at 600, 689,
        900 and 1080 tall: one to two slabs over what is needed, never under. */
-    const pitchEst = () => Math.max(20, innerHeight - headFoot() - 60) / WALL_N;
+    const pitchEst = () => Math.max(200, innerHeight - headFoot() - 60) / WALL_N;   /* 501: floor raised 20 -> 200. At a degenerate height (a hidden pane booted at 0x0) the 20px floor made M8 explode -- 432 cards, 432 videos, ~440 aborted requests, measured live. Treating the usable height as at least 200px keeps M8's coverage derivation intact at every real window and bounds the burst; the '8:'+M8() mode key rebuilds on the first honest resize as before. */
     /* IN SIXES. The rail, the caption, goto() and openCase() all read the
        hero's case as k mod N; the hero CARD is k mod M and its case is that
        mod N. The two agree only when M is a multiple of N -- at 19 or 20
@@ -10459,13 +10595,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (introRun._go) requestAnimationFrame(introRun._launch);
     }
     /* 444: the SHOWREEL's own control -- the case chrome, driving the
-       showreel iframe through its Vimeo player. Native controls off; ours on. */
+       showreel iframe through its Vimeo player. 501: controls=0 is authored
+       in the markup src; the old runtime rewrite here re-loaded the embed,
+       and on a slow network the first load's NATIVE chrome stood fully
+       visible until the second landed -- the "two interfaces". */
     (function srCtl(){
       const fr = document.getElementById('vimeo');
       if (!fr) return;
-      try { fr.src = fr.src.replace('controls=1', 'controls=0'); } catch (e) {}
       const host = fr.parentElement || fr.closest('.film');   /* 445: the SHOT is the film box -- the chrome hugs it, as the case does */
-      const el = document.createElement('div'); el.className = 'c3-ctl a on';
+      const el = document.createElement('div'); el.className = 'c3-ctl a';   /* 501: no standing .on -- hover and pause light it */
       el.innerHTML = '<div class="bar">' +
         '<button class="pp" type="button" aria-label="Play or pause">' +
           '<svg class="play" viewBox="0 0 10 12" aria-hidden="true"><path d="M0 0L10 6L0 12Z"/></svg>' +
@@ -10473,12 +10611,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         '</button>' +
         '<div class="tl"><i></i></div>' +
         '<span class="mu t">Unmute</span>' +
-      '</div>' +
-      '<a class="vm" href="https://vimeo.com/1182514258" target="_blank" rel="noopener"><img alt="Vimeo"><b class="t">Vimeo</b></a>';
+      '</div>';   /* 501: no .vm mark -- the reel burns SHOWREEL into that corner */
       host.appendChild(el);
       /* 444b: the chrome stands even before the Vimeo API arrives (offline
          it never does); the player wires the moment it exists. */
-      let p = null, muted = true, paused = false;
+      let p = null, paused = false, hov = false, hovT = 0;   /* 501: sound state lives in the engine (soundOn/soundVeto), not here */
       const wire = () => { if (p || !window.Vimeo || !Vimeo.Player) return false;
         /* 480f: ONE player on #vimeo. wireFilm is the single constructor for
            the showreel (Vimeo hands back the same instance per element
@@ -10493,9 +10630,19 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           p.on('pause', () => { paused = true; st(); });
         }
         return true; };
-      const st = () => { el.classList.toggle('playing', !paused); el.querySelector('.mu').textContent = muted ? 'Unmute' : 'Mute'; };
+      const st = () => { el.classList.toggle('playing', !paused);
+        el.querySelector('.mu').textContent = soundOn ? 'Mute' : 'Unmute';   /* 501: the label reads the engine's one truth */
+        el.classList.toggle('on', hov || paused); };
+      srUiSync = st;   /* 501: the engine refreshes the label when an arrival lands with sound */
+      /* 501: the chrome shows on hover and while paused, as the case players'
+         does; a still pointer lets it fall away after 2.5s. */
+      const wake = () => { hov = true; clearTimeout(hovT); hovT = setTimeout(() => { hov = false; st(); }, 2500); st(); };
+      black.addEventListener('pointermove', wake, { passive:true });
+      black.addEventListener('pointerleave', () => { clearTimeout(hovT); hov = false; st(); });
       el.querySelector('.pp').addEventListener('click', e => { e.stopPropagation(); if (!wire() && !p) return; paused = !paused; (paused ? p.pause() : p.play()).catch(() => {}); st(); });
-      el.querySelector('.mu').addEventListener('click', e => { e.stopPropagation(); if (!wire() && !p) return; muted = !muted; p.setMuted(muted).catch(() => {}); st(); });
+      el.querySelector('.mu').addEventListener('click', e => { e.stopPropagation(); if (!wire() && !p) return;
+        soundOn = !soundOn; soundVeto = !soundOn;   /* 501: an explicit Mute holds across arrivals; an Unmute lifts it */
+        p.setMuted(!soundOn).catch(() => {}); st(); });
       el.querySelector('.tl').addEventListener('click', e => {
         e.stopPropagation(); if (!wire() && !p) return;
         const r = e.currentTarget.getBoundingClientRect();
@@ -10504,16 +10651,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         p.getDuration().then(d => p.setCurrentTime(q * d)).catch(() => {});
       });
       wire();
-      addEventListener('load', () => {
-        wire();
-        /* 445: VIMEO_MARK is declared far below in this script (TDZ at build
-           time); by load it exists -- the mark arrives then, word as fallback. */
-        try {
-          const im = el.querySelector('.vm img'), vm = el.querySelector('.vm');
-          im.addEventListener('error', () => vm.classList.add('word'), { once: true });
-          im.src = window.__VIMEO_MARK;   /* 446: the bridge -- never the const's scope */
-        } catch (e) { el.querySelector('.vm').classList.add('word'); }
-      }, { once: true });
+      addEventListener('load', wire, { once: true });   /* 501: the VIMEO_MARK wiring left with the .vm; the case chrome keeps its own */
       st();
     })();
     /* 444: #blog stays a live route while its menu button is parked */
@@ -11042,7 +11180,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     }
   }
   function stripTick(){
-    c4Settle();
+    /* 501: V4 builds no strips, so this loop existed only to run c4Settle --
+       which read the brand rect plus a rect for every menu span EVERY frame.
+       The settle is a damped corrector that converges over a few passes; a
+       10Hz cadence lands the seat imperceptibly later and returns six
+       forced-layout reads per frame to the scroll. */
+    const nowT = performance.now();
+    if (nowT - (stripTick._t || 0) > 100){ stripTick._t = nowT; c4Settle(); }
     const s = window.scrollY;
     for (const st of strips){
       const tgt = st.dir * s * STRIP_K;
@@ -11171,25 +11315,42 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       pv.addEventListener('timeupdate', function tu(){ if (pv.currentTime > 0.05){ pv.removeEventListener('timeupdate', tu); phReady(); } });
       if (first && pv.play) pv.play().catch(() => {});
     }
-    if (cs.film){
+    card.cs = cs;
+    /* 501: THE BELT DIET + the 451a law for C3. Flank cards no longer build
+       resident window-cover embeds (four to six of them stood loaded behind
+       every case page); only the film card carries an iframe -- built here
+       for the boot card, and by filmWire the moment a step targets a flank
+       or the play policy finds the film card bare. filmWire also wires the
+       PLAYER late when player.js arrives after the deck (it is deferred
+       now): the old one-shot construction left every assigned film dead if
+       the API was late. A flank LOOKS exactly as before: its still was the
+       only visible thing -- flank iframes were opacity:0 preloaders. */
+    if (cs.film && first) filmWire(card, true);
+    if (vGeo) cardSize(card);
+  }
+  function filmWire(card, first){
+    const cs = card.cs;
+    if (!cs || !cs.film) return;
+    if (!card.iframe){
       const f = document.createElement('iframe');
       f.src = 'https://player.vimeo.com/video/' + cs.film + '?muted=1&controls=' + (FILM_CONTROLS ? 1 : 0) + '&autoplay=' + (first ? 1 : 0) + '&loop=1&autopause=0&title=0&byline=0&portrait=0&playsinline=1&dnt=1';   // loop=1: every film on the site repeats; the page's first film starts on its own, as early as the player can
       f.allow = 'autoplay; fullscreen; picture-in-picture';
       card.el.appendChild(f); card.iframe = f;
-      /* never the player's thumbnail: it is unseen -- the still of the loop's
-         first frame shows, blurred while the film is the card's and loading
-         -- until the player reports frames actually going by; then it fades
-         in over the still */
+    }
+    /* never the player's thumbnail: it is unseen -- the still of the loop's
+       first frame shows, blurred while the film is the card's and loading
+       -- until the player reports frames actually going by; then it fades
+       in over the still */
+    if (!card.player && window.Vimeo && Vimeo.Player && card.iframe.tagName === 'IFRAME'){
+      const f = card.iframe;
       const ready = () => { f.classList.add('live'); card.el.classList.add('live'); card.el.classList.remove('boot'); };
-      if (window.Vimeo && Vimeo.Player){
-        try {
-          card.player = new Vimeo.Player(f);
-          if (card.player.on){
-            card.player.on('playing', ready);
-            card.player.on('timeupdate', e => { if (e && e.seconds > 0.05) ready(); if (e && card.q === 0 && card.iframe === f) ctlFillTo(clamp01(e.percent)); });
-          }
-        } catch (err) { card.player = null; }
-      }
+      try {
+        card.player = new Vimeo.Player(f);
+        if (card.player.on){
+          card.player.on('playing', ready);
+          card.player.on('timeupdate', e => { if (e && e.seconds > 0.05) ready(); if (e && card.q === 0 && card.iframe === f) ctlFillTo(clamp01(e.percent)); });
+        }
+      } catch (err) { card.player = null; }
     }
     if (vGeo) cardSize(card);
   }
@@ -11203,6 +11364,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       '</button>' +
       '<div class="tl"><i></i></div>' +
       '<span class="mu t">Unmute</span>' +
+      '<button class="fs" type="button" aria-label="Fullscreen">' +
+        '<svg class="fon" viewBox="0 0 12 12" aria-hidden="true"><path d="M0 4.5V0h4.5v1.5h-3v3zM7.5 0H12v4.5h-1.5v-3h-3zM0 7.5h1.5v3h3V12H0zM10.5 7.5H12V12H7.5v-1.5h3z"/></svg>' +
+        '<svg class="foff" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 0v4.5H0V3h3V0zM12 3v1.5H7.5V0H9v3zM0 9V7.5h4.5V12H3V9zM7.5 12V7.5H12V9H9v3z"/></svg>' +
+      '</button>' +
     '</div>' +
     '<a class="vm" href="https://vimeo.com/" target="_blank" rel="noopener"><img alt="Vimeo"><b class="t">Vimeo</b></a>';
     ['a', 'b'].forEach(k => {
@@ -11228,6 +11393,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       ctlState();
     });
     ctl.querySelector('.vm').addEventListener('click', e => e.stopPropagation());
+    ctl.querySelector('.fs').addEventListener('click', e => { e.stopPropagation(); fsToggle(); });   /* 501 */
     ctlState();
   }
   const ctlFillTo = p => ctlEach(c => { c.querySelector('.tl i').style.width = (p * 100).toFixed(2) + '%'; });
@@ -11249,6 +11415,29 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     else { fc.playing = true; player.setMuted(filmMuted).then(() => player.play()).catch(() => {}); }
     ctlState();
   }
+  /* 501 FULLSCREEN: the window-fill state. Entered only at the film's rest
+     (trS <= 0.5, not busy); exited by the button, Escape, a double click,
+     a window resize or the case's close. While it is up the track's inputs
+     stand off, so the play policy's S never moves and the film plays on. */
+  let fsOn = false, fsCard = null;
+  function fsToggle(){
+    if (!fsOn){
+      const fc = filmCard();
+      if (!fc || !CASE.film || busy || trS > 0.5) return;
+      fsOn = true; fsCard = fc;
+      document.body.classList.add('c3-fs');
+      fc.el.classList.add('fs');
+    } else {
+      fsOn = false;
+      document.body.classList.remove('c3-fs');
+      if (fsCard){ fsCard.el.classList.remove('fs'); fsCard = null; }
+    }
+    ctlEach(c => c.classList.toggle('fs-on', fsOn));
+    if (fsOn) ctlShow(true); else { ctlPlace(); ctlShow(false); }
+  }
+  addEventListener('keydown', e => {
+    if (fsOn && e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); fsToggle(); }
+  }, { capture:true });   /* 501: first hop on the window -- the home pager's own Escape never sees it */
   /* the control's place: the film's box, both copies */
   function ctlPlace(){
     if (!ctl || !vGeo) return;
@@ -11280,8 +11469,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const S3 = SUB, v3 = stripTrim || vtrim(900, S3, S3), stripInk = S3 - v3.t - v3.b;
     headBox = { pad: dial('--c3-head-pad'), cap: brandFull, sub: dial('--c3-sub-gap'), strip: stripInk, padB: dial('--c3-sub-gap') };
     headBox.h = headBox.pad + headBox.cap + (chosen.case === 4 ? headBox.pad : headBox.sub + headBox.strip + headBox.padB);   /* 404: V4's box is pad + words + pad -- REAL AND ASSEMBLED ALIKE (the 402 lesson: the two must never diverge), so the paper's seam, the foot and the slot all read the true slim box */
-    /* THE SLOT: stuck, the title's cap top sits --c3-stick-gap under ABOUT's
-       baseline -- the header's foot less the menu's line box's descent */
+    /* THE SLOT: stuck, the title's cap top sits --c3-stick-gap under the
+       menu's lowest word's baseline (CONTACT since the 501 swap; measured
+       from the live lowest span) -- the header's foot less the menu's line
+       box's descent */
     const menu = hdr.querySelector('.menu'), mpx = parseFloat(getComputedStyle(menu).fontSize) || 10, mv = vtrim(600, mpx, mpx * 1.41);
     if (chosen.case === 4){
       /* 406: V4's stuck seat, DEFINED FROM INK. The title rides at the box's
@@ -11383,6 +11574,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   addEventListener('wheel', e => {
     if (!active()) return;                              // the site's wheel when the case is closed (its own handler stands aside while it is open)
     e.preventDefault();
+    if (fsOn) return;                                   /* 501: fullscreen holds the journey still */
     if (busy) return;                                   // a case is on its way in: the wheel waits
     const d = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
     tr = Math.max(0, Math.min(HOLD() + wheelOf(maxScroll()), tr + d));
@@ -11391,9 +11583,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      by their position, so a native one (touch, keys) resets the track and
      ours never do */
   addEventListener('scroll', () => {
-    if (!active()) return;
-    if (Math.abs(window.scrollY - sOwnY) > 0.5 && window.scrollY > 0.5){ tr = trS = HOLD() + wheelOf(window.scrollY); sV = 0; }
-    videoScroll();
+    if (!active() || fsOn) return;   /* 501: no native move may drag the track while fullscreen holds */
+    if (Math.abs(window.scrollY - sOwnY) > 0.5){
+      /* 501: only a NATIVE move (touch, keys) needs a repaint here -- a
+         self-produced scroll (sTick's own scrollTo) already ran videoScroll
+         in its frame, and the unconditional second call ran the whole
+         pipeline twice per wheeled frame. The track adopts the native
+         position as before (never at 0, the programmatic reset's home). */
+      if (window.scrollY > 0.5){ tr = trS = HOLD() + wheelOf(window.scrollY); sV = 0; }
+      videoScroll();
+    }
   }, { passive:true });
   function sTick(now){
     if (!active()){ sRaf = 0; return; }                 // the loop lives while the case is open; open() starts it
@@ -11513,7 +11712,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       : boxTop + (grow ? (1 - k) * hb.cap : 0);   /* 403: V4's band top HUGS the live title (its box top is sized for the full words); never above the box, so the join and the stick read as before */
     const joined = bandTop <= g.hdrGlassFoot;
     const stackTop = hT + hb.h - follow;
-    root.style.setProperty('--c3-stack-top', stackTop.toFixed(2) + 'px');
+    const stkS = stackTop.toFixed(2);   /* 501: change-gated -- this var is every row's sticky top, and a same-value write still re-ran sticky layout */
+    if (videoScroll._stk !== stkS){ videoScroll._stk = stkS; root.style.setProperty('--c3-stack-top', stkS + 'px'); }
     document.body.classList.toggle('c3-joined', joined);
     document.body.classList.toggle('c3-stuck', stuck);
     /* the glass: from the band's top (the window's top once joined) to the
@@ -11543,27 +11743,40 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         lift = Math.min(0, (nt - need) - (rc.bottom - bL));
       }
       r.lift = lift;
-      r.el.style.transform = lift < -0.5 ? 'translateY(' + lift.toFixed(2) + 'px)' : '';
+      /* 501: the row writes are change-gated -- at rest, and for every row
+         not currently crossing the band, a frame now writes nothing */
+      const rTf = lift < -0.5 ? 'translateY(' + lift.toFixed(2) + 'px)' : '';
+      if (r._tf !== rTf){ r._tf = rTf; r.el.style.transform = rTf; }
       if (rc.top >= foot - 0.5 && rc.top <= foot + pushGap + 0.5) foot = Math.max(foot, rc.bottom);   /* 407: V3's chain VERBATIM again -- the veil that covers a row crossing the band is computed against this foot, and the 404 ink-shortened band left an up-scroll crossing NAKED over the title; the row's box is the correct boundary in both directions */
       /* the hairline: gone by the time the section's last square passes the
          glass's foot (the row's bottom) -- fading over the last --c3-line-fade
          of the squares' approach; back the same way */
       const sq = r.el.parentNode.getBoundingClientRect().bottom - rc.height;   // the squares' bottom: the section's, less the grid's padding (a row's height)
-      r.line.style.opacity = clamp01((sq - rc.bottom) / lineFade).toFixed(3);
+      const rLo = clamp01((sq - rc.bottom) / lineFade).toFixed(3);
+      if (r._lo !== rLo){ r._lo = rLo; r.line.style.opacity = rLo; }
       /* into the band: over the row's own height above the slot, blur and veil like the glass */
       const u = rc.top < stackTop - 0.5 ? clamp01((stackTop - rc.top) / Math.max(1, rc.height)) : 0;
-      r.el.style.filter = u > 0 ? 'blur(' + (7 * u).toFixed(2) + 'px)' : '';
-      r.el.style.opacity = u > 0 ? (1 - 0.42 * u).toFixed(3) : '';
+      const rFl = u > 0 ? 'blur(' + (7 * u).toFixed(2) + 'px)' : '';
+      if (r._fl !== rFl){ r._fl = rFl; r.el.style.filter = rFl; }
+      const rOp = u > 0 ? (1 - 0.42 * u).toFixed(3) : '';
+      if (r._op !== rOp){ r._op = rOp; r.el.style.opacity = rOp; }
     }
     const glassTop = joined ? 0 : bandTop;
-    glass.style.top = glassTop.toFixed(2) + 'px'; glass.style.height = Math.max(0, foot - glassTop).toFixed(2) + 'px';
+    /* 501: the glass is a full-width backdrop-filter surface -- resizing it
+       forces the compositor to re-capture and re-blur its backdrop, so a
+       same-geometry frame must not touch it (over a playing film that was
+       a re-blur per video frame, forever). */
+    const gT = glassTop.toFixed(2), gH = Math.max(0, foot - glassTop).toFixed(2);
+    if (videoScroll._gt !== gT){ videoScroll._gt = gT; glass.style.top = gT + 'px'; }
+    if (videoScroll._gh !== gH){ videoScroll._gh = gH; glass.style.height = gH + 'px'; }
     /* THE MORPH: the whole group scaled about the film's centre from the box
        to the window's cover and carried to the window's centre; the decks
        fade with it; the film drifts inside its frame at PARA of the scroll
        (in its own px: the group scales it). */
     const sCover = Math.max(g.W / g.vw, g.H / g.vh), sm = 1 + (sCover - 1) * (1 - m);
     const dx = (g.W / 2 - deck.cx0) * (1 - m), dy = (g.H / 2 - deck.cy0) * (1 - m);
-    group3d.style.transform = 'translate(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px) scale(' + sm.toFixed(5) + ')';
+    const g3 = 'translate(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px) scale(' + sm.toFixed(5) + ')';
+    if (videoScroll._g3 !== g3){ videoScroll._g3 = g3; group3d.style.transform = g3; }   /* 501: change-gated -- still through the whole journey (the morph moves only near the top) */
     const slack = Math.max(0, g.vh * sm - g.H);
     filmDrift = Math.max(-slack / 2, Math.min(slack / 2, -PARA * dSigned)) / sm;
     doorFade = m;
@@ -11574,7 +11787,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* the film plays while the title is at its rest position: the moment
        the page moves (not the scale -- the move) it stops; back at the
        start it plays again; and not while a case is on its way in */
-    const fc = filmCard(), player = fc ? fc.player : null;
+    const fc = filmCard();
+    if (fc && !fc.player) filmWire(fc);   /* 501: late-wire -- a stepped-to flank builds its embed here at the latest, and a late player.js wires the moment it exists */
+    const player = fc ? fc.player : null;
     if (player){
       const want = S < 0.5 && !userPaused && !busy;
       if (want && !fc.playing){ fc.playing = true; player.setMuted(filmMuted).then(() => player.play()).catch(() => {}); ctlState(); }
@@ -11693,11 +11908,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const p = c.pose; if (!p) return;
       c._m0 = matrixOf(p, c.q === 0 ? filmDrift : 0);
       c._mh = c.q === 0 ? c._m0 : matrixOf(p, 0, (p.hinge === 'R' ? 1 : -1) * HOVER_Z);   /* 404: along the door's own plane toward its NEAR (hinge-side) edge -- the diagonal its top and bottom edges draw: toward the camera, and to the side */
-      c.el.style.transform = (c._hv && chosen.case === 4) ? c._mh : c._m0;
-      c.el.style.opacity = c.q === 0 ? '1' : (p.vis * doorFade).toFixed(3);
-      c.el.classList.toggle('film', c.q === 0);
-      c.el.classList.toggle('own', FILM_CONTROLS);
-      c.el.classList.toggle('pick', p.vis === 1 && c.q !== 0 && Math.abs(c.q) <= TRANS_PICK);
+      /* 501: change-gated, the a4 pattern -- during the journey only the film
+         card's drift actually moves, yet every card was rewritten per frame. */
+      const tf = (c._hv && chosen.case === 4) ? c._mh : c._m0;
+      if (c._ptf !== tf){ c._ptf = tf; c.el.style.transform = tf; }
+      const op = c.q === 0 ? '1' : (p.vis * doorFade).toFixed(3);
+      if (c._pop !== op){ c._pop = op; c.el.style.opacity = op; }
+      const fl = c.q === 0;
+      if (c._pfl !== fl){ c._pfl = fl; c.el.classList.toggle('film', fl); }
+      if (c._pow !== FILM_CONTROLS){ c._pow = FILM_CONTROLS; c.el.classList.toggle('own', FILM_CONTROLS); }
+      const pk = p.vis === 1 && c.q !== 0 && Math.abs(c.q) <= TRANS_PICK;
+      if (c._ppk !== pk){ c._ppk = pk; c.el.classList.toggle('pick', pk); }
     });
   }
   /* at load the decks' cards come in from beyond the window, one after another from the film out; the film is there */
@@ -11746,6 +11967,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     layer3d.classList.remove('rest'); ctlEach(c => c.classList.add('away'));
     cards.forEach(c => c.el.classList.remove('boot'));   // from here on every film arrives with its still already shown: no loading blur
     const fc = filmCard(); if (fc && fc.player && fc.playing){ fc.playing = false; fc.player.pause().catch(() => {}); }
+    const dest = cards.find(c => c.q === steps);
+    if (dest) filmWire(dest);   /* 501: the destination's embed starts loading under the step, arriving as the belt does */
     slideHead(true);
     await step(steps > 0 ? 1 : -1, Math.abs(steps));
     caseSwap();
@@ -12062,9 +12285,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const stage = $('#c3Stage');
   const overFilm = e => { const g = vGeo; return !!g && !busy && trS <= 0.5 && e.clientX >= g.xc && e.clientX <= g.xc + g.vw && e.clientY >= g.yc && e.clientY <= g.yc + g.vh; };
   const ctlShow = on => ctlEach(c => c.classList.toggle('on', on));
-  stage.addEventListener('pointermove', e => { const on = !FILM_CONTROLS && overFilm(e); stage.style.cursor = on ? 'pointer' : ''; ctlShow(on); });
+  stage.addEventListener('pointermove', e => { const on = !FILM_CONTROLS && (fsOn || overFilm(e)); stage.style.cursor = on ? 'pointer' : ''; ctlShow(on); });
   stage.addEventListener('pointerleave', () => { stage.style.cursor = ''; });
-  stage.addEventListener('click', e => { if (!FILM_CONTROLS && overFilm(e)) togglePlay(); });
+  /* 501: the click waits out the dblclick window (instant, a double click
+     fired play/pause/play as a visible stutter); a double click enters and
+     exits fullscreen. In fullscreen the whole window is the film's surface. */
+  let clkT = 0;
+  stage.addEventListener('click', e => { if (!FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); clkT = setTimeout(togglePlay, 250); } });
+  stage.addEventListener('dblclick', e => { if (!FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); fsToggle(); } });
   function boot(){
     document.title = (CASE.title || RING[cur]) + ' \u2014 Balint Danyi (V3)';
     credits();
@@ -12075,7 +12303,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!stripRaf) stripRaf = requestAnimationFrame(stripTick);
 
     let rt = 0;
-    addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (active()) layout(); }, 60); });
+    addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { if (fsOn) fsToggle(); if (active()) layout(); }, 60); });   /* 501: a resize leaves fullscreen first -- layout()'s belt rebuild must never replace the pinned card */
   }
   /* ================= THE VIEW: OPEN / CLOSE ============================
      The site opens the case where V1 opened (the hero card, OPEN CASE, the
@@ -12105,6 +12333,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       document.body.classList.add('c3-in')));   /* 429: the entrance choreography starts here, two frames past the build */
   }
   function close(){
+    if (fsOn) fsToggle();   /* 501: never leave the fullscreen state behind a closed case */
     document.body.classList.remove('c3-in');
     const p = curPlayer(); if (p && p.pause){ try { const q = p.pause(); if (q && q.catch) q.catch(() => {}); } catch (err) {} }
     cards.forEach(c => c.el.remove()); cards = []; beltL = beltR = -1; entered = false; stepQ = null; busy = false;
