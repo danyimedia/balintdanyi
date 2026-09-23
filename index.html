@@ -2049,6 +2049,8 @@
      which has the OPEN CASE circle for a hover. */
   body.hero-v7:not(.hs-off):not(.vs-move) .vs-card:not(.hc):hover{ top:calc(-1 * var(--vs-hover-lift)); }   /* 485: no raise in flight -- vs-move is the spring's own landed test */
   .vs-card video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .vs-pool{ display:none; }   /* 508: the loops wait here until their case is the hero */
+  .vs-card img.still{ pointer-events:none; -webkit-user-drag:none; user-select:none; }   /* 508: an img drags and selects where the canvas did not; the card's click must still land */
   /* (1c) The hairline. There is no border and no outline on a card anywhere
      in this file -- the black is the card's OWN ground, #0e0e0e, showing
      through at the edge. Every V7 row is drawn at scale SCALE^n, so its
@@ -3218,7 +3220,12 @@
   #viewCase3 .c3-sub4{
     font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em; line-height:.8843;
     text-transform:uppercase; text-align:right;
-    position:absolute; right:-.045em; top:var(--c3-sub4-mt, 0px);   /* 402: seated on the margin by its ink; the LIVE law sizes it (three rows = the B) and rides it with the title */
+    position:absolute; right:0; top:var(--c3-sub4-mt, 0px);   /* 402: seated on the margin by its ink; the LIVE law sizes it (three rows = the B) and rides it with the title */
+    /* 508: right:0, and the seat is measured (seatRowsRight, in videoScroll).
+       The old -.045em resolved against the block's UNSCALED 49.4px font, so
+       it pushed the box 2.22px past the margin -- an offset outside the
+       scale's pivot, never scaled down with the glyphs -- and the ink of
+       every case subtitle read 2.3-2.8px over. */
     white-space:normal; }
   #viewCase3 .c3-sub4 i{ display:block; font-style:normal; line-height:.8843; }
   body.c4 #viewCase3 .c3-head .c3-brand .c3-sub4{ transform:none; }
@@ -3466,6 +3473,18 @@
     /* 445: the case scope's tokens, re-declared here -- outside #viewCase3 the
        vars resolve to nothing and the bar ran edge to edge. */
     --c3-ctl-inset:20px; --c3-ctl-bar:3px; --c3-ctl-mark:14px; --ink-t:0px; --c3-cap:7.7px;
+    /* 508: THE ROW STANDS ON THE REEL'S OWN BASELINE. The reel burns its
+       lower-thirds into the frame (LIONS | 2025 BRAND FILM, DIRECTOR |
+       EDITOR), and the bar sat a fixed 20px above the frame's foot -- a
+       constant in px, so it could never track pixels that scale with the
+       picture, and it read ~14px high at 1440. Measured live against a
+       1px ruler at 8x: the captions' glyph bottom is 10.0px above the foot
+       of a 569px frame, i.e. 1.76% of the frame height. --sr-ink-foot is
+       where this row's own ink ends (icon feet and the UNMUTE baseline
+       coincide) above the bar box's bottom -- 3.89px today, written in the
+       tokens so it follows them if --ink-t or --c3-cap ever move. */
+    --sr-cap-foot:.0176;
+    --sr-ink-foot:calc(var(--ui-size) * 1.34 - var(--ink-t) - var(--c3-cap) / 2 - 7px);
     /* the control's words in the site's own menu register -- UNMUTE, not a default serif */
     font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     font-size:var(--ui-size); font-weight:700; letter-spacing:var(--track-s); text-transform:uppercase;
@@ -3497,7 +3516,14 @@
      up top, CREATIVE LEAD + lower-thirds / 2026 along the foot, the widest
      reaching ~16% in from an edge), so the bar keeps to the middle half of
      the foot instead of running inset-to-inset like the case players'. */
-  #black .c3-ctl .bar{ left:25%; right:25%; }
+  #black .c3-ctl .bar{ left:25%; right:25%; bottom:max(0px, calc(var(--sr-cap-foot) * 100% - var(--sr-ink-foot))); }   /* 508: a share of the FRAME, so it holds at every size */
+  /* 508: in fullscreen the shot is the whole window and Vimeo contains the
+     16:9 picture inside it, so a bar measured against the window sat in
+     the letterbox, clear of the captions it is meant to align with. The
+     chrome box is squared to the contained picture instead -- the cq units
+     resolve against .film, the only size container, which fullscreen
+     makes the window -- so the same share lands on the same baseline. */
+  body.sr-fs #black .c3-ctl{ inset:auto; left:calc((100cqw - min(100cqw, 100cqh * 16 / 9)) / 2); top:calc((100cqh - min(100cqh, 100cqw * 9 / 16)) / 2); width:min(100cqw, 100cqh * 16 / 9); height:min(100cqh, 100cqw * 9 / 16); }
   #viewCase3 .c3-case video.film-ph{ object-fit:cover; }   /* 446: only the fit is the video's own; geometry, origin and the live law come from the iframe rule above */
   #viewCase3 .c3-ctl.ph-film .bar{ display:none; }
   #viewCase3 .c3-space{ position:relative; z-index:0; }
@@ -3742,6 +3768,7 @@
   <div class="vs-sw l" id="vsSwL" aria-hidden="true"><span>Selected</span></div>
   <div class="vs-sw r" id="vsSwR" aria-hidden="true"><span>Works</span></div>
   <div class="vs-deck" id="vsDeck"></div>
+  <div class="vs-pool" id="vsPool" hidden></div><!-- 508: the six loops, one per case; the hero card borrows its own -->
 </div>
 <!-- V8's social links: a sibling of .vs, not a child -- they ride the film's
      slide (paint() moves them with its top edge), not the deck's lift -->
@@ -4102,12 +4129,12 @@
      the stack rail's tag where it differs. Edit HERE and nowhere else; the
      case PAGES' registry (c3Data) is a different concern and stands. */
   const CASES = [
-    { key:'lions2024', title:'Cannes Lions 2024', loop:'Lions24/Lions24Loop.mp4', logo:'Lions24/CL24LogoT.png', s:4.129, c:0.5000, w:4.1355, h:3.2258, role:'Creative Lead' },  // opens in the hero slot
-    { key:'lions2025', title:'Cannes Lions 2025', loop:'Lions25/Lions25Loop.mp4', logo:'Lions25/CL25LogoT.png', s:4.094, c:0.5000, w:4.1355, h:3.2258, role:'Creative Lead' },
-    { key:'money2020', title:'Money20/20 Awards', short:'Money20/20', loop:'M2020/M2020Loop.mp4', logo:'M2020/M2020LogoT.png', s:2.370, c:0.4995, role:'Creative Lead' },
-    { key:'blackhat',  title:'Black Hat', loop:'BH/BHLoop.mp4', logo:'BH/BHLogoT.png', s:3.401, c:0.5415, role:'Creative Lead' },
-    { key:'lions2023', title:'Cannes Lions 2023', loop:'Lions23/Lions23Loop.mp4', logo:'Lions23/CL23LogoT.png', s:4.113, c:0.5000, w:4.1161, h:3.2258, role:'Creative Lead' },
-    { key:'limits',    title:'LIMITS', loop:'Limits/LimitsLoop.mp4', logo:'Limits/LimitsLogoT.png', s:2.584, c:0.4870, role:'Freelance Creative Director' },
+    { key:'lions2024', title:'Cannes Lions 2024', loop:'Lions24/Lions24Loop.mp4', first:'Lions24/Lions24First.jpg', logo:'Lions24/CL24LogoT.png', s:4.129, c:0.5000, w:4.1355, h:3.2258, role:'Creative Lead' },  // opens in the hero slot
+    { key:'lions2025', title:'Cannes Lions 2025', loop:'Lions25/Lions25Loop.mp4', first:'Lions25/Lions25First.jpg', logo:'Lions25/CL25LogoT.png', s:4.094, c:0.5000, w:4.1355, h:3.2258, role:'Creative Lead' },
+    { key:'money2020', title:'Money20/20 Awards', short:'Money20/20', loop:'M2020/M2020Loop.mp4', first:'M2020/M2020First.jpg', logo:'M2020/M2020LogoT.png', s:2.370, c:0.4995, role:'Creative Lead' },
+    { key:'blackhat',  title:'Black Hat', loop:'BH/BHLoop.mp4', first:'BH/BHFirst.jpg', logo:'BH/BHLogoT.png', s:3.401, c:0.5415, role:'Creative Lead' },
+    { key:'lions2023', title:'Cannes Lions 2023', loop:'Lions23/Lions23Loop.mp4', first:'Lions23/Lions23First.jpg', logo:'Lions23/CL23LogoT.png', s:4.113, c:0.5000, w:4.1161, h:3.2258, role:'Creative Lead' },
+    { key:'limits',    title:'LIMITS', loop:'Limits/LimitsLoop.mp4', first:'Limits/LimitsFirst.jpg', logo:'Limits/LimitsLogoT.png', s:2.584, c:0.4870, role:'Freelance Creative Director' },
   ];
 
 
@@ -4155,7 +4182,7 @@
      actually play, plus their ring's metadata) instead of the retired
      belt's copies. Legacy media only count while they carry a real src. */
   function watchAssets(){
-    const items = [...document.querySelectorAll('.vs-deck video')];
+    const items = [...document.querySelectorAll('.vs-pool video, .vs-deck img.still')];   /* 508: the six loops and the stills -- the deck holds no video of its own */
     ldItems = items.length;
     const settle = el => { if (!el.__ldDone){ el.__ldDone = true; ldDone++; } };
     items.forEach(el => {
@@ -6959,6 +6986,28 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (side === 'left') el.style.marginLeft = (-p.l).toFixed(2) + 'px';
     else el.style.marginRight = (-p.r).toFixed(2) + 'px';
   }
+  /* 508: A RIGHT-ALIGNED STACK SEATS ON ITS WIDEST INK, not its last row.
+     seatEdge reads the element's joined text, so on a stack (BRAND / FILM /
+     2024) it measured only the last row's last glyph, while whichever row
+     inks furthest right is the one the eye checks against the margin. Every
+     row ends on the same line end, so that row is the one with the smallest
+     right bearing r. k is the element's own scale about its RIGHT edge (1 =
+     unscaled): r is measured at the unscaled computed size, the size the
+     outline is drawn at, so it reaches the window as k of itself. The write
+     is gated on an expando because style.marginRight normalises its string
+     and a naive compare would rewrite it every frame. */
+  function seatRowsRight(el, k){
+    if (!el) return;
+    let rMin = Infinity;
+    for (const row of el.children){
+      const t = (row.textContent || '').trim(); if (!t) continue;
+      const p = inkPx(row, t[t.length - 1]);
+      if (p && p.r < rMin) rMin = p.r;
+    }
+    if (!isFinite(rMin)) return;
+    const v = (-(k || 1) * rMin).toFixed(2) + 'px';
+    if (el._seatR !== v){ el._seatR = v; el.style.marginRight = v; }
+  }
   function seatFlex(box){
     if (!box) return;
     const ks = [...box.children].filter(c => (c.textContent || '').trim());   /* 495: rules and empties (.nrule) are not edges */
@@ -7011,7 +7060,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        which stays as the no-canvas fallback. */
     document.querySelectorAll('.hdr .menu span:not(.soc)').forEach(e => seatEdge(e, 'left'));
     document.querySelectorAll('.hdr .menu span.soc').forEach(e => seatEdge(e, 'right'));
-    document.querySelectorAll('.h4-sub').forEach(e => seatEdge(e, 'right'));
+    document.querySelectorAll('.h4-sub').forEach(e => seatRowsRight(e, 1));   /* 508: a stack seats on its widest ink */
   }
   /* 507: seating ran ONCE, behind a single requestAnimationFrame -- which
      never fires while the page is hidden, so a site opened in a background
@@ -7047,7 +7096,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (card){
         const st = card.querySelector('.still'), cr = card.getBoundingClientRect(), sr = st && st.getBoundingClientRect();
         note(10, innerHeight - 60, 'card#3 rect ' + cr.width.toFixed(1) + 'x' + cr.height.toFixed(1) + '\nstill rect ' + (sr ? sr.width.toFixed(1) + 'x' + sr.height.toFixed(1) : 'NONE') + '  bleed:' + getComputedStyle(card).getPropertyValue('--vs-bleed'), '#f0f');
-        if (st && st.width){ const g = st.getContext('2d'); g.strokeStyle = '#f0f'; g.lineWidth = 2; g.strokeRect(1, 1, st.width - 2, st.height - 2); }
+        if (st && st.getContext && st.width){ const g = st.getContext('2d'); g.strokeStyle = '#f0f'; g.lineWidth = 2; g.strokeRect(1, 1, st.width - 2, st.height - 2); }
       }
       document.body.appendChild(ov);
     } catch (e) {}
@@ -8140,6 +8189,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const A4_ROOT = 'portfoliocontent/';   /* the a2 module's ROOT is closed over its own IIFE */
     const A4_LAG = 0.045, A4_K = 0.225, A4_DRIFT = 12;   /* 394: half pace; 409: halved AGAIN on his call -- the scroll coupling, everywhere; the drift untouched */
     const A4_SP = 38, A4_P = 800, A4_N = 56;   /* the lens off the sheet: face ~ |x| * cardW / P */
+    /* 508: A4_N is the FLOOR of a band's ring, not the ring. 56 cards span
+       2128px, and the lens shows a card out to 1.23x its slot, so above a
+       ~1870px window the ring's wrap seam sat ON the lens: cards visibly
+       jumped from one edge to the other, wearing stale frames. Each band
+       now grows its ring until the seam sits A4_PARK pitches past the
+       projected clip on both sides. 5 pitches (190px) covers the belt's
+       measured advance through the entrance sweep (~165px), which is what
+       lets a card that wraps mid-sweep re-enter unseen (see place()). */
+    const A4_PARK = 5;
     const A4_UPM = 1000, A4_ASC = 992, A4_DESC = 310, A4_CAP = 700;
     /* the two icons' ink boxes, measured off his files (crop-to-ink, the
        belt's own trick): [png w, png h, ink x, ink y, ink w, ink h] */
@@ -8353,15 +8411,37 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          crop-to-fit in the untouched containers, looping forever. */
       ['a4Gal', 'a4GalV', 'a4GalB'].forEach(id => {
         const host = document.getElementById(id);
-        for (let i = 0; i < A4_N; i++){
-          const c = document.createElement('div'); c.className = 'a4-card';
-          const im = document.createElement('img');
-          im.decoding = 'async'; im.alt = ''; im.draggable = false;
-          c._img = im; c.appendChild(im);
-          a4Img(c, i);   /* slot at birth is the virtual index */
-          host.appendChild(c); cards.push(c);
-        }
+        for (let i = 0; i < A4_N; i++) a4Card(host, i);
+        host._n = A4_N;   /* 508: the band's ring count; a4Ring() grows it to the window */
       });
+    }
+    /* 508: ONE card factory, for the build and for a ring that grows. _li is
+       the card's slot in ITS band -- place() used the index into all 168
+       cards, which only worked while every band held exactly A4_N. */
+    function a4Card(host, i){
+      const c = document.createElement('div'); c.className = 'a4-card';
+      const im = document.createElement('img');
+      im.decoding = 'async'; im.alt = ''; im.draggable = false;
+      c._img = im; c.appendChild(im);
+      c._li = i;
+      a4Img(c, i);   /* slot at birth is the virtual index */
+      host.appendChild(c); cards.push(c);
+      return c;
+    }
+    /* 508: size a band's ring to the window. Grows only -- a longer ring is
+       always valid, and shrinking would reshuffle the belt on every resize.
+       Growing moves every slot (xm depends on the ring), so the band's
+       books are reset exactly as open() resets them, or the wrap detector
+       would read the jump as a lap and dress a page of cards wrongly. */
+    function a4Ring(host, k){
+      if (!host || !host._n) return;   /* not built yet */
+      const sp = A4_SP * gK4 * k;
+      const R = ((innerWidth - 72) / 2 + 60) / 0.84;   /* the projected clip's reach, in slot units (the 501 zone) */
+      const need = Math.max(A4_N, 2 * Math.ceil((R + A4_PARK * sp) / sp));
+      if (need <= host._n) return;
+      for (let i = host._n; i < need; i++) a4Card(host, i);
+      host._n = need;
+      [...host.children].forEach(c => { c._pm = undefined; c._B = undefined; c._vi = c._li; c._dirty = true; });
     }
     function layout(){
       solve();
@@ -8411,16 +8491,25 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            take its scale, as the card box and the lens do, so each band is
            a true uniform scale of the one design. */
         const kC = c.parentElement === _gB ? kBB : (c.parentElement === _gV ? 1 : kB1);
-        const sp = A4_SP * gK4 * kC, ring = A4_N * sp, half = ring / 2;
-        const xm = mod4(i * sp - cur * kC + half, ring) - half;
+        const nb = c.parentElement._n || A4_N;   /* 508: the band's own ring count */
+        const sp = A4_SP * gK4 * kC, ring = nb * sp, half = ring / 2;
+        const xm = mod4(c._li * sp - cur * kC + half, ring) - half;
         /* 497: the sequence advances at the wrap. The ring edge sits past
            the frame, so the src swap is never on the lens; the mod counts
            under the 484 bank too, so the virtual index stays true and the
            resync teleports a card already wearing its new frame. */
         if (c._pm !== undefined){
           const dW = xm - c._pm;
-          if (dW > half){ c._vi += A4_N; c._dirty = true; }
-          else if (dW < -half){ c._vi -= A4_N; c._dirty = true; }
+          if (dW > half){ c._vi += nb; c._dirty = true;
+            /* 508: a card held hidden off the left edge whose slot wraps
+               mid-sweep would otherwise be revealed at the landing, sitting
+               in its new slot near the right edge -- a pop. It joins the
+               train's TAIL instead: drawn at its slot plus the tail's
+               displacement it starts off-lens right, and slides in behind
+               the last car. */
+            if (swE > 0 && swE < 1 && c._hideL && c.parentElement._Dtail){ c._hideL = false; c._D = c.parentElement._Dtail; }
+          }
+          else if (dW < -half){ c._vi -= nb; c._dirty = true; }
         }
         c._pm = xm;
         /* 484: the wrap stands down while the train holds the body displaced.
@@ -8431,11 +8520,34 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            the two agree or the card is provably off the lens -- the standing
            drift clears every deferred branch moments after the landing. */
         let xs;
-        if (swE > 0 && swE < 1){
-          if (c._B === undefined) c._B = xm + cur;
-          xs = c._B - cur;
+        /* 508 THE HOLE IN THE BELT. Every card banked during the sweep --
+           VISION and BACKGROUND too, which have no train -- and a card
+           whose slot wrapped mid-sweep landed a whole ring away from it.
+           The release could then only fire when its slot crossed the exact
+           centre, so on any window wider than ~1100px its slot sat EMPTY
+           for a minute or more, and the empty slots were neighbours: one
+           hole 3-11 pitches wide, drifting in from the right. Measured live
+           at 1990px: 9 of 56 cards still banked after landing.
+           Three changes. Only cards the train actually displaces bank.
+           The bank is kept in the BAND's units (cur * kC) -- in raw cur it
+           drifted from the slot on any band scaled below 1, so none of
+           them ever released through the first door. And a banked card
+           whose slot has wrapped RE-LAPS the moment it has slid off the
+           left of the lens: it moves one ring forward, takes the tail's
+           displacement, re-enters off-lens right as the train's last car
+           and lands exactly on its slot. The ring is sized (a4Ring) so
+           that destination is always past the projected clip. */
+        const cK = cur * kC;
+        if (swE > 0 && swE < 1 && (c._B !== undefined || (c._D || 0) > 0)){
+          if (c._B === undefined) c._B = xm + cK;
+          xs = c._B - cK;
+          const xd = xs + (c._D || 0) * (1 - swE);
+          if (xs < xm - half && xd < 0 && 0.84 * -xd > halfVis4 + 60){
+            c._B += ring; xs += ring;
+            if (c.parentElement._Dtail) c._D = c.parentElement._Dtail;
+          }
         } else if (c._B !== undefined){
-          xs = c._B - cur;
+          xs = c._B - cK;
           /* 501: the 484 release proves the DESTINATION too -- xs at
              -(half+380) resynced to xm = +684, a ~47px strip in plain view,
              wearing a stale frame. A destination is safe off the projected
@@ -8444,7 +8556,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
              edge-on door a banked card would never release -- a permanent
              hole, worse than the pop. half + ring is the hard bound: a card
              a full ring adrift releases wherever it stands. */
-          if (Math.abs(xs - xm) < 1 || (Math.abs(xs) > half + 380 && (0.84 * Math.abs(xm) > halfVis4 + 60 || Math.abs(xm) < 6 || Math.abs(xs) > half + ring))){ c._B = undefined; xs = xm; }
+          /* 508: the release proves BOTH ends unseen: the card leaves from off
+             the projected clip, and arrives off it or edge-on. With the ring
+             sized past the clip, a card a ring adrift always satisfies the
+             first half, so it can no longer wait at the centre for a minute
+             while its slot stands empty. */
+          const offS = 0.84 * Math.abs(xs) > halfVis4 + 60;
+          if (Math.abs(xs - xm) < 1 || (offS && (0.84 * Math.abs(xm) > halfVis4 + 60 || Math.abs(xm) < 6)) || Math.abs(xs) > half + ring){ c._B = undefined; xs = xm; }
         } else xs = xm;
         const x = xs + (c._D || 0) * (1 - swE);   /* 423: THE TRAIN -- one compressing body on one eased clock */
         /* 501: the 499 "blind spot" was not blind -- at |x|=24 the lens still
@@ -8521,6 +8639,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       put(document.getElementById('a4Gal'), kB1, bh1);
       put(document.getElementById('a4GalV'), 1, bandH4);   /* VISION keeps the design: its clip is the SLIT opening, by design, not a crop */
       put(document.getElementById('a4GalB'), kBB, bhB);
+      a4Ring(document.getElementById('a4Gal'), kB1);   /* 508: each ring reaches past the clip at THIS width */
+      a4Ring(document.getElementById('a4GalV'), 1);
+      a4Ring(document.getElementById('a4GalB'), kBB);
       view.style.setProperty('--a4-galh', bh1.toFixed(2) + 'px');   /* the slot is the INTRO band's own anchor */
       const slotEl = document.getElementById('a4GalSlot');
       if (slotEl) slotEl.style.top = (0.5 * vh - off - bh1 / 2).toFixed(1) + 'px';   /* 422's true vertical centre, at the scaled height */
@@ -8824,7 +8945,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
             const spT = A4_SP * gK4 * kB1, ringT = ic2.length * spT, halfT = ringT / 2;   /* 503: the train reads the INTRO band's own row */
             const halfVis = (innerWidth - 72) / 2;
             const rows = ic2.map((c, i) => ({ c, x: mod4(i * spT - cur * kB1 + halfT, ringT) - halfT }));
-            const train = rows.filter(r => r.x >= -halfVis - 20).sort((a, b) => a.x - b.x);
+            /* 508: the train is the body the 56-card ring always had; slots a
+               grown ring adds past its right end trail behind the last car
+               on the tail's displacement, so the entrance reads the same at
+               every width and nothing is left standing in the park. */
+            const parkX = A4_N * spT / 2;
+            const train = rows.filter(r => r.x >= -halfVis - 20 && r.x < parkX).sort((a, b) => a.x - b.x);
             rows.forEach(r => { if (r.x < -halfVis - 20){ r.c._D = 0; r.c._hideL = true; } else r.c._hideL = false; });
             const M = train.length;
             let D = train.length ? ((halfVis + 340) - train[0].x) : 0;   /* clear of the lens's projected face: the head starts truly OFF the right edge */
@@ -8833,6 +8959,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
               const m = 4 - 3 * (k / Math.max(1, M - 2));
               D += spT * (m - 1) + 0;   /* the NEXT card's extra: gap_k(0) = m_k * sp */
             });
+            gal._Dtail = D;   /* 508: the displacement a car appended behind the tail takes (m has reached 1, so the gap stays one pitch) */
+            rows.forEach(r => { if (r.x >= parkX) r.c._D = D; });
           }
           if (swOn) swSnap = true;
         }
@@ -9664,6 +9792,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
 
     const host = document.getElementById('vs');
     const dk   = document.getElementById('vsDeck');
+    const vp   = document.getElementById('vsPool');   /* 508 */
     const nv   = document.getElementById('vsNav');
     const mod  = (n, m) => ((n % m) + m) % m;
     const cl   = (v, lo, hi) => Math.round(Math.min(Math.max(v, lo), hi));
@@ -9842,7 +9971,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* V6 needs three copies for its ring; V7 needs exactly six. The host
        is rebuilt when the variant changes, because the element count is
        part of each design rather than a shared detail. */
-    let M = 0, A = 0, cards = [], vids = [], btns = [], stills = [];
+    let M = 0, A = 0, cards = [], vids = [], btns = [];
+    let pool = [];   /* 508: six <video>, one per case -- the ONLY videos the deck ever has */
     let k = 0, cw = 0, ch = 0, top0 = 0, eyeY = 0, P = 0, dense = DENSE, gapF = GAP, built = '';
     let peekF = PEEK;             // solved per layout for V7; see layout()
     let curHero = -1, swapT = 0, capT = 0, lock = false, lastU = null, lastK = 0;
@@ -9878,19 +10008,40 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* One deck, below the hero. Everything above it is the single card
          waiting in the hero's own box -- there is no top deck. */
       A = v7() ? 0 : M - 2;
-      dk.innerHTML = Array.from({ length:M }, (_, j) => {
-        const r = L[j % N];
-        return '<div class="vs-card" data-j="' + j + '">' +
-          '<canvas class="still"></canvas>' +
-          '<video src="' + encodeURI(ROOT + r[1]) + '" muted loop playsinline preload="' +
-          (j < N ? 'auto' : 'metadata') + '"></video></div>';
-      }).join('');
+      /* 508 THE DECK HOLDS SIX VIDEOS, NOT M. Every card carried its own
+         <video> -- 24 at 1080p for six loops, the 18 copies there only so
+         their case could be the hero on some later step -- and the copies
+         pulled their files too: ~85MB in the first 12s against 21.7MB of
+         loops. The cards the HERO-to-SHOWREEL turn fans out can never play,
+         so they should never have been video. Now every card is a
+         first-frame STILL (<Key>First.jpg, the loop's frame 0 with the 496
+         border crop baked in) and the six loops live in one pool; the hero
+         card borrows its case's loop and hands it back when it leaves.
+         Roles here are SLOTS, not elements -- the hero index walks every
+         card as the deck steps -- so the split is by media, not geometry:
+         no pose, fade or order law changes.
+         Only the boot hero's loop preloads whole; the other five fetch
+         their headers and load when their case comes up, the still covering
+         the card until the loop is actually playing. */
+      pool.forEach(v => { if (v.parentNode !== vp) vp.appendChild(v); });   /* rescue the hero's borrowed loop before the rebuild */
+      if (!pool.length){
+        vp.innerHTML = L.map((r, i) => '<video class="vs-loop" src="' + encodeURI(ROOT + r[1]) + '" muted loop playsinline preload="' +
+          (i === 0 ? 'auto' : 'metadata') + '"></video>').join('');
+        pool = [...vp.children];
+        pool.forEach(v => {
+          v.addEventListener('playing', () => { const c = cards[curHero]; if (c && v.parentNode === c) c.classList.add('live'); });
+        });
+      }
+      dk.innerHTML = Array.from({ length:M }, (_, j) =>
+        '<div class="vs-card" data-j="' + j + '">' +
+          '<img class="still" src="' + encodeURI(ROOT + CASES[j % N].first) + '" alt="" draggable="false"></div>'
+      ).join('');
       nv.innerHTML = '<div class="vs-run">' + L.map((r, i) =>
         '<button type="button" data-i="' + i + '" aria-label="' + r[0] + '">' +
         '<span class="hs-lg" style="--s:' + r[3] + ';--c:' + r[4] + (r[7] ? ';--w:' + r[7] + ';--h:' + r[8] : '') + '">' +
         '<img src="' + encodeURI(ROOT + r[2]) + '" alt=""></span></button>').join('') + '</div>';   /* 431: the rail's single run */
       cards = [...dk.querySelectorAll('.vs-card')];
-      vids  = [...dk.querySelectorAll('video')];
+      vids  = pool;   /* 508: the deck's videos ARE the pool */
       btns  = [...nv.querySelectorAll('button')];
       /* (1b) And on the way IN: a fresh element has currentTime 0, but the
          browser may restore a position from its own media cache on reload.
@@ -9910,20 +10061,21 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          same case, so one decode serves the ring. The canvas is tainted on
          file:// and cannot be read back; it does not need to be -- it is
          only ever shown. */
-      stills = [...dk.querySelectorAll('canvas.still')];
-      vids.forEach((v, j) => {
-        if (j >= N) return;
+      /* 508: a missing still falls back to the old paint -- a canvas drawn
+         from the case's pool loop, with the 496 crop -- so a card is never
+         left showing only its ground (in the intro flight it is transparent). */
+      dk.querySelectorAll('img.still').forEach(im => im.addEventListener('error', () => {
+        const card = im.parentNode; if (!card) return;
+        const v = pool[(+card.dataset.j) % N]; if (!v) return;
+        const c = document.createElement('canvas'); c.className = 'still';
         const paintStill = () => {
           const w = v.videoWidth, h = v.videoHeight; if (!w || !h) return;
-          for (let q = j; q < M; q += N){
-            const c = stills[q]; if (!c) continue;
-            c.width = w; c.height = h;
-            try { c.getContext('2d').drawImage(v, 2, 2, w - 4, h - 4, 0, 0, w, h); } catch (err) {}   /* 496: the encode's own dark boundary row (H.264 on bright frames) never enters the bitmap */
-          }
+          c.width = w; c.height = h;
+          try { c.getContext('2d').drawImage(v, 2, 2, w - 4, h - 4, 0, 0, w, h); } catch (err) {}   /* 496: the encode's own dark boundary row (H.264 on bright frames) never enters the bitmap */
         };
-        if (v.readyState >= 2) paintStill(); else v.addEventListener('loadeddata', paintStill, { once:true });
-      });
-      cards.forEach((c, j) => vids[j].addEventListener('playing', () => { if (j === curHero) c.classList.add('live'); }));
+        im.replaceWith(c);
+        if (v.readyState >= 2) paintStill(); else { v.preload = 'auto'; v.addEventListener('loadeddata', paintStill, { once:true }); }
+      }, { once:true }));
       rot = 0; posed = false;                   // a rebuilt deck is at rest
       if (vsMoveCl){ vsMoveCl = false; document.body.classList.remove('vs-move'); }
     }
@@ -10402,18 +10554,27 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         clearTimeout(swapT);
         const swap = () => {
           if (!on()) return;
-          const v = vids[heroIdx];
+          const v = pool[heroIdx % N];
+          if (v.parentNode !== cards[heroIdx]) cards[heroIdx].appendChild(v);   /* 508: the hero borrows its case's loop */
+          if (v.preload !== 'auto') v.preload = 'auto';
           const pr = v.play();
           if (pr) pr.catch(() => {
             v.addEventListener('canplay', () => { const q = v.play(); if (q) q.catch(() => {}); }, { once:true });
           });
           /* every other loop, not just the one that left: only the hero plays,
              and only the hero's card shows its video */
-          vids.forEach((x, j) => { if (j !== heroIdx && !x.paused) x.pause(); });
+          /* 508: EVERY other loop goes home, not just the one that left. A rail
+             jump is a run of steps, and each step cancels the swap before it,
+             so the swap only ever knows the LAST old hero -- the loop that was
+             actually showing stayed parked in a card it no longer belonged to,
+             unrewound. Paused, rewound (the (1b) law: a case always re-enters
+             on its first frame) and back in the pool. */
+          pool.forEach(x => { if (x === v) return; if (!x.paused) x.pause();
+            if (x.parentNode !== vp){ try { x.currentTime = 0; } catch (err) {} vp.appendChild(x); } });
           cards.forEach((c, j) => { if (j !== heroIdx) c.classList.remove('live'); });
           if (!v.paused && v.readyState >= 2) cards[heroIdx].classList.add('live');
-          if (old >= 0 && old !== heroIdx){
-            const ov = vids[old];
+          if (old >= 0 && old !== heroIdx && pool[old % N] !== v){
+            const ov = pool[old % N];
             if (!ov.paused) ov.pause();
             /* (1b) Nothing in this file ever writes currentTime -- there is
                no deliberate random seek anywhere, on any hero. A loop that
@@ -10422,6 +10583,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
                what reads as a random position. Rewind on the way out, so a
                card in the deck is always its own first frame. */
             try { ov.currentTime = 0; } catch (err) {}
+            vp.appendChild(ov);   /* 508: back to the pool -- its card shows the still */
           }
         };
         if (instant) swap(); else swapT = setTimeout(swap, dur() * SWAP);
@@ -10706,11 +10868,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        the deck: the turn, the page, and place(). */
     function videoPolicy(){
       const still = !introOn && (!(rot > 0 || page > 0) || homing8());   // and the hero's loop plays from the commit to home; 450b: never during the intro -- the hero autoplays only once the deck's transition-in is over (his spec)
-      for (let j = 0; j < vids.length; j++){
-        const v = vids[j], want = still && j === curHero && on() && !viewOpen();
-        if (want){ if (v.paused){ const pr = v.play(); if (pr) pr.catch(() => {}); } }
-        else {
-          if (!v.paused) v.pause();
+      const hv = curHero >= 0 ? pool[curHero % N] : null;   /* 508: card index -> its case's pool loop */
+      for (let q = 0; q < pool.length; q++){
+        const v = pool[q], want = still && v === hv && on() && !viewOpen();
+        if (want){ if (v.parentNode !== cards[curHero]) cards[curHero].appendChild(v); if (v.paused){ const pr = v.play(); if (pr) pr.catch(() => {}); } }
+        else if (!v.paused) v.pause();
+      }
+      for (let j = 0; j < cards.length; j++){
+        {
           /* 481a: THE DEPARTING HERO HOLDS ITS FRAME (his spec). Stripping
              .live here swapped the hero's face to its first-frame still on
              the first pixel of every journey -- read as "the loop rewound",
@@ -11258,7 +11423,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* 507: re-seat on the swap -- the last glyph changes with the case, so
          a seat taken once at boot is the wrong bearing for every case after
          the first. */
-      try { seatEdge(sub, 'right'); } catch (e) {}
+      try { sub._seatR = null; seatRowsRight(sub, 1); } catch (e) {}   /* 508: the widest row, not the last */
       const src = encodeURI(ROOT + L[i][2]);   /* row 2 is the logo: see L's shape above */
       const img = mk.querySelector('img'); if (!img) return;
       mk._src = src;
@@ -11366,7 +11531,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     }
 
     function sync(){
-      if (!on()){ vids.forEach(v => { if (!v.paused) v.pause(); }); return; }
+      if (!on()){ pool.forEach(v => { if (!v.paused) v.pause(); }); return; }
       layout();
     }
     v67Ready = true;
@@ -12284,6 +12449,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           const mt = parseFloat(head.style.getPropertyValue('--c3-sub4-mt')) || 0;
           head.style.setProperty('--c3-sub4-mt', (mt + (tR.top - s0)).toFixed(1) + 'px');
         }
+        /* 508: seat the stack by ink, at the scale this same call writes to
+           --c3-brand-k below (the computed transform would still hold the
+           last one). Gated on size+scale so it runs when either changes --
+           every caseSwap, resize, open and blog post -- and not per frame. */
+        try { const sk = s4.style.fontSize + '|' + k.toFixed(4); if (s4._sk !== sk){ s4._sk = sk; seatRowsRight(s4, k); } } catch (e) {}
       }
     }
     $('#c3Body').style.setProperty('--c3-brand-k', k.toFixed(4));
@@ -12675,7 +12845,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* THE SWAP: the page becomes the next case -- the words, the strip, the credits, the details; the decks are already where the ring put them */
   function caseSwap(){
     CASE = REC()[RING[cur]];
-    document.title = (CASE.title || RING[cur]) + ' \u2014 Balint Danyi (V3)';
+    document.title = CASE.title || RING[cur];   /* 508: the case's (or post's) own title, nothing else */
     credits(); detailsBuild();
     layout();
     ctlFillTo(0); ctlState();
@@ -12907,7 +13077,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   stage.addEventListener('click', e => { if (!FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); clkT = setTimeout(togglePlay, 250); } });
   stage.addEventListener('dblclick', e => { if (!FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); fsToggle(); } });
   function boot(){
-    document.title = (CASE.title || RING[cur]) + ' \u2014 Balint Danyi (V3)';
+    document.title = CASE.title || RING[cur];   /* 508: the case's (or post's) own title, nothing else */
+    /* 508: the ink memo is keyed on the family string, which reads the same
+       before and after DM Sans arrives, so a case opened on the fallback
+       face would keep that seat until something moved. */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (active()){ const s4 = $('#c3Head .c3-sub4'); if (s4) s4._sk = null; videoScroll(); } });
     credits();
     detailsBuild();
     ctlBuild();
