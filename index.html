@@ -15,7 +15,7 @@
   :root{
     /* hero V6 / V7 -- all written from JS in px; see V67.layout() */
     --vs-cw:0px; --vs-ch:0px; --vs-camP:0px; --vs-eye:0px;
-    --vs-navTop:0px; --vs-navH:0px; --vs-navT:0px; --vs-navGap:0px; --vs-navX:36px; --vs-nav-out:0px; --vs-tag-kh:1;
+    --vs-navTop:0px; --vs-navH:0px; --vs-navT:0px; --vs-navGap:0px; --vs-navX:var(--pad); --vs-nav-out:0px; --vs-tag-kh:1;
     --vs-ease:cubic-bezier(.72,0,.24,1); --vs-dur:1050ms;
     /* V7/V8's own step. The shared ease has long flat ends; at 1050ms the
        card crawled through them at sub-pixel speed, which reads as jitter.
@@ -24,6 +24,14 @@
     --vs7-ease:cubic-bezier(.5,0,.12,1); --vs7-dur:760ms;
     --vs-social-ink:0px;   /* V8: the social links' last baseline onto the bottom margin (written by JS) */
     --pad:36px; --ink:#000; --paper:#F5F5F5; --rule:#d9d9d6; --track:.096em;
+    /* 508: --pad IS THE PAGE MARGIN, and the only place it is set. Every
+       margin on every page reads it -- CSS by var(--pad), JS through padPx().
+       Keep it a plain px value: JS parses the token, and jsdom does not
+       resolve var() or clamp(). --a4-um is not a second dial: it is the About
+       sheets' OWN margin in their unit coordinates, and the unit law maps it
+       onto --pad at every width, so the sheets follow the dial without being
+       re-composed. */
+    --a4-um:36px;
     --track-s:.0576em; --wsp-s:.0384em; --sm-lh:1.13;   /* 384: rows midway back -- .85 read too tight against 1.41 */
     /* (1) The default pointer: a small cross, four arms of equal length,
        drawn rather than borrowed -- `crosshair` is a different figure at a
@@ -1306,7 +1314,7 @@
   body.aboutopen.about4 .a4-sl1{ visibility:visible; }
   .a4-s1{ position:absolute; left:var(--pad); right:var(--pad); top:var(--a4-off, 0px);
     height:calc(100vh - var(--a4-off, 0px)); display:flex; flex-direction:column;
-    justify-content:center; padding-bottom:var(--a4-fz, 36px); }   /* 391: the composition CENTRES between header and foot */
+    justify-content:center; padding-bottom:var(--pad); }   /* 391: the composition CENTRES between header and foot */
   /* THE CARDS ARE OPAQUE (principle 3): nothing beneath a card can ever
      show through it. ROLE RIDES ABOVE VISION: their transition is the
      role EXITING up at x1.5 over vision settling from its x0.3 offset --
@@ -1347,10 +1355,10 @@
      STACKED on the left margin (three middle-register lines stand exactly
      the large cap tall: the design's own equation), the four-word title
      one line, right-aligned to the margin, classes unchanged. */
-  .a4-bgk.k1{ left:36px; margin-left:-.015em; top:305.4px; }
-  .a4-bgk.k2{ left:36px; margin-left:-.03em; top:323.8px; }
-  .a4-bgk.k3{ left:36px; margin-left:-.005em; top:342.1px; }
-  .a4-rw4{ left:36px; right:36px; top:304.6px; text-align:right; margin-right:0; }
+  .a4-bgk.k1{ left:var(--a4-um); margin-left:-.015em; top:305.4px; }
+  .a4-bgk.k2{ left:var(--a4-um); margin-left:-.03em; top:323.8px; }
+  .a4-bgk.k3{ left:var(--a4-um); margin-left:-.005em; top:342.1px; }
+  .a4-rw4{ left:var(--a4-um); right:var(--a4-um); top:304.6px; text-align:right; margin-right:0; }
   /* 507: that 0 was a hand calculation -- "WATCHING ends G: the .045 track
      less the G side = 0". Measured, it is not 0: the trailing track is
      -3.33px at 74px and the G's right bearing is +2.22, so the ink sat
@@ -1360,9 +1368,9 @@
   .a4-bgp{ position:absolute; top:372.1px; }
   .a4-bgp p{ margin:0; font-size:calc(var(--a4-ivs, 11px) * var(--body-k)); font-weight:var(--ui-weight);
     line-height:var(--sm-lh); }   /* 504: the body register. --a4-ivs stays counter-scaled by uS, so the multiple rides it and lands at 12px on the window */   /* 416: the WORDS carry the reveal; 421: sentence case, on the approach's 4-column grid */
-  .a4-bgp.p1{ left:36px; width:350px; }
-  .a4-bgp.p2{ left:408px; width:350px; }
-  .a4-bgp.p3{ left:780px; width:350px; }
+  .a4-bgp.p1{ left:var(--a4-um); width:350px; }
+  .a4-bgp.p2{ left:calc(var(--a4-um) + 372px); width:350px; }
+  .a4-bgp.p3{ left:calc(var(--a4-um) + 744px); width:350px; }
   .a4-bgc{ position:absolute; top:699px; display:flex; align-items:center; gap:14px;
     height:52px; opacity:0; filter:blur(4px); }
   .a4-bgc .t{ font-size:var(--a4-ivs, 11px); font-weight:var(--ui-weight); line-height:var(--sm-lh);
@@ -1370,9 +1378,9 @@
   .a4-bgc .lg{ position:relative; display:block; }
   .a4-bgc.c1 .lg{ width:49px; height:48px; } .a4-bgc.c2 .lg{ width:37px; height:48px; } .a4-bgc.c3 .lg{ width:55px; height:26px; }
   .a4-bgc .bglg{ position:absolute; left:0; top:50%; filter:brightness(0); }
-  .a4-bgc.c1{ left:36px; }
+  .a4-bgc.c1{ left:var(--a4-um); }
   .a4-bgc.c2{ left:50%; transform:translateX(-50%); }
-  .a4-bgc.c3{ right:36px; }
+  .a4-bgc.c3{ right:var(--a4-um); }
   .a4-bgk .w, .a4-rw4 .w, .a4-bgp p .w, .a4-ap p .w{ display:inline-block; font-style:normal; opacity:0; filter:blur(4px); }
   .a4-mids.v{ color:#F5F5F5; }
   /* 417: THE CASE ROW'S OWN ENTRANCE, copied whole (the thing he means by
@@ -1390,13 +1398,13 @@
   .a4-brk.go .bwi{ opacity:1; transform:none; }
   .a4-brk.b1 .bw{ left:0; margin-left:-.044em; }
   .a4-brk.b2 .bw{ right:0; margin-right:-.010em; }
-  .a4-brk.b1{ left:36px; top:344.3px; }   /* 412: under the strip only the paragraph remains -- the shorter composition recentred */
+  .a4-brk.b1{ left:var(--a4-um); top:344.3px; }   /* 412: under the strip only the paragraph remains -- the shorter composition recentred */
   .a4-mids.ml2{ left:885.5px; top:359.2px; }   /* left is RUNTIME-SOLVED (apSolve): the middle of the negative space */
-  .a4-mids.mr2{ right:36px; text-align:left; top:360.2px; }   /* 411: lines left-aligned inside the right-anchored box */
+  .a4-mids.mr2{ right:var(--a4-um); text-align:left; top:360.2px; }   /* 411: lines left-aligned inside the right-anchored box */
   /* 411: the approach paragraph -- the CASE BODY's register (the menu's
      size, the case column measure), two columns side by side, the second
      to the right exactly as the case grid seats them. */
-  .a4-ap{ position:absolute; left:36px; right:36px; top:475px; }
+  .a4-ap{ position:absolute; left:var(--a4-um); right:var(--a4-um); top:475px; }
   .a4-ap p{ position:absolute; left:0; top:0; width:350px; margin:0;
     font-size:calc(var(--a4-ivs, 11px) * var(--body-k)); font-weight:var(--ui-weight); line-height:var(--sm-lh);
     color:#F5F5F5; }   /* 504: the body register, counter-scaled as above */   /* 413: dark card, own ink; 415: the menu's size (--a4-ivs); 416: the WORDS carry the reveal */
@@ -1408,16 +1416,16 @@
   /* THE UNIT: the sheet at its OWN pixels (1486 x 870, margins 36 inside),
      scaled AS A WHOLE about its top-left so that unit-x 36 ALWAYS lands on
      window-x 36 -- margin to margin at every width; only the vertical
-     centres. s = (vw - 72) / 1414, seated by JS. */
+     centres. s = unitS(vw) -- the sheet margin onto the page margin -- seated by JS (508). */
   .a4-unit{ position:absolute; left:0; top:0; width:1486px; height:870px;
     transform-origin:0 0; color:#000; }
   .a4-unit .a4-lbig{ font-size:74px; }
   .a4-mids{ position:absolute; font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em;
     line-height:.8843; text-transform:uppercase; white-space:nowrap; color:#000; }
   .a4-mids .w{ display:inline-block; font-style:normal; opacity:0; filter:blur(4px); }
-  .a4-mids.ml{ left:36px; top:412.6px; }   /* 495: seated at runtime */
+  .a4-mids.ml{ left:var(--a4-um); top:412.6px; }   /* 495: seated at runtime */
   .a4-mids.mc{ left:50%; transform:translateX(-50%); top:412.6px; }
-  .a4-mids.mr{ right:36px; text-align:right; top:412.6px; }   /* one row now -- all three mids on one line; 495: seated at runtime */
+  .a4-mids.mr{ right:var(--a4-um); text-align:right; top:412.6px; }   /* one row now -- all three mids on one line; 495: seated at runtime */
   .a4-row1{ position:relative; margin-top:var(--a4-g4, 14px); height:var(--a4-h3, 26.4px); }   /* 397: the first row now lives where the last one was, under CREATIVE LEAD */
   .a4-g{ position:absolute; top:0; display:flex; align-items:flex-start; gap:16px; }
   .a4-g.l{ left:0; gap:19px; }
@@ -1464,7 +1472,7 @@
      corner links. The slide (a transformed ancestor) is the containing
      block, so these anchors read the WINDOW. */
   .a4-row1{ display:none; }
-  .a4-row3{ position:fixed; left:36px; right:36px; bottom:var(--a4-fz, 36px); margin:0; }   /* 504: on the bottom margin, now the corner links have gone up to the header */   /* fixed under the transformed slide = the slide's own window coordinates */
+  .a4-row3{ position:fixed; left:var(--pad); right:var(--pad); bottom:var(--pad); margin:0; }   /* 504: on the bottom margin, now the corner links have gone up to the header */   /* fixed under the transformed slide = the slide's own window coordinates */
   .a4-row3 .a4-big{ text-align:left; margin-left:-.035em; }   /* CREATIVE LEAD's C lands the left ink */
   .a4-cp{ position:fixed; left:50%; top:50%; transform:translate(-50%, calc(-50% + var(--a4-cpo, 18.585px)));
     text-align:center; z-index:1; color:#F5F5F5;
@@ -1480,7 +1488,7 @@
      would never bite); max-content asks for the line's own width and lets
      the max-width do the clamping. balance evens the broken pair where the
      browser has it, and is ignored where it does not. */
-  .a4-cp{ width:max-content; max-width:calc(100vw - 2 * var(--pad, 36px)); text-wrap:balance; }
+  .a4-cp{ width:max-content; max-width:calc(100vw - 2 * var(--pad)); text-wrap:balance; }
   .a4-cp .w{ display:inline-block; font-style:normal; opacity:0; filter:blur(4px); }
   .a4-cp .dots{ font-style:normal; }
   .a4-big{ font-size:var(--big); font-weight:1000; letter-spacing:-.045em; line-height:.78;
@@ -1514,7 +1522,7 @@
   .a4-nav span{ position:absolute; top:50%; transform:translateY(-50%); left:0;
     font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em; line-height:1;
     text-transform:uppercase; color:#F5F5F5; cursor:pointer; pointer-events:auto; will-change:left; }
-  .a4-nav span.ct{ left:auto; right:36px; margin-right:-.02em; will-change:auto; }   /* 412: CONTACT -- always on the right margin, right of BACKGROUND, and it NEVER moves */
+  .a4-nav span.ct{ left:auto; right:var(--pad); margin-right:-.02em; will-change:auto; }   /* 412: CONTACT -- always on the right margin, right of BACKGROUND, and it NEVER moves */
   body.a4r .a4-nav span{ color:#000; }
   .a4-nav i{ position:absolute; top:50%; height:1px; background:#F5F5F5; opacity:0; }
   body.a4r .a4-nav i{ background:#000; }
@@ -1557,11 +1565,11 @@
      corners (no sequence, no fade); the rhythm below re-set on his numbers:
      rw2 -> mids air DOUBLED (4 -> 8), the 44 pad HALVED to 22, the
      FLAGSHIP -> belt air HALVED (14.2 -> 7.1); the whole recentred. */
-  .a4-lbig.s1l{ left:36px; top:294.2px; }   /* 495: seated at runtime */   /* 419: the mids row collapsed to ONE line -- the shorter sheet recentred */
-  .a4-lbig.s1r{ right:36px; text-align:right; top:294.2px; }   /* 495: seated at runtime */
-  .a4-p2l{ left:36px; top:448.8px; }
+  .a4-lbig.s1l{ left:var(--a4-um); top:294.2px; }   /* 495: seated at runtime */   /* 419: the mids row collapsed to ONE line -- the shorter sheet recentred */
+  .a4-lbig.s1r{ right:var(--a4-um); text-align:right; top:294.2px; }   /* 495: seated at runtime */
+  .a4-p2l{ left:var(--a4-um); top:448.8px; }
   .a4-p2c{ left:50%; transform:translateX(-50%); text-align:center; top:448.8px; }
-  .a4-p2r{ right:36px; text-align:right; top:448.8px; }
+  .a4-p2r{ right:var(--a4-um); text-align:right; top:448.8px; }
   /* 495: p2l seated at runtime */
   /* right-aligned: the tracking AFTER the last glyph contracts the advance
      behind the ink, so the ink overhangs the box -- the trims are POSITIVE,
@@ -1573,14 +1581,14 @@
      CDN hands over -- with only the single-glyph bearings baked as em
      constants. FROM's ink lands on 36, DELIVERY's on the right margin,
      the two inner gaps equal, by construction. */
-  .a4-rw2{ left:36px; right:36px; top:351.9px; }
+  .a4-rw2{ left:var(--a4-um); right:var(--a4-um); top:351.9px; }
   .a4-rw2 .w{ position:absolute; top:0; left:0; }
   /* ---- the belt: margin to margin, ink-cropped logos on one centre line;
      the strip slides in from the left, out to the right, and the scroll
      drives the wrap through the same LAG while it is on. */
   /* the belt: an ALWAYS-ON child of the unit -- no entrance of its own,
      it just rides its slide; the drift and the scroll keep it alive. */
-  .a4-belt2{ position:absolute; left:36px; right:36px; top:510px; height:52px; overflow:hidden; }   /* 411: the container simply holds; each LOGO carries its own reveal */
+  .a4-belt2{ position:absolute; left:var(--a4-um); right:var(--a4-um); top:510px; height:52px; overflow:hidden; }   /* 411: the container simply holds; each LOGO carries its own reveal */
   .a4-belt2 .a4-lg2{ opacity:0; filter:blur(4px); }
   .a4-b2in{ position:absolute; inset:0; }
   .a4-lg2{ position:absolute; top:50%; overflow:hidden; }
@@ -3135,8 +3143,7 @@
     --c3-head-pad:20px;  /* the head's glass band: its top edge to the title's cap top, at every size of the title */
     --c3-stick-gap:10px; /* stuck: ABOUT's baseline to the title's cap top */
     --c3-sub-gap:10px;   /* the title's baseline to the subtitle's cap top, once locked (and for good) */
-    --c3-rest:36px;      /* at rest: the small title's baseline above the window's foot */
-    --c3-sub-rest:39px;  /* at rest: the subtitle's ink top this far under the title's baseline (--c3-rest puts it at the fold; the 3 more are a cushion under it, for the rounding of a scrolled page); it SNAPS to --c3-sub-gap the moment the page starts to move */
+    --c3-sub-cushion:3px;  /* at rest: the subtitle's ink top this far under the title's baseline (--c3-rest puts it at the fold; the 3 more are a cushion under it, for the rounding of a scrolled page); it SNAPS to --c3-sub-gap the moment the page starts to move */
     --c3-row-pad:31.5px; /* a section row: its baseline to its content's cap top (63 device); the air under its ink in the glass, pinned */
     --c3-hint-fade:0.25; /* SCROLL FOR CASE fades out over this share of the track */
     --c3-line-fade:60px; /* a row's hairline fades over the last this-much of its section's squares approaching the glass's foot, so it is gone before they pass it -- and before the next row's line comes near */
@@ -4486,8 +4493,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const STRIPE_TOP = 18;              // px it stops short of the very edge
   let stripeY = 0, stripeH = 0;
   const names = masthead.querySelector('.names');
-  const PAD = parseFloat(getComputedStyle(document.documentElement)
-                .getPropertyValue('--pad')) || 36;
+  /* 508: the page margin, read from --pad -- the one JS reader. It was a
+     const read once at parse while half the modules carried their own 36,
+     so changing the dial moved only part of the site. The fallback is for
+     a pre-CSS or no-custom-property engine only. It is refreshed first on
+     every resize: this listener is registered before every solve's. */
+  function padPx(){ const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad')); return v > 0 ? v : 36; }
+  let PAD = padPx();
+  addEventListener('resize', () => { PAD = padPx(); });
 
   /* Measured from the artwork: on the shared 1408x770 canvas the four layers
      together ink x 92..1329, y 63..705, so the object fills .8786 of the canvas
@@ -7631,7 +7644,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const ROOT = 'portfoliocontent/';
     const view = document.getElementById('viewAbout2');
     const A = JSON.parse(document.getElementById('a2Data').textContent);
-    const PAD = 36, BELT_K = 0.35, BELT_DRIFT = 12, LAG = 0.045, INK_SHARE = 0.34, LOGO_GAP = 1.35;   /* 375: the wider strip -- the logos slightly larger (.30 -> .34 of the window) and, above all, MORE AIR between them (.8 -> 1.35 ink heights); the speed (BELT_K) untouched */
+    const BELT_K = 0.35, BELT_DRIFT = 12, LAG = 0.045, INK_SHARE = 0.34, LOGO_GAP = 1.35;   /* 375: the wider strip -- the logos slightly larger (.30 -> .34 of the window) and, above all, MORE AIR between them (.8 -> 1.35 ink heights); the speed (BELT_K) untouched */
     const SPRING_W = 4.5;
     const dial = (n, d) => { const v = parseFloat(getComputedStyle(view).getPropertyValue(n)); return isNaN(v) ? d : v; };
     const mod = (n, m) => ((n % m) + m) % m;
@@ -7653,7 +7666,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        seven copies of the ring, cut to what the fan can show: the rows
        visible under the front card are (H/ch - 1)/.076, about eleven at
        every width the height binds at, more on a narrow window. */
-    const A3_HH = 0.55, A3_MAXW = 0.78, A3_MARG = 36, A3_RMAX = 1.75, A3_CLEAR = 8;
+    const A3_HH = 0.55, A3_MAXW = 0.78, A3_MARG = PAD, A3_RMAX = 1.75, A3_CLEAR = 8;
     const A3_TILT0 = 93, A3_EASE = 1.5, A3_GAP = 0.045, A3_BACKZ = 2;
     const A3_DENSE = 0.5, A3_DREF = 1440, A3_DPOW = 1.6, A3_DMIN = 0.22, A3_DMAX = 1.20;
     const A3_COPIES = 5, A3_DUR = 1050;      /* DUR mirrors --vs-dur, as V6's does */
@@ -8340,12 +8353,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const sp = [...nav.querySelectorAll('span[data-k]')];   /* 412: the four travellers; CONTACT stands apart, static */
       const w = sp.map(e => e.getBoundingClientRect().width);
       const vw = innerWidth, GAP = 30;
-      const L = [36];
+      const L = [PAD];   /* 508 */
       for (let k = 1; k < 4; k++) L[k] = L[k - 1] + w[k - 1] + GAP;
       L[3] = L[2] + w[2] + GAP;   /* 399: BACKGROUND's landing sits beside VISION -- its permanent HOLD is the 'you are here' */
       const R = [];
       const ctEl = nav.querySelector('span.ct'), ctW = ctEl ? ctEl.getBoundingClientRect().width : 0;
-      R[3] = vw - 36 - (ctW ? ctW + GAP : 0) - w[3];   /* 412: BACKGROUND rests just left of the pinned CONTACT */
+      R[3] = vw - PAD - (ctW ? ctW + GAP : 0) - w[3];   /* 412: BACKGROUND rests just left of the pinned CONTACT */
       R[2] = R[3] - GAP - w[2];
       R[1] = R[2] - GAP - w[1];
       navW = { sp, w, L, R, ln: [...nav.querySelectorAll('i')], ctW };
@@ -8360,7 +8373,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (!navW) return;
       const { sp, w, L, R, ln } = navW;
       const p = [1, Math.min(1, Math.max(0, p1)), Math.min(1, Math.max(0, p2)), Math.min(1, Math.max(0, p3))];
-      const x = [36];
+      const x = [PAD];
       /* the cube: a traveller barely moves before its page actually shows.
          And the HOLD: it rests a line's distance short of the cluster while
          ITS page is current -- the gap says 'you are here' -- joining only
@@ -8382,7 +8395,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         if (on){ ln[k].style.left = a.toFixed(1) + 'px'; ln[k].style.width = (b - a).toFixed(1) + 'px'; }
       }
       /* BACKGROUND's right-hand line, when the margin allows */
-      const a4 = x[3] + w[3] + 22, b4 = innerWidth - 36 - (navW.ctW ? navW.ctW + 22 : 0);   /* 413: the line stops the travellers' own air short of the pinned CONTACT -- never through it */
+      const a4 = x[3] + w[3] + 22, b4 = innerWidth - PAD - (navW.ctW ? navW.ctW + 22 : 0);   /* 413: the line stops the travellers' own air short of the pinned CONTACT -- never through it */
       const on4 = b4 - a4 > 26;
       ln[3].style.opacity = on4 ? '1' : '0';
       if (on4){ ln[3].style.left = a4.toFixed(1) + 'px'; ln[3].style.width = (b4 - a4).toFixed(1) + 'px'; }
@@ -8433,7 +8446,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* 504: the corner links left the foot for the header, so the reserve is
          just the bottom margin now -- it was two link rows plus the margin
          plus air (70.9px). Everything that rode it comes down with it. */
-      const footRm = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad')) || 36;
+      const footRm = PAD;   /* 508: the one reader */
       /* 409: THE BAND JOINS THE BREATHING. The gaps compress first; once
          they stand at 60% of full, the band -- cards, spacing and every
          seat constant with it -- yields the remaining deficit, up to 20%
@@ -8447,7 +8460,6 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       view.style.setProperty('--a4-galh', '274px');
       view.style.setProperty('--a4-cw', '295px');
       view.style.setProperty('--a4-ch', '223px');
-      view.style.setProperty('--a4-fz', footRm.toFixed(1) + 'px');
       const slotEl = document.getElementById('a4GalSlot');
       if (slotEl) slotEl.style.top = (0.500 * vh2 - off - bandH4 / 2).toFixed(1) + 'px';   /* 422: TRUE vertical centre */
     }
@@ -8552,7 +8564,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function a4Ring(host, k){
       if (!host || !host._n) return;   /* not built yet */
       const sp = A4_SP * gK4 * k;
-      const R = ((innerWidth - 72) / 2 + 60) / 0.84;   /* the projected clip's reach, in slot units (the 501 zone) */
+      const R = ((innerWidth - 2 * PAD) / 2 + 60) / 0.84;   /* the projected clip's reach, in slot units (the 501 zone) */
       const need = Math.max(A4_N, 2 * Math.ceil((R + A4_PARK * sp) / sp));
       if (need <= host._n) return;
       for (let i = host._n; i < need; i++) a4Card(host, i);
@@ -8599,7 +8611,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          (rotateY 90), a row along X through one lens. A card at the window's
          middle projects to nothing; either side, the lens alone opens the
          face -- monotone, symmetric, nothing rotating against it. */
-      const halfVis4 = (innerWidth - 72) / 2;   /* 501: the projected clip's half-width, for the two swap zones and the release gate */
+      const halfVis4 = (innerWidth - 2 * PAD) / 2;   /* 501: the projected clip's half-width, for the two swap zones and the release gate */
       const _gV = document.getElementById('a4GalV'), _gB = document.getElementById('a4GalB');
       const hidV = _gV && _gV.style.visibility !== 'visible', hidB = _gB && _gB.style.visibility !== 'visible';   /* 501: band() drives these inline; the base sheet hides both */
       cards.forEach((c, i) => {
@@ -8733,7 +8745,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const vh = innerHeight, vw = innerWidth;
       /* BACKGROUND rides the unit sheet: its box height was already uS of
          the design, so the CARDS take that same scale instead of the clip. */
-      kBB = Math.max(A4_KMIN, Math.min(1, (vw - 72) / (A4_UD.w - 72)));
+      kBB = Math.max(A4_KMIN, Math.min(1, unitS(vw)));
       /* INTRO rests centred in the window, so the half-band above its centre
          is all the room it has. The journey nav hangs BELOW the header's own
          box on this page (position:absolute, top:100%), so the box alone
@@ -8765,6 +8777,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     let beltRing = 0, curB = 0;
     const A4_R1 = 0.15, A4_R2 = 0.75;   /* ONE transition law at HALF speed: the fast card at x0.75 over the slow layer at x0.15; NO holds -- the slowness is the dwell */
     const A4_V = { slitT:432, slitB:443.7 };   /* 412: the same 33.6 pad, the shorter composition recentred; the 11.7 height holds */
+    const A4_UM = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--a4-um')) || 36;   /* 508: the sheet's own margin, unit px (--a4-um) */
+    /* 508: THE UNIT LAW, once. The sheet's margin (A4_UM, unit px) lands on
+       the page margin (PAD, window px) on both sides at every width:
+       s = (vw - 2*PAD) / (W - 2*A4_UM), and the sheet is seated at
+       PAD - A4_UM*s. The code had both margins fused as bare numbers in three
+       places, so the dial could never reach the About sheets. */
+    const unitS = vw => (vw - 2 * PAD) / (A4_UD.w - 2 * A4_UM);
     const A4_UD = { w:1486, h:870 };   /* the SCOPE sheet (409: its slit cutout removed with its band; 411: the groups re-rhythmed, see the position rules) */
     function lines(){
       const vh = innerHeight, vw = innerWidth;
@@ -8781,14 +8800,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       sl1.style.transform = keep;
       /* THE UNIT LAW: margin to margin at all times -- s = (vw-72)/1414
          about the top-left, unit-x 36 onto window-x 36; vertical centres. */
-      uS = (vw - 72) / (A4_UD.w - 72);
+      uS = unitS(vw);
       /* 415: the SMALL class is the MENU'S OWN size. Inside the scaled
          unit a fixed px would ride uS, so the value is counter-scaled the
          moment uS exists -- one var, every small paragraph reads it. */
       { const _mi = document.querySelector('.menu span');
         view.style.setProperty('--a4-ivs', (((_mi ? parseFloat(getComputedStyle(_mi).fontSize) : 11) || 11) / (uS || 1)).toFixed(3) + 'px'); }
       bg4Layout();   /* 419: the columns just changed size with the var -- anchor the upper stack NOW, on the fresh metrics (the tail pass ran before the var landed) */
-      const uTop = (vh - A4_UD.h * uS) / 2, uLeft = 36 - 36 * uS;
+      const uTop = (vh - A4_UD.h * uS) / 2, uLeft = PAD - A4_UM * uS;
       u2Seat = { x: uLeft, y: uTop };   /* 424: the seats are REMEMBERED -- the parallax pull writes the WHOLE transform (seat + pull + scale); replacing it wholesale was the clobber that unscaled both white sheets */
       const seat = 'translate(' + uLeft.toFixed(2) + 'px,' + uTop.toFixed(2) + 'px) scale(' + uS.toFixed(4) + ')';
       document.getElementById('a4Unit').style.transform = seat;
@@ -8915,7 +8934,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         el._w = w; el._x = x; x += w + A4_LB_GAP;   /* the ring, in px */
       });
       beltRing = x;
-      const avail = innerWidth - 72, sumW = its.reduce((a, el) => a + el._w, 0);
+      const avail = innerWidth - 2 * PAD, sumW = its.reduce((a, el) => a + el._w, 0);
       const spread = its.length > 1 ? (avail - sumW) / (its.length - 1) : avail - sumW;
       beltStatic = spread >= A4_LB_GAP;
       if (beltStatic){ let s = 0; [...its].reverse().forEach(el => { el._sx = s; s += el._w + spread; }); }   /* the registry's own order, left to right */
@@ -9059,7 +9078,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           const ic2 = [...gal.children];
           if (ic2.length){
             const spT = A4_SP * gK4 * kB1, ringT = ic2.length * spT, halfT = ringT / 2;   /* 503: the train reads the INTRO band's own row */
-            const halfVis = (innerWidth - 72) / 2;
+            const halfVis = (innerWidth - 2 * PAD) / 2;
             const rows = ic2.map((c, i) => ({ c, x: mod4(i * spT - cur * kB1 + halfT, ringT) - halfT }));
             /* 508: the train is the body the 56-card ring always had; slots a
                grown ring adds past its right end trail behind the last car
@@ -9219,20 +9238,20 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const U4T = un4El.getBoundingClientRect().top;
       sl4.style.transform = keep4; un4El.style.transform = keepU;
       const off2 = parseFloat(getComputedStyle(view).getPropertyValue('--a4-off')) || 140;
-      const footRm2 = parseFloat(getComputedStyle(view).getPropertyValue('--a4-fz')) || 36;
+      const footRm2 = PAD;   /* 508: the page margin itself (its old token was only ever a copy of it) */
       const hMax = Math.max(...ps.map(p => p.offsetHeight));   /* unit px: offsetHeight is pre-transform */
       const aboveU = 51.8 + 15.75 + (hMax - 2.47);             /* kicker/title cap .. paragraph ink foot */
       const clu = view.querySelector('.a4-bgc');
       const eduU = clu ? Math.max(52, clu.offsetHeight) : 52;
       const bandWin = 274 * Math.min(1, uS);                   /* the band's VISIBLE window height */
-      const PAD = 20 * uS;
-      const H = aboveU * uS + PAD + bandWin + PAD + eduU * uS;
+      const BG4_AIR = 20 * uS;   /* 508: renamed -- this is the band's own air, not the page margin */
+      const H = aboveU * uS + BG4_AIR + bandWin + BG4_AIR + eduU * uS;
       const top0 = off2 + 6, bot0 = vh2 - footRm2 - 12;
       const gTop = top0 + Math.max(0, (bot0 - top0 - H) / 2);
       const kCapU = (gTop - U4T) / uS;
       const tTop = kCapU - 2.3, kTop = kCapU - 1.76;   /* 426: the refined register's cap offset (21 x .8843) */
       const pTop = kCapU + 51.8 + 15.75 - 2.26;
-      bg4BandW = gTop + aboveU * uS + PAD;   /* the band's visible top, in WINDOW px, slide at rest */
+      bg4BandW = gTop + aboveU * uS + BG4_AIR;   /* the band's visible top, in WINDOW px, slide at rest */
       const cTop = (bg4BandW + bandWin - U4T) / uS + 20 - 2;
       bg4TopW = gTop;
       view.querySelectorAll('.a4-bgp').forEach(el => { el.style.top = pTop.toFixed(1) + 'px'; });
@@ -9269,7 +9288,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         return [L ? L.l : 0, R ? R.r : 0];
       });
       const iw = ws.map((w, i) => w.getBoundingClientRect().width / uS - ls - (bs[i][0] + bs[i][1]));
-      const gap = (1414 - iw.reduce((a, b) => a + b, 0)) / 3;
+      const gap = (A4_UD.w - 2 * A4_UM - iw.reduce((a, b) => a + b, 0)) / 3;
       let x = 0;
       ws.forEach((w, i) => {
         w.style.left = (x - bs[i][0]).toFixed(2) + 'px';
@@ -9282,7 +9301,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function apSolve(){
       const b = view.querySelector('.a4-brk.b1 .bwi'), c = view.querySelector('.a4-mids.mr2'), m = view.querySelector('.a4-mids.ml2');
       if (!b || !c || !m || !(uS > 0) || !isFinite(uS)) return;
-      const uL = 36 - 36 * uS;
+      const uL = PAD - A4_UM * uS;
       const br = (b.getBoundingClientRect().right - uL) / uS;
       const cl = (c.getBoundingClientRect().left - uL) / uS;
       const w = m.getBoundingClientRect().width / uS;
@@ -9856,7 +9875,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const N = L.length;
 
     /* shared */
-    const WIDEST = 3.401, NAV = 0.3, NAVMAX = 1.80, PADX = 36, CLEARX = 28;
+    const WIDEST = 3.401, NAV = 0.3, NAVMAX = 1.80, CLEARX = 28;
     const DUR = 1050, SWAP = 0.90;
     const DUR7 = 760;                          /* mirrors --vs7-dur; V6 keeps DUR */
     const dur = () => (v7() ? DUR7 : DUR);
@@ -9869,7 +9888,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     GAP_N = 0.045,
     HH6 = 0.550, MAXW6 = 0.78;
     const BACKZ = 2;    // px of depth per waiting row -- as the standalone
-    const RMAX = 1.75, MARG = 36;
+    const RMAX = 1.75;
     const RMAX4 = 2.60;   // V4 ceiling -- high enough that the margin binds
     /* Back to 266: a FIXED hero share, with the perspective eased by a ramp
        on the ratio instead. Making the share responsive scaled the whole UI
@@ -10259,13 +10278,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const colTop = top0 + (ch - C) / 2;
       /* the box: the reference's top padding above the first slot and, the
          same, below the last (the band under the header is only a ceiling) */
-      const band = innerHeight - headFoot() - dial('--pad', 36);
+      const band = innerHeight - headFoot() - PAD;
       const padV = Math.max(0, Math.min(dial('--vs-tag-padV', .249) * C, (band - C) / 2));
       const tagTop = colTop - padV, tagH = C + 2 * padV;
       /* across, from the logos' left: the field, the rule, the title, the
          small words, the margin -- and the label's own left edge a padding
          BEHIND the logos, off the frame at rest */
-      const PAD = dial('--pad', 36);
       const xL = Math.round(navT * dial('--vs-nav-x', 1.2));
       const padL = navT * dial('--vs-nav-padL', 1.48);
       /* the hover: the label and the rail slide out together until the
@@ -10391,7 +10409,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const chEst = s4() ? (W - 2 * m4(W)) * 0.528 * 0.5625 : Math.min(H * (v7() ? HH7 : HH6), W * (v7() ? MAXW7 : MAXW6) * 0.5625);
       let navT0  = Math.max(6, Math.min(capOf(chEst), Math.round(NAV * cl(W * 0.085, 96, 150) / WIDEST * dial('--vs-nav-k', 1.15))));
       const navBox = 0;   /* 504: the rail stood down, so it reserves nothing and the deck takes the width it used to hold (the old term: 1.35 * navT0 * WIDEST * NAVMAX) */
-      const clear  = W - 2 * (PADX + navBox + CLEARX);
+      const clear  = W - 2 * (PAD + navBox + CLEARX);   /* 508: the page margin */
 
       /* The gap under the card exists to hold the caption, so it only needs
          to be there when the caption is. With the caption above, the deck
@@ -10511,7 +10529,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            margin -- the same --m4 everything else snaps to, not the old
            36px site gutter. RMAX has to lift out of the way, or it binds
            first and the pile stops ~110-190px short of the frame. */
-        const lim = s4() ? (W - 2 * m4(W)) : (W - 2 * MARG);
+        const lim = s4() ? (W - 2 * m4(W)) : (W - 2 * PAD);
         /* lim/cw is a constant 1.89 at every width, so the ratio itself is
            ramped to ease the fan on narrow windows. */
         const t   = Math.min(1, Math.max(0, (W - RW0) / (RW1 - RW0)));
@@ -10531,7 +10549,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       clGap = Math.max(5, navTs * .85);   /* 434: wider still (his call; dial) */
       st.setProperty('--vs-navGap', clGap.toFixed(2) + 'px');
       railShift(railI);
-      st.setProperty('--vs-navX', PADX + 'px');   /* 431: the rail rests ON the site margin -- the label it hid behind is gone */
+      st.setProperty('--vs-navX', PAD + 'px');   /* 431: the rail rests ON the site margin -- the label it hid behind is gone */
       tagSolve(navT0, top0, ch);
       navTopv = top0;
       requestAnimationFrame(measureBand);   /* 434: the band's BOTTOM is the caption's bottom -- measured once the frame is real */
@@ -11642,7 +11660,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (y < top0 - 8) return v7() ? Math.abs(x - midX) <= half + 8 : false;
       if (y <= foot + 8) return Math.abs(x - midX) <= half + 8;
       const near = v7() ? cw : cw * Math.min(s4() ? RMAX4 : RMAX,
-                     ((s4() ? W - 2 * m4(W) : W - 2 * MARG)) / cw);
+                     ((s4() ? W - 2 * m4(W) : W - 2 * PAD)) / cw);
       return Math.abs(x - midX) <= near / 2 + 8;
     }
 
@@ -11811,7 +11829,6 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   let CASE = REC()[RING[cur]];
   const $ = s => document.querySelector(s);
   const root = document.documentElement;
-  const PAD = 36;
 
   /* ---- dials -------------------------------------------------------- */
   const UI = 11, UI_LH = 1.34;        // the body register: the intro's, the page's every line of copy
@@ -12465,7 +12482,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        height. The film's box sits in the band between the header and the
        small words' cap top, a margin from each; the box overlaps the room
        the words grow into, and the film has gone full-window by then. */
-    const rest = dial('--c3-rest');
+    const rest = PAD;   /* 508: the title rests on the bottom margin itself (--c3-rest was a copy of it) */
     const stageH = H - (rest + brandFull + headBox.pad);                  // the head's box top at rest
     /* THE FILM'S BOX. The doors' hinges are hingeK of the film's height, and
        must stay GAL_CLEAR clear of the header's glass foot above and the
@@ -12576,7 +12593,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   let snapIn = false, snapFrom = 0, snapTo = 0, snapT0 = -1;
   const snapLive = now => snapT0 >= 0 && now - snapT0 < SNAP_MS;
   function subExtra(now){
-    const out = dial('--c3-sub-rest') - headBox.sub;
+    const out = PAD + dial('--c3-sub-cushion') - headBox.sub;
     const want = trS >= HOLD() - 0.5;
     if (want !== snapIn){ snapIn = want; snapFrom = snapT0 >= 0 ? subAt(now) : (want ? out : 0); snapTo = want ? 0 : out; snapT0 = now; }
     return subAt(now);
