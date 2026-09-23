@@ -3599,8 +3599,8 @@
     #black .c3-ctl .mu{ line-height:normal; }   /* DM Sans' content box is centred .009em below its cap-middle: 0.1px */
   }
   @supports (width: 1cqw){ body.sr-fs #black .c3-ctl{ inset:auto; left:calc((100cqw - min(100cqw, 100cqh * 16 / 9)) / 2); top:calc((100cqh - min(100cqh, 100cqw * 9 / 16)) / 2); width:min(100cqw, 100cqh * 16 / 9); height:min(100cqh, 100cqw * 9 / 16); } }
-  .c3-warm{ position:fixed; inset:0; opacity:0; pointer-events:none; z-index:-1; }   /* 509: the warm film -- the window's size, under everything, unseen */
-  .c3-warm iframe{ width:100%; height:100%; border:0; display:block; }
+  .c3-warm{ position:fixed; inset:0; opacity:0; pointer-events:none; z-index:-1; overflow:hidden; }   /* 509: the warm film -- under everything, unseen */
+  .c3-warm iframe{ width:max(100vw, calc(100vh * 16 / 9)); height:max(100vh, calc(100vw * 9 / 16)); border:0; display:block; opacity:0; }   /* 510: the card's own cover size (pw0 x ph0), so the player keeps the rendition the case shows; opacity 0 as in a card, so an adoption never fades it */
   #viewCase3 .c3-case video.film-ph{ object-fit:cover; }   /* 446: only the fit is the video's own; geometry, origin and the live law come from the iframe rule above */
   #viewCase3 .c3-ctl.ph-film .bar{ display:none; }
   #viewCase3 .c3-space{ position:relative; z-index:0; }
@@ -3870,7 +3870,7 @@
   <div class="film">
     <div class="shot">
       <iframe id="vimeo" title="Showreel" allow="autoplay; fullscreen"
-        src="https://player.vimeo.com/video/1182514258?autoplay=1&amp;muted=1&amp;controls=0&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1"></iframe>
+        data-src="https://player.vimeo.com/video/1182514258?autoplay=1&amp;muted=1&amp;controls=0&amp;loop=1&amp;autopause=0&amp;title=0&amp;byline=0&amp;portrait=0&amp;playsinline=1&amp;dnt=1"></iframe>
       <div class="veil" id="veil"></div>
       <!-- 501: the veil lives INSIDE the shot now. .film's container-type:size
            makes it a stacking context, so as a LATER SIBLING of .film the veil
@@ -4240,8 +4240,8 @@
      ends at, or the two would meet at a kink: v = k / (1 - h + h*k). */
 
   /* Asset watch. The loading choreography is time-driven; the fourth fade
-     PREFERS to wait on this, but is no longer allowed to wait long -- see the
-     grace in ldCount.
+     WAITS on this (509: the six loops), never past LD.GATE_MAX -- see the
+     count's fourth segment in ldCount.
 
      Events are only the fast path here; the element's own state is the truth,
      read on a poll. Twice now an event-driven gate has stalled on this
@@ -4269,15 +4269,36 @@
      video -- without that door every iPhone would wait out the timeout).
      The ONE timeout is LD.GATE_MAX from navigation start. */
   const vBuf = v => { try { const n = v.buffered.length; return v.duration > 0 && n ? v.buffered.end(n - 1) / v.duration : 0; } catch (e) { return 0; } };
-  const vIn = v => !!v.error || vBuf(v) >= 0.999 || (v.networkState === 1 && v.readyState >= 1);
+  const vIn = v => !!v.error || vBuf(v) >= 0.999 || v.networkState === 1;   /* 510: NETWORK_IDLE is the browser's own stop -- the file is whole, or it will not preload a paused video at all (iOS keeps readyState 0 there, which 509 waited out to the timeout on every iPhone) */
   const ldProg = () => ldVids.length ? ldVids.reduce((a, v) => a + (v.__ldDone ? 1 : Math.min(1, vBuf(v))), 0) / ldVids.length : 1;
-  function ldGateOpen(){ if (ldFlyQ && ldAssetsIn()){ ldFlyQ = false; ldFly(); } }   /* a skip taken while the six were loading lands now */
+  function ldGateOpen(){
+    /* a skip taken while the six were loading lands now. 510: one taken
+       BEFORE the flight is armed (a reload listens from boot) is kept, not
+       dropped -- ldArm lands it; and it waits for 'load', which the hero's
+       entrance waits on, or the name would fly onto an empty hero */
+    if (ldFlyQ && ldArmed && ldAssetsIn() && document.readyState === 'complete'){ ldFlyQ = false; if (ldDone < ldItems) ldGateReport(); ldFly(); }
+  }
+  addEventListener('load', () => ldGateOpen(), { once: true });
+  /* 510 AFTER THE SIX. His order: the six hero loops first, and the moment
+     they are in, the extras -- the showreel's head start, the Cannes Lions
+     film's, the About frames. Never on the gate's timeout: after a bail the
+     poll keeps watching and the extras wait until the six really are in;
+     anything the visitor asks for sooner loads on demand. Never ahead of
+     'load' either -- an iframe started before it holds 'load', which the
+     hero's entrance waits on. A routed load (no sheet) runs them at 'load'. */
+  let ldSix = false; const ldSixQ = [];
+  const ldSaveData = () => { try { return !!(navigator.connection && navigator.connection.saveData); } catch (e) { return false; } };   /* the visitor asked the browser to save data: no head starts (the films still load on demand) */
+  function ldSixRun(){ const go = () => { while (ldSixQ.length){ try { ldSixQ.shift()(); } catch (e) {} } };
+    if (document.readyState === 'complete') setTimeout(go, 0); else addEventListener('load', () => setTimeout(go, 0), { once: true }); }
+  function ldAfterSix(fn){ ldSixQ.push(fn); if (ldSix) ldSixRun(); }
+  function ldSixDone(){ if (ldSix) return; ldSix = true; ldSixRun(); }
   function watchAssets(){
-    if (ldSkip) return;   /* 509: no sheet (a routed load, a harness, header 4) -- nothing waits, and the loops keep their lean preload */
+    if (ldSkip){ ldSixDone(); return; }   /* 509: no sheet (a routed load, a harness, header 4) -- nothing waits, and the loops keep their lean preload; 510: the extras run at 'load' */
     const items = [...document.querySelectorAll('video.vs-loop, .vs-deck img.still')];   /* 509: every loop WHEREVER it sits, and the stills */
     ldItems = items.length;
     ldVids = items.filter(el => el.tagName === 'VIDEO');
-    const settle = el => { if (!el.__ldDone){ el.__ldDone = true; ldDone++; if (ldDone >= ldItems) ldGateOpen(); } };
+    const settle = el => { if (!el.__ldDone){ el.__ldDone = true; ldDone++; if (ldDone >= ldItems){ ldGateOpen(); ldSixDone(); } } };   /* 510: the ONLY door to 'the six are in' -- the bail never opens it */
+    if (!ldItems) ldSixDone();
     items.forEach(el => {
       if (el.tagName === 'IMG'){
         if (el.complete) return settle(el);
@@ -4298,7 +4319,7 @@
       }
       if (ldDone >= ldItems) clearInterval(iv);
     }, 400);
-    setTimeout(() => { ldBail = true; clearInterval(iv); ldGateOpen(); }, Math.max(0, LD.GATE_MAX - performance.now()));   /* 509: the one timeout, from navigation start */
+    setTimeout(() => { ldBail = true; ldGateOpen(); }, Math.max(0, LD.GATE_MAX - performance.now()));   /* 509: the one timeout, from navigation start; 510: the poll keeps watching past it (it stops itself once all are in) -- the extras wait for the six themselves */
   }
   const ldAssetsIn = () => ldBail || !ldItems || ldDone >= ldItems;
   /* Read this in the console if the count ever pauses again: it names the
@@ -4308,7 +4329,7 @@
     const left = ldPending.filter(el => !el.__ldDone).map(el =>
       (el.currentSrc || el.src || '?')
       + (el.tagName === 'VIDEO' ? '  readyState ' + el.readyState : ''));
-    if (left.length) console.warn('[loader] gate released on grace; still pending:', left);
+    if (left.length) console.warn('[loader] gate released at its timeout (LD.GATE_MAX); still pending:', left);
   }
 
   const N = 18;   /* 483: the belt's card count, kept as the shape constant shapeFor still reads (6 cases x 3 cycles) */
@@ -5019,6 +5040,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (vsEl) vsEl.style.transform = `translate3d(0,${vsY}px,0)`;
     if (h4cEl) h4cEl.style.transform = `translate3d(0,${vsY}px,0)`;
     black.style.transform = `translate3d(0,${b.toFixed(1)}px,0)`;
+    if (page > 0.002) srLoad();   /* 510: heading for the showreel -- fetch it now if the six have not (page first: at boot it is 0, before srLoad's state exists) */
     /* V8: the film starts once the slide is FILM_AT of the way -- it used to
        wait for the landing, and the frame was already showing the player
        before anything played. Once; re-armed when the slide has gone back
@@ -5437,6 +5459,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     paint();
   }
   function goShowreel(snap){
+    srLoad();   /* 510: the menu asks for the reel -- fetched at the click, not a third of a second into the run */
     setRoute('');                   // showreel is the landing page's own slide
     if (snap){ pageTo = null; pageRunQ = null; landed8(); return; }   // from a view: in place, the film on
     if (v67Ready && V67.v8() && page < 1){
@@ -5484,8 +5507,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* 509: rule 2's gate BAIL is gone -- any click or scroll on a repeat
          load forced the gate open, loaded or not, and his rule is six videos
          loaded, then the page opens. A repeat landing is still skippable:
-         ldSeen arms the flight at the count's start, and the skip lands the
-         moment the six are in -- at once, when they come from the cache. */
+         it listens from boot (510: ldListen), and the skip lands the moment
+         the flight can run and the six are in -- at once from the cache. */
       /* 440: the statement -- split to words with a read-along hold after
          line one; seat it centred just under BALINT's ink once the copy
          lights (the name is laid by then). */
@@ -6471,17 +6494,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* The iframe is held invisible until a real decoded frame exists, then
      parked at 0 -- so what shows is the film's own first frame, never Vimeo's
      poster thumbnail. It is revealed only once that swap has happened. */
-  let film = null, primed = false, wantPlay = false, ready = false, tries = 0;
+  let film = null, primed = false, wantPlay = false, ready = false, tries = 0, srIn = false;   /* 510: srIn -- the reel's src has been set (srLoad) */
   /* 501: sound's single truth. soundOn mirrors the player; soundVeto is an
      explicit Mute from the chrome -- arrivals honour it and stay silent.
      srUiSync is the chrome's label refresh, registered by srCtl far below. */
-  let soundOn = false, soundVeto = false, srUiSync = null;
+  let soundOn = false, soundVeto = false, srUiSync = null, srCtlWire = null;   /* 510: srCtlWire -- the chrome's own wiring, re-run when the reel arrives after 'load' */
   /* 502: the showreel's fullscreen state, read by the input gates below and
      driven by srCtl's own button (assigned when the chrome is built). */
   let srFs = false, srFsToggle = null;
 
   const wireFilm = () => {
-    if (film || !window.Vimeo || !Vimeo.Player) return !!film;   /* 451a: the 444b law -- wire the moment the API exists; never a one-shot boot race */
+    if (film || !srIn || !window.Vimeo || !Vimeo.Player) return !!film;   /* 451a: the 444b law -- wire the moment the API exists; never a one-shot boot race. 510: and never on a reel not yet asked for -- the player throws on an iframe that is not an embed */
     film = new Vimeo.Player(document.getElementById('vimeo'));
 
     // The player may not exist yet when the run commits, so the request is
@@ -6493,8 +6516,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        frame is the film's own rather than Vimeo's poster. Skipped entirely if
        playback has already been asked for, so priming can't fight it. */
     film.on('timeupdate', d => {
-      if (primed || wantPlay || d.seconds <= 0) return;
-      primed = true;
+      if (primed || d.seconds <= 0) return;
+      primed = true;   /* 510: the first real frame primes, wanted or not -- a reel fetched ON DEMAND (already playing) must not be rewound by a late prime the first time the visitor leaves */
+      if (wantPlay) return;
       film.pause().then(() => film.setCurrentTime(0))
           .catch(() => {})
           .then(() => black.classList.add('lit'));
@@ -6502,14 +6526,32 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     film.on('play', () => black.classList.add('lit'));
     return true;
   };
-  wireFilm();
+  /* 510 THE REEL ARRIVES AFTER THE SIX. Its iframe carried its src in the
+     markup, so the reel streamed from the first byte -- alongside, and
+     against, the six hero loops the loader waits on (and it held 'load').
+     The src now waits in data-src and is set here: the moment the six are
+     in (ldAfterSix), or at once on demand -- the page leaving the hero, the
+     SHOWREEL menu, any play, the chrome. Parked at frame 0 by the prime,
+     the reel holds Vimeo's own look-ahead (measured ~30s) for the life of
+     the tab: nothing ever unloads it. */
+  function srLoad(){
+    if (srIn) return;
+    const fr = document.getElementById('vimeo');
+    const src = fr && (fr.getAttribute('src') || fr.dataset.src);
+    if (!src) return;
+    srIn = true;
+    if (!fr.getAttribute('src')) fr.src = src;   /* before the player is wired: it reads the src */
+    setTimeout(() => black.classList.add('lit'), 4000);   /* 451a: the fallback reveal, now from the REQUEST -- it stands without the API; the slide is never its hostage */
+    wireFilm();
+    if (srCtlWire) srCtlWire();
+  }
+  ldAfterSix(() => { if (!ldSaveData()) srLoad(); });
   addEventListener('DOMContentLoaded', wireFilm, { once:true });   /* 501: player.js is deferred now -- it executes before this fires, so the common path wires here rather than waiting for window load */
 
   /* 501: the veil covers the whole player now -- controls=0 killed the native
      bar that the old .free hand-off band served, so nothing under the veil
      needs the pointer any more. Wheel and click land on the veil everywhere;
      our chrome takes its own pointers above it. */
-  setTimeout(() => black.classList.add('lit'), 4000);   /* 451a: the fallback reveal stands WITHOUT the API -- offline it never arrives; the slide is never its hostage */
 
   /* 501: the film tries to START WITH SOUND. Arrival is usually inside a
      real click (the menu) or covered by the iframe's allow="autoplay"
@@ -6518,7 +6560,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      in one breath and the chrome's UNMUTE stands. An explicit Mute from the
      chrome (soundVeto) keeps arrivals silent. */
   function startFilm(){
-    wireFilm();   /* 451a: a late API wires on the first request; ready's held replay does the rest */
+    srLoad(); wireFilm();   /* 510: a request fetches the reel if the six have not yet; 451a: a late API wires on the first request; ready's held replay does the rest */
     if (!film || !ready) return;
     const attempt = snd => film.setMuted(!snd)
       .then(() => film.play())
@@ -6562,7 +6604,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   let srClkT = 0;
   const veilEl = document.getElementById('veil');
   veilEl.addEventListener('click', () => {
-    if (!film) return;
+    srLoad(); if (!film) return;   /* 510: a click on the reel fetches it if it has not come yet */
     clearTimeout(srClkT);
     srClkT = setTimeout(() => {
       film.getPaused().then(paused => {
@@ -6630,8 +6672,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        deck settles into place first and the cards tick through their last
        slots inside the already-landed frame. */
     SPIN_TAIL: 500,
-    GATE_MAX : 20000,  // 509: ms from navigation start the sheet waits for the six loops; past it the page opens anyway (and the console names what was still loading)
-    AUTO_FLY : 3500,   // ms of stillness after the count before the hero opens itself
+    GATE_MAX : 8000,   // 510: ms from navigation start the sheet waits for the six loops -- 8s at most, his rule; past it the call to action goes up anyway (and the console names what was still loading)
+    AUTO_FLY : 3000,   // 510: ms the call to action stands, with no input, before the hero opens on its own (his rule: 3s)
     BD_SWAP  : 160,    // ms of dip when B/D has to become BALINT/DANYI
     MENU_IN  : 500,
     MENU_GAP : 70,     // ms between menu items
@@ -6667,11 +6709,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const ldCnt   = document.getElementById('ldCount');
   const ldWords = [...ldName.querySelectorAll('span')];
   const ldLines = [...ldCopy.querySelectorAll('p')];
-  /* With the loader off the FLIGHT must be off too: ldArm() hangs ldFly() on
+  /* With the loader off the FLIGHT must be off too: ldListen() hangs ldFly() on
      the first wheel, touch, pointer or key, and ldFly() ends in goHome(true)
      -- page = 0, the deck re-laid -- a second into whatever the person was
      doing. Marked flown, as the route bypass already does, so neither arms. */
-  let ldArmed = ldSkip, ldFlown = ldSkip, ldFlyQ = false;   /* 509: ldFlyQ -- a skip taken before the six are in, held for the gate */
+  let ldArmed = ldSkip, ldFlown = ldSkip, ldFlyQ = false;   /* 509/510: ldFlyQ -- a skip held until the flight can run (armed, the six in, the page loaded) */
   let ldFull  = true;                 // showing BALINT / DANYI, not B / D
   var ldWidestEm = 6;                 // widest statement line, em -- set by ldSolve,
                                       // read by the ST solve after the loader is gone
@@ -6967,8 +7009,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
             ldCounting = false;
             ldArm();
             /* The auto-open anchors HERE -- the moment the count hands over
-               -- not inside ldArm. A return visit arms at boot so a click
-               can cut through at any point, and a timer anchored there made
+               -- not inside ldArm. A return visit listens from boot so a
+               click can cut through at any point, and a timer anchored there made
                the hold boot-relative: it fired mid-run or the instant the
                animation finished. Both kinds of load reach this line at the
                CTA, so both hold for the same AUTO_FLY after it; any input
@@ -8720,8 +8762,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     }
     /* 499: warm the 31 frames once the landing is long over -- low priority,
        far off the loader's budget -- so About opens with a local cache and
-       every deferred swap is a cache-hit, never a blank. */
-    addEventListener('load', () => setTimeout(() => {
+       every deferred swap is a cache-hit, never a blank. 510: after the six
+       hero loops are in -- 'load' alone came early once the reel stopped
+       holding it, and the frames would have competed with the loops. */
+    ldAfterSix(() => setTimeout(() => {
       for (let n = 1; n <= A4_IMGS; n++){
         const im = new Image(); im.fetchPriority = 'low'; im.decoding = 'async';
         im.src = encodeURI(A4_GAL + 'G' + String(n).padStart(2, '0') + '.jpeg');
@@ -9705,14 +9749,30 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   hdr.addEventListener('pointerleave', () => hdrSet(false));
   hdrReady = true;
 
+  /* 510 THE RELOAD SKIP. A repeat landing LISTENS from boot (ldListen, at the
+     fonts wait) and ARMS at the count's start (ldArm). An input taken before
+     the arm used to fall on nothing; it is held now (ldFlyQ) and lands the
+     moment the flight can run -- armed, the six in (at once from the cache)
+     and the page loaded -- forcing the count to its end and starting the
+     loader-to-hero flight. One frame after the arm, so the statement's own
+     word reveal has landed first. A first visit only listens from its call
+     to action, which the six gate. A held-down key's auto-repeat is not an
+     input. */
+  let ldEars = false;
+  const ldGo = e => { if (e && e.repeat) return; if (ldArmed && ldAssetsIn() && document.readyState === 'complete') ldFly(); else ldFlyQ = true; };
+  function ldListen(){
+    if (ldEars) return;
+    ldEars = true;
+    addEventListener('wheel',       ldGo, { passive:true });
+    addEventListener('touchstart',  ldGo, { passive:true });
+    addEventListener('pointerdown', ldGo);
+    addEventListener('keydown',     ldGo);
+  }
   function ldArm(){
     if (ldArmed) return;
     ldArmed = true;
-    const go = () => { if (ldAssetsIn()) ldFly(); else ldFlyQ = true; };   /* 509: a repeat landing stays skippable, and the skip lands the moment the six are in -- at once from the cache */
-    addEventListener('wheel',       go, { passive:true });
-    addEventListener('touchstart',  go, { passive:true });
-    addEventListener('pointerdown', go);
-    addEventListener('keydown',     go);
+    ldListen();
+    requestAnimationFrame(ldGateOpen);   /* a skip held from before the arm lands next frame -- or at the gate, or at 'load' */
   }
 
   function ldFly(){
@@ -9880,7 +9940,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     ldLock = false; siteReady = true;
     /* 505: THE VALVE MUST FREE THE HERO TOO. The intro waits on the loader's
        own ld-out/ld-fly, and a bypass never sets them -- so a bypassed boot
-       (a route, or 501's watchdog on a boot slower than 30s) left body.vsi
+       (a route, or 501's watchdog on a stuck boot) left body.vsi
        and vsi-in standing for good: the deck held at visibility:hidden, the
        sides and caption held out, and the input gate shut. The page read as
        an empty sheet under the header and could not be clicked. Dropping the
@@ -9914,6 +9974,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       paint();
     });
   } else {
+    if (ldSeen && !ldSkip) ldListen();   /* 510: a repeat landing hears input from boot -- held until the flight can run */
     /* Started on the font rather than on load: solving the name against the
        fallback face would size it wrong and then jump when DM Sans arrived.
        501: raced -- "settles either way" was not true of every engine. */
@@ -9930,9 +9991,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         ldCopy.classList.add('play');
         ldCount();
         /* Seen already in this tab: the run still plays, but it can be cut short
-           at any point. The asset gate goes with it -- on a second view the
-           files are cached, and the deck stays parked below the fold for another
-           second and a half after the input regardless. */
+           at any point. 510: an input taken before this frame (the fonts wait)
+           was held by ldListen and lands a frame after the arm -- never before
+           the six are in, which a cached reload has at once. */
         if (ldSeen) ldArm();
       });
     });
@@ -9943,10 +10004,18 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      loading sheet with no exit. ldBypass is the teardown that already exists
      for routed loads; here it fires only on evidence of a stuck boot: an
      uncaught error with the lock still held two seconds later, or the lock
-     still held past the summed legitimate worst case. 509: that is the
-     gate's own timeout (LD.GATE_MAX) + the hold before the auto-open +
-     the flight, so the valve sits 10s past GATE_MAX. */
-  setTimeout(() => { if (ldLock){ try { ldBypass(); } catch (e) {} } }, LD.GATE_MAX + 10000);
+     still held past the summed legitimate worst case. 510: it counts only
+     the time the page is actually SEEN -- the count runs on animation
+     frames, which a background tab does not get, so a clock from boot cut
+     short any loader first looked at between 8s and 18s after it was
+     opened in the background. The worst legitimate visible run is the
+     fonts' 4s + the count's 4.35s + the 3s hold + the 2.15s flight, about
+     13.5s; the valve stands 10s past the gate's 8s. */
+  { let vis = 0; const vt = setInterval(() => {
+      if (!ldLock){ clearInterval(vt); return; }
+      if (document.visibilityState === 'visible') vis += 500;
+      if (vis >= LD.GATE_MAX + 10000){ clearInterval(vt); try { ldBypass(); } catch (e) {} }
+    }, 500); }
   addEventListener('error', () => setTimeout(() => { if (ldLock){ try { ldBypass(); } catch (e) {} } }, 2000));
 
   measure();
@@ -11585,14 +11654,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const st = () => { el.classList.toggle('playing', !paused);
         el.querySelector('.mu').textContent = soundOn ? 'Mute' : 'Unmute';   /* 501: the label reads the engine's one truth */
         el.classList.toggle('on', hov || paused); };
-      srUiSync = st;   /* 501: the engine refreshes the label when an arrival lands with sound */
+      srUiSync = st; srCtlWire = wire;   /* 501: the engine refreshes the label when an arrival lands with sound; 510: and re-wires the chrome when the reel arrives after 'load' */
       /* 501: the chrome shows on hover and while paused, as the case players'
          does; a still pointer lets it fall away after 2.5s. */
       const wake = () => { hov = true; clearTimeout(hovT); hovT = setTimeout(() => { hov = false; st(); }, 2500); st(); };
       black.addEventListener('pointermove', wake, { passive:true });
       black.addEventListener('pointerleave', () => { clearTimeout(hovT); hov = false; st(); });
-      el.querySelector('.pp').addEventListener('click', e => { e.stopPropagation(); if (!wire() && !p) return; paused = !paused; (paused ? p.pause() : p.play()).catch(() => {}); st(); });
-      el.querySelector('.mu').addEventListener('click', e => { e.stopPropagation(); if (!wire() && !p) return;
+      el.querySelector('.pp').addEventListener('click', e => { e.stopPropagation(); srLoad(); if (!wire() && !p) return; paused = !paused; (paused ? p.pause() : p.play()).catch(() => {}); st(); });
+      el.querySelector('.mu').addEventListener('click', e => { e.stopPropagation(); srLoad(); if (!wire() && !p) return;
         soundOn = !soundOn; soundVeto = !soundOn;   /* 501: an explicit Mute holds across arrivals; an Unmute lifts it */
         p.setMuted(!soundOn).catch(() => {}); st(); });
       /* 502: FULLSCREEN. Entered only with the slide at rest on the reel --
@@ -11616,7 +11685,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         if (srFs && e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); fsToggle(); }
       }, { capture:true });
       el.querySelector('.tl').addEventListener('click', e => {
-        e.stopPropagation(); if (!wire() && !p) return;
+        e.stopPropagation(); srLoad(); if (!wire() && !p) return;
         const r = e.currentTarget.getBoundingClientRect();
         const q = Math.min(1, Math.max(0, (e.clientX - r.left) / Math.max(1, r.width)));
         el.querySelector('.tl i').style.width = (q * 100).toFixed(2) + '%';
@@ -12333,7 +12402,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (cards.length && beltL === deck.L && beltR === deck.R){ cards.forEach(c => assign(c, caseAt(c.q))); return; }
     const boot = !entered;   // the page's first belt: its film is the one that loads with the page
     beltL = deck.L; beltR = deck.R;
-    cards.forEach(c => c.el.remove()); cards = [];
+    cards.forEach(c => { parkWarm(c); c.el.remove(); }); cards = [];   /* 510: the kept film is parked, never destroyed */
     for (let q = -deck.L - 1; q <= deck.R + 1; q++){
       const el = document.createElement('div'); el.className = 'c3-case'; el.dataset.q = q;
       group3d.appendChild(el);
@@ -12365,6 +12434,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const cs = REC()[key]; card.key = key; card.el.dataset.key = key;   /* 507: the belt reads the LIVE ring, so it fills with posts in the reader */
     card.el.classList.toggle('nofilm', !cs.film);
     if (card.still){ card.still.remove(); card.still = null; }
+    parkWarm(card);   /* 510: the kept film leaves by moveBefore, never by remove (card.cs is still the OLD case here) */
     if (card.iframe){ card.iframe.remove(); card.iframe = null; card.player = null; card.playing = false; }
     card.el.classList.remove('live');
     const loopStill = () => {
@@ -12450,8 +12520,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* 509 THE WARM FILM. The Cannes Lions 2024 film is the one most likely to
      play first after the hero (the boot hero's case), and it was built only
      when the case opened: the player, its config and its first segments,
-     cold, every time. It is now built at page load, hidden (opacity 0, the
-     window's size so the player picks the rendition the case will show,
+     cold, every time. It is now built the moment the six hero loops are in
+     (510), hidden (opacity 0, the card's own cover size so the player picks
+     the rendition the case will show,
      under everything, no pointer, no tab stop), started muted and parked at
      frame 0 as the showreel is. When that case opens, its film card ADOPTS
      the warm iframe with moveBefore() -- the one DOM move that keeps an
@@ -12460,7 +12531,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      before -- a warm that could not be adopted would only cost bandwidth. */
   const vmSrc = (id, auto) => 'https://player.vimeo.com/video/' + id + '?muted=1&controls=' + (FILM_CONTROLS ? 1 : 0) + '&autoplay=' + (auto ? 1 : 0) + '&loop=1&autopause=0&title=0&byline=0&portrait=0&playsinline=1&dnt=1';   // loop=1: every film on the site repeats
   const vmPlayer = el => new Vimeo.Player(el);   /* player.js hands back the instance already bound to an iframe */
-  let warmF = null;
+  let warmF = null, warmId = null;   /* 510: warmId -- the film parkWarm keeps for the tab's life, set once by warm() */
   function warm(key){
     const cs = DATA.cases && DATA.cases[key || DATA.start];   /* the boot hero's case -- Cannes Lions 2024 */
     if (warmF || !cs || !cs.film || ytId(cs.film) || !('moveBefore' in Element.prototype) || !(window.Vimeo && Vimeo.Player)) return false;
@@ -12469,12 +12540,41 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     fr.allow = 'autoplay; fullscreen; picture-in-picture';
     fr.src = vmSrc(cs.film, true);
     box.appendChild(fr); document.body.appendChild(box);
-    const w = warmF = { id: String(cs.film), f: fr, box, adopted: false };
+    const w = warmF = { id: String(cs.film), f: fr, box, adopted: false }; warmId = w.id;
     try {
       const p = vmPlayer(fr);
       const prime = e => { if (w.adopted || !(e && e.seconds > 0)) return; p.off('timeupdate', prime); p.pause().then(() => p.setCurrentTime(0)).catch(() => {}); };   /* parked at frame 0, still buffering, as the showreel's prime does */
       p.on('timeupdate', prime);
     } catch (err) {}
+    return true;
+  }
+  /* 510 THE WARM IS KEPT FOR THE LIFE OF THE TAB. Before a card that holds
+     the kept film loses its iframe -- a close, a belt rebuild, a re-assign --
+     the iframe goes back to a hidden holder by moveBefore (a plain move
+     reloads it), muted, paused and parked at frame 0, and becomes the warm
+     again: the next card of that case adopts it instead of loading cold.
+     The old card's 'playing'/'timeupdate' listeners come off first -- the
+     player instance is shared (vmPlayer hands back the one bound to the
+     iframe), and their ready() would mark the parked iframe live again.
+     One warm at a time: a second copy is removed as before. */
+  function parkWarm(card){
+    const f = card && card.iframe;
+    if (!warmId || warmF || !f || f.tagName !== 'IFRAME' || !f.isConnected || !card.cs || String(card.cs.film) !== warmId) return false;
+    const box = document.createElement('div'); box.className = 'c3-warm'; box.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(box);
+    try { box.moveBefore(f, null); } catch (err) { box.remove(); return false; }
+    f.classList.remove('live'); f.style.cssText = '';   /* the card's px size and scale come off: the holder's cover size applies again */
+    const w = warmF = { id: warmId, f, box, adopted: false };
+    let p = card.player;
+    try { if (!p && window.Vimeo && Vimeo.Player) p = vmPlayer(f); } catch (err) { p = null; }
+    card.iframe = null; card.player = null; card.playing = false;
+    if (p && p.off){
+      p.off('playing'); p.off('timeupdate');
+      const prime = e => { if (w.adopted || !(e && e.seconds > 0)) return; p.off('timeupdate', prime); p.pause().then(() => p.setCurrentTime(0)).catch(() => {}); };
+      p.on('timeupdate', prime);   /* a play already in flight is caught and parked again */
+      p.setMuted(true).catch(() => {});
+      p.pause().then(() => p.setCurrentTime(0)).catch(() => {});
+    }
     return true;
   }
   function filmWire(card, first){
@@ -12495,11 +12595,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       return;
     }
     /* 509: the case the warm film was built for adopts it -- moved, never
-       reloaded; the play policy starts it from frame 0 like any boot film */
-    if (!card.iframe && first && warmF && !warmF.adopted && !ytId(cs.film) && warmF.id === String(cs.film) && warmF.f.isConnected){
+       reloaded; the play policy starts it from frame 0 like any boot film.
+       510: ANY film card of that case adopts it -- the boot card, a step's
+       destination, a rebuilt belt -- and a flank still holding it hands it
+       over first. Off the boot card it is paused on arrival (its src
+       autoplays): the card is not the film until the step lands, and the
+       play policy starts it then. */
+    if (!card.iframe && !warmF && warmId && warmId === String(cs.film)){ const h = cards.find(c => c !== card && c.q !== 0 && !c.el.classList.contains('film') && c.iframe && c.cs && String(c.cs.film) === warmId); if (h) parkWarm(h); }
+    if (!card.iframe && warmF && !warmF.adopted && !ytId(cs.film) && warmF.id === String(cs.film) && warmF.f.isConnected){
       const w = warmF;
       try { card.el.moveBefore(w.f, null); w.adopted = true; card.iframe = w.f; } catch (err) {}
-      if (w.adopted){ w.box.remove(); warmF = null; }
+      if (w.adopted){ w.box.remove(); warmF = null; if (!first){ try { vmPlayer(w.f).pause().catch(() => {}); } catch (err) {} } }
     }
     if (!card.iframe){
       const f = document.createElement('iframe');
@@ -13541,7 +13647,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (fsOn) fsToggle();   /* 501: never leave the fullscreen state behind a closed case */
     document.body.classList.remove('c3-in');
     const p = curPlayer(); if (p && p.pause){ try { const q = p.pause(); if (q && q.catch) q.catch(() => {}); } catch (err) {} }
-    cards.forEach(c => c.el.remove()); cards = []; beltL = beltR = -1; entered = false; stepQ = null; busy = false;
+    cards.forEach(c => { parkWarm(c); c.el.remove(); }); cards = []; beltL = beltR = -1; entered = false; stepQ = null; busy = false;   /* 510: the kept film is parked, never destroyed */
     document.body.classList.remove('c3-joined');
     cancelAnimationFrame(sRaf); sRaf = 0; cancelAnimationFrame(stripRaf); stripRaf = 0;
     tr = trS = 0; sV = 0; sOwnY = -1;
@@ -13552,17 +13658,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   return { open, close, active, relayout: layout, ring: () => RING.slice(), current: () => RING[cur], setSource, source: () => SRC, warm };   /* 401: relayout for the live V3/V4 flip; 509: warm */
   })();
   c3Ready = true;
-  /* 509: the boot hero's film is warmed once the page has loaded -- never
-     ahead of 'load', which the V8 intro waits on -- and only on a landing
-     visit (a routed load goes straight to its view) */
-  addEventListener('load', () => {
+  /* 509: the boot hero's film is warmed on a landing visit only (a routed
+     load goes straight to its view). 510: the moment the six hero loops
+     are in (ldAfterSix -- never on the gate's timeout, never ahead of
+     'load'), unless the visitor asked the browser to save data; and it is
+     then kept for the life of the tab (parkWarm). */
+  if (!/jsdom/i.test(navigator.userAgent)) ldAfterSix(() => {
     const landing = !location.hash || location.hash === '#' || location.hash === '#top';
-    /* 509 (review): not at 'load' itself -- that is while the loader is still
-       waiting on the six loops, and the film's stream would slow the very
-       gate it waits behind. It starts the moment the gate releases (at once
-       from the cache); the case cannot open before then anyway. */
-    if (landing && !/jsdom/i.test(navigator.userAgent)){ const go = () => { if (ldAssetsIn()){ try { C3.warm(); } catch (e) {} } else setTimeout(go, 400); }; go(); }
-  }, { once: true });
+    if (landing && !ldSaveData()){ try { C3.warm(); } catch (e) {} }
+  });
 })();
 </script>
 
