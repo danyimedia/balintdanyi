@@ -213,7 +213,7 @@
      absolutely positioned player, and the reel was simply missing. Neither
      rule is read by a modern browser. */
   @supports not (width: 1cqw){ .shot{ width:min(100%, calc((100vh - var(--hdr-h, 140px) - 2 * var(--film-pad)) * 16 / 9)); } }
-  @supports not (aspect-ratio: 1 / 1){ .shot{ width:100%; height:0; padding-top:56.25%; } }
+  @supports not (aspect-ratio: 1 / 1){ .shot{ width:100%; height:0; padding-top:56.25%; } body.sr-fs .black .shot{ padding-top:0; } }
   .shot iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
   /* A cross-origin iframe swallows wheel events, so the page could never be
      scrolled back from the film. This catches them above the player -- the
@@ -3538,7 +3538,10 @@
      chrome box is squared to the contained picture instead -- the cq units
      resolve against .film, the only size container, which fullscreen
      makes the window -- so the same share lands on the same baseline. */
-  body.sr-fs #black .c3-ctl{ inset:auto; left:calc((100cqw - min(100cqw, 100cqh * 16 / 9)) / 2); top:calc((100cqh - min(100cqh, 100cqw * 9 / 16)) / 2); width:min(100cqw, 100cqh * 16 / 9); height:min(100cqh, 100cqw * 9 / 16); }
+  /* 508 (review): gated -- where cq units are missing, the calc()s would be
+     dropped while inset:auto stayed, collapsing the chrome to 0x0 and taking
+     play, seek, mute and exit-fullscreen with it */
+  @supports (width: 1cqw){ body.sr-fs #black .c3-ctl{ inset:auto; left:calc((100cqw - min(100cqw, 100cqh * 16 / 9)) / 2); top:calc((100cqh - min(100cqh, 100cqw * 9 / 16)) / 2); width:min(100cqw, 100cqh * 16 / 9); height:min(100cqh, 100cqw * 9 / 16); } }
   #viewCase3 .c3-case video.film-ph{ object-fit:cover; }   /* 446: only the fit is the video's own; geometry, origin and the live law come from the iframe rule above */
   #viewCase3 .c3-ctl.ph-film .bar{ display:none; }
   #viewCase3 .c3-space{ position:relative; z-index:0; }
@@ -5575,7 +5578,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   });
 
   /* 508: a list title opens its post (it opened a blank tab) */
-  const blogPick = e => { const big = e.target.closest('#viewBlog .ent .big'); if (!big) return false;
+  const blogPick = e => { if (!document.body.classList.contains('blogopen')) return false;   /* 508 (review): a clipped, closed list must not answer Tab+Enter */
+    const big = e.target.closest && e.target.closest('#viewBlog .ent .big'); if (!big) return false;
+    peekOn = false; peek.classList.remove('on');   /* the hover peek must not ride over the arriving post */
     const row = big.closest('.ent-row'); if (row && row.dataset.key){ openBlog(row.dataset.key); return true; } return false; };
   document.addEventListener('click', blogPick);
   document.addEventListener('keydown', e => { if (e.key === 'Enter' && blogPick(e)) e.preventDefault(); });
@@ -5620,8 +5625,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      csPick figure), which is then snapped shut beneath it. */
   function openBlog(key){
     if (!(chosen.case >= 3 && c3Ready)) return false;
+    viewSettle();   /* 508 (review): a case close still pending under the list would run inside the figure below and put the CASE ring back -- settle it first */
     C3.setSource('blogs');
-    ytApi();   /* 508: the post's film is YouTube -- start fetching its API with the click, not with the first frame */
+    ytApi().catch(() => {});   /* 508: the post's film is YouTube -- start fetching its API with the click, not with the first frame */
     clearTimeout(c3ExitT);
     const xEl = document.getElementById('viewCase3'); if (xEl) xEl.classList.remove('c3-exit');
     setRoute('blog');
@@ -6037,17 +6043,21 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       '&controls=0&disablekb=1&fs=0&iv_load_policy=3&rel=0&modestbranding=1&playsinline=1' +   /* no loop=1&playlist=: the playlist loads late and RESETS the player to unstarted, discarding a play already asked for (measured) -- the adapter loops on ENDED instead */
       (location.origin && location.origin !== 'null' ? '&origin=' + encodeURIComponent(location.origin) : '');
   }
-  let ytApiP = null;
+  /* 508 (review): the ready hook is installed ONCE and resolves whichever
+     promise is current; a failed fetch is retried at most every 10s (the
+     play policy asks every frame, and each ask used to add a script tag and
+     wrap the hook again) */
+  let ytApiP = null, ytApiRes = null, ytApiRej = null, ytApiFail = 0;
   function ytApi(){
     if (window.YT && YT.Player) return Promise.resolve();
     if (ytApiP) return ytApiP;
-    ytApiP = new Promise(res => {
-      const prev = window.onYouTubeIframeAPIReady;
-      window.onYouTubeIframeAPIReady = () => { try { if (prev) prev(); } catch (e) {} res(); };
-      const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; sc.async = true;
-      sc.onerror = () => { ytApiP = null; };   /* a failed fetch is asked again the next time a post needs it */
-      document.head.appendChild(sc);
-    });
+    if (ytApiFail && Date.now() - ytApiFail < 10000) return Promise.reject(new Error('yt api cooling down'));
+    if (!ytApi._hook){ ytApi._hook = true; const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => { try { if (prev) prev(); } catch (e) {} if (ytApiRes) ytApiRes(); }; }
+    ytApiP = new Promise((res, rej) => { ytApiRes = res; ytApiRej = rej; });
+    const sc = document.createElement('script'); sc.src = 'https://www.youtube.com/iframe_api'; sc.async = true;
+    sc.onerror = () => { ytApiP = null; ytApiFail = Date.now(); sc.remove(); if (ytApiRej) ytApiRej(new Error('yt api failed')); };
+    document.head.appendChild(sc);
     return ytApiP;
   }
   function ytPlayer(f){
@@ -6061,6 +6071,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (!f.isConnected){ stop(); try { p.destroy(); } catch (e) {} return; }
       try { const t = p.getCurrentTime() || 0; dur = p.getDuration() || dur; fire('timeupdate', { seconds: t, duration: dur, percent: dur ? t / dur : 0 }); } catch (e) {}
     };
+    /* 508 (review): the playing-state poll only runs while playing; a paused or
+       cued iframe torn down with the belt needs its own slow check */
+    const gc = setInterval(() => { if (!f.isConnected){ clearInterval(gc); stop(); try { p.destroy(); } catch (e) {} } }, 3000);
     p = new YT.Player(f, { events: {
       onReady: () => { ok = true; const qq = q; q = []; qq.forEach(fn => { try { fn(); } catch (e) {} }); },
       onStateChange: e => {
@@ -8560,6 +8573,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       im.decoding = 'async'; im.alt = ''; im.draggable = false;
       c._img = im; c.appendChild(im);
       c._li = i;
+      /* 508 (review): a card grown on resize would paint one frame untransformed
+         -- flat and face-on at the band's centre -- and, mid-sweep, stand at its
+         slot undisplaced while the train slid in over it. It is born hidden
+         (place() reveals it on its first write) and, on the INTRO band, with the
+         tail's displacement, so it trails the train like any parked card. */
+      c.style.visibility = 'hidden'; c._v = 'hidden';
+      c._D = host._Dtail || 0; c._hideL = false;
       a4Img(c, i);   /* slot at birth is the virtual index */
       host.appendChild(c); cards.push(c);
       return c;
@@ -9107,7 +9127,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           }
           if (swOn) swSnap = true;
         }
-        if (!swOn && swP === 0) swSnap = false;
+        if (!swOn && swP === 0){
+          swSnap = false;
+          /* 508 (review): a scroll back up past the trigger -- the INTRO nav, Home,
+             a scrollbar drag -- ran the sweep backwards with cards banked, and a
+             slot that wrapped BACKWARD under its bank was never released (the
+             re-lap only knows the forward direction): the next entrance landed
+             with those slots empty. At this rail every INTRO card is drawn off
+             the right edge or hidden, so dropping the books here is unseen and
+             the next sweep banks from the slots afresh. */
+          for (const c of gal.children) if (c._B !== undefined) c._B = undefined;
+        }
         const roleTop = (vh - e1) - x2;
         const bgTop = vh - e4;
         document.getElementById('a4Sl4').style.transform = 'translate3d(0,' + bgTop.toFixed(1) + 'px,0)';
@@ -11489,7 +11519,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     })();
     /* 444: #blog stays a live route while its menu button is parked */
     const goBlogHash = () => {
-      if (location.hash !== '#blog' || document.body.classList.contains('blogopen')) return;
+      if (location.hash !== '#blog' || document.body.classList.contains('blogopen') || document.body.classList.contains('blogread')) return;   /* 508 (review): a post's page carries #blog too -- never bounce it back to the list */
       const sp = document.querySelector('[data-view="blog"]'); if (sp) sp.click();
     };
     addEventListener('load', goBlogHash); addEventListener('hashchange', goBlogHash);
@@ -11874,7 +11904,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const ENTER_MS = 60;                // at load, the decks' cards come in one after another, from the film out, this far apart
   const ENTER_DUR = 600;              // ... each over this, on an expo ease-out: fast in, a long settle
   /* THE DETAILS' WAY IN is the scroll (see detailsScroll). A paragraph's words, each in its own span: the sequence's units */
-  const words = text => text.split(/\s+/).filter(Boolean).map(w => '<span class="w">' + w + '</span>').join(' ');
+  const words = text => String(text == null ? '' : text).split(/\s+/).filter(Boolean).map(w => '<span class="w">' + esc(w) + '</span>').join(' ');   /* 508 (review): escaped -- a post's copy will come from a form; the case copy holds no markup, so cases render the same */
   const BRAND_SMALL = 0.45;           // the words' size at rest, as a share of the intro's
   const CASE_DOWN = 0.35;             // window-heights of scroll, once the head has stuck, over which the brand cases down to the initials' size
   /* THE DOORS (see deckGeo). Measured on the reference frame (film
@@ -12297,7 +12327,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        went ready -> playing). So a post's iframe is only made once the API
        is up; until then the play policy's per-frame rewire asks again, as
        it does for a late Vimeo script. */
-    if (ytId(cs.film) && !card.iframe && !(window.YT && YT.Player)){ if (first) card._ytFirst = true; ytApi(); return; }   /* the boot card's autoplay intent survives the wait */
+    if (ytId(cs.film) && !card.iframe && !(window.YT && YT.Player)){
+      if (first) card._ytFirst = true;   /* the boot card's autoplay intent survives the wait */
+      /* 508 (review): the only late re-wire runs inside videoScroll, which stops
+         once nothing moves -- an API landing after that left the film card
+         blurred until the visitor scrolled. Build the moment it lands. */
+      if (!card._ytWait){ card._ytWait = true; ytApi().then(() => { card._ytWait = false; if (card.cs === cs && !card.iframe && active()){ filmWire(card, card._ytFirst); videoScroll(); } }, () => { card._ytWait = false; }); }   /* a failure frees the card to ask again after the cooldown */
+      return;
+    }
     if (!card.iframe){
       const f = document.createElement('iframe');
       const yt = ytId(cs.film);   /* 508: a post's film is YouTube */
@@ -12326,7 +12363,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
              so autoplay alone is not something to rely on */
           if (card.playing || card._ytFirst){ const pl = card.player; pl.setMuted(filmMuted).then(() => pl.play()).catch(() => {}); }
         } catch (err) { card.player = null; }
-      } else ytApi();
+      } else ytApi().catch(() => {});
     }
     if (!card.player && !ytId(cs.film) && window.Vimeo && Vimeo.Player && card.iframe.tagName === 'IFRAME'){
       const f = card.iframe;
@@ -13142,7 +13179,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           const qs = c.quotes || [c];                                          // one column holds every sub-container
           d.innerHTML = qs.map(q => '<div class="q"><div class="qt t ink">' + words(q.q) + '</div>' +
             '<div class="qf">' + (q.img ? '<img class="qp" alt="" src="' + encodeURI(ROOT + q.img) + '">' : '') +
-            '<div class="qn t ink"><span>' + (q.name || '') + '</span><span>' + (q.role || '') + '</span></div></div></div>').join('');
+            '<div class="qn t ink"><span>' + esc(q.name || '') + '</span><span>' + esc(q.role || '') + '</span></div></div></div>').join('');
           flowPlace(d, true);
         } else {
           d.className = 'cell text'; kind = 'text';
