@@ -3498,7 +3498,11 @@
        where this row's own ink ends (icon feet and the UNMUTE baseline
        coincide) above the bar box's bottom -- 3.89px today, written in the
        tokens so it follows them if --ink-t or --c3-cap ever move. */
-    --sr-cap-foot:.0176;
+    /* 509: re-measured at 16x on three clips (LIONS 2025, LIONS 2024,
+       LIMITS TECHNOLOGY -- each lower-third sits on the same line) against
+       a 743px frame: baseline 14.1px above the foot (1.90%), cap height
+       9.4px (1.27%). The 508 figure (1.76%) was read a pixel low. */
+    --sr-cap-foot:.0190; --sr-cap-k:.0127;
     --sr-ink-foot:calc(var(--ui-size) * 1.34 - var(--ink-t) - var(--c3-cap) / 2 - 7px);
     /* the control's words in the site's own menu register -- UNMUTE, not a default serif */
     font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -3541,6 +3545,33 @@
   /* 508 (review): gated -- where cq units are missing, the calc()s would be
      dropped while inset:auto stayed, collapsing the chrome to 0x0 and taking
      play, seek, mute and exit-fullscreen with it */
+  /* 509 THE ROW IS ONE LINE OF TYPE WITH THE REEL'S OWN. UNMUTE was set in
+     the menu's 11px while the burned-in lower-thirds scale with the picture
+     (9.4px caps at a 743px frame against UNMUTE's 7.7), and the bar and the
+     icons were seated by the case chrome's ink formula while UNMUTE was not,
+     so the line rode ~3px above the word's middle. Now every part of the
+     row is a share of the FRAME'S height (cq units against .film, the one
+     size container -- the same box in fullscreen, where the chrome is
+     squared to the contained picture): the word takes the captions' cap
+     height (DM Sans caps are .7em), stands on their baseline, and the
+     play/pause and fullscreen icons and the timeline's line are centred on
+     the captions' cap-middle. Icon size, line weight and spacing keep the
+     design's 14 : 3 : 20 against 11px type. Below the gate (no cq units)
+     the 508 row stands. */
+  @supports (width: 1cqw){
+    #black .c3-ctl{
+      --sr-h:min(100cqh, 100cqw * 9 / 16);   /* the frame's height */
+      --sr-fs:calc(var(--sr-h) * var(--sr-cap-k) / .7);
+      --sr-bar:calc(var(--sr-fs) * 3 / 11);
+      font-size:var(--sr-fs);
+    }
+    #black .c3-ctl .bar{ align-items:center; gap:calc(var(--sr-fs) * 20 / 11); height:calc(var(--sr-fs) * 1.34);
+      bottom:calc(var(--sr-h) * (var(--sr-cap-foot) + var(--sr-cap-k) / 2) - var(--sr-fs) * .67); }   /* the row's middle ON the captions' cap-middle */
+    #black .c3-ctl .pp, #black .c3-ctl .fs{ width:calc(var(--sr-fs) * 14 / 11); height:calc(var(--sr-fs) * 14 / 11); margin-top:0; }
+    #black .c3-ctl .tl{ height:100%; }
+    #black .c3-ctl .tl::before, #black .c3-ctl .tl i{ top:calc(50% - var(--sr-bar) / 2); height:var(--sr-bar); }
+    #black .c3-ctl .mu{ line-height:normal; }   /* DM Sans' content box is centred .009em below its cap-middle: 0.1px */
+  }
   @supports (width: 1cqw){ body.sr-fs #black .c3-ctl{ inset:auto; left:calc((100cqw - min(100cqw, 100cqh * 16 / 9)) / 2); top:calc((100cqh - min(100cqh, 100cqw * 9 / 16)) / 2); width:min(100cqw, 100cqh * 16 / 9); height:min(100cqh, 100cqw * 9 / 16); } }
   #viewCase3 .c3-case video.film-ph{ object-fit:cover; }   /* 446: only the fit is the video's own; geometry, origin and the live law come from the iframe rule above */
   #viewCase3 .c3-ctl.ph-film .bar{ display:none; }
