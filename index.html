@@ -4287,7 +4287,7 @@
      'load' either -- an iframe started before it holds 'load', which the
      hero's entrance waits on. A routed load (no sheet) runs them at 'load'. */
   let ldSix = false; const ldSixQ = [];
-  const ldSaveData = () => { try { return !!(navigator.connection && navigator.connection.saveData); } catch (e) { return false; } };   /* the visitor asked the browser to save data: no head starts (the films still load on demand) */
+  const ldSaveData = () => { try { return !!(navigator.connection && navigator.connection.saveData); } catch (e) { return false; } };   /* the visitor asked the browser to save data: no Cannes Lions head start (it still loads on demand). 510c: the showreel's head start always runs -- his call */
   function ldSixRun(){ const go = () => { while (ldSixQ.length){ try { ldSixQ.shift()(); } catch (e) {} } };
     if (document.readyState === 'complete') setTimeout(go, 0); else addEventListener('load', () => setTimeout(go, 0), { once: true }); }
   function ldAfterSix(fn){ ldSixQ.push(fn); if (ldSix) ldSixRun(); }
@@ -6553,7 +6553,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     wireFilm();
     if (srCtlWire) srCtlWire();
   }
-  ldAfterSix(() => { if (!ldSaveData()) srLoad(); });
+  ldAfterSix(() => srLoad());   /* 510c: his call -- the reel's head start stands even with data saver on; without it the site is not the site */
   addEventListener('DOMContentLoaded', wireFilm, { once:true });   /* 501: player.js is deferred now -- it executes before this fires, so the common path wires here rather than waiting for window load */
 
   /* 501: the veil covers the whole player now -- controls=0 killed the native
