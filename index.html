@@ -4276,7 +4276,7 @@
        BEFORE the flight is armed (a reload listens from boot) is kept, not
        dropped -- ldArm lands it; and it waits for 'load', which the hero's
        entrance waits on, or the name would fly onto an empty hero */
-    if (ldFlyQ && ldArmed && ldAssetsIn() && document.readyState === 'complete'){ ldFlyQ = false; if (ldDone < ldItems) ldGateReport(); ldFly(); }
+    if (ldFlyQ && ldArmed && ldAssetsIn() && (document.readyState === 'complete' || !ldCounting)){ ldFlyQ = false; if (ldDone < ldItems) ldGateReport(); ldFly(); }   /* 510 (review): 'load' is waited for only while the count still runs -- at the call to action input flies at once, as the 3s auto-open does */
   }
   addEventListener('load', () => ldGateOpen(), { once: true });
   /* 510 AFTER THE SIX. His order: the six hero loops first, and the moment
@@ -4292,12 +4292,19 @@
     if (document.readyState === 'complete') setTimeout(go, 0); else addEventListener('load', () => setTimeout(go, 0), { once: true }); }
   function ldAfterSix(fn){ ldSixQ.push(fn); if (ldSix) ldSixRun(); }
   function ldSixDone(){ if (ldSix) return; ldSix = true; ldSixRun(); }
+  /* 510 (review): the GATE lets a loop in when the browser stops fetching it
+     of its own accord -- an iPhone, or Android Chrome on mobile data, never
+     preloads a paused video, and the page must not wait 8s for that. The
+     EXTRAS are stricter: they start only when every loop is truly whole (or
+     failed). Where that never happens before play, they load on demand. */
+  const vFull = v => !!v.error || vBuf(v) >= 0.999;
+  const ldSixCheck = () => { if (!ldSix && ldDone >= ldItems && ldVids.every(v => !v.isConnected || vFull(v))) ldSixDone(); };
   function watchAssets(){
     if (ldSkip){ ldSixDone(); return; }   /* 509: no sheet (a routed load, a harness, header 4) -- nothing waits, and the loops keep their lean preload; 510: the extras run at 'load' */
     const items = [...document.querySelectorAll('video.vs-loop, .vs-deck img.still')];   /* 509: every loop WHEREVER it sits, and the stills */
     ldItems = items.length;
     ldVids = items.filter(el => el.tagName === 'VIDEO');
-    const settle = el => { if (!el.__ldDone){ el.__ldDone = true; ldDone++; if (ldDone >= ldItems){ ldGateOpen(); ldSixDone(); } } };   /* 510: the ONLY door to 'the six are in' -- the bail never opens it */
+    const settle = el => { if (!el.__ldDone){ el.__ldDone = true; ldDone++; if (ldDone >= ldItems){ ldGateOpen(); ldSixCheck(); } } };   /* 510: the gate opens here; the extras' door (ldSixCheck, whole loops only) is tried here and on every poll -- the bail never opens it */
     if (!ldItems) ldSixDone();
     items.forEach(el => {
       if (el.tagName === 'IMG'){
@@ -4317,7 +4324,8 @@
         if (el.__ldDone) continue;
         if (!el.isConnected || (el.tagName === 'IMG' ? el.complete : vIn(el))) settle(el);   /* 480d: a detached element (a mid-load deck rebuild) counts settled -- it must never pin the gate */
       }
-      if (ldDone >= ldItems) clearInterval(iv);
+      ldSixCheck();
+      if (ldSix) clearInterval(iv);   /* 510 (review): the poll stands until the six are WHOLE -- the gate may have opened long before */
     }, 400);
     setTimeout(() => { ldBail = true; ldGateOpen(); }, Math.max(0, LD.GATE_MAX - performance.now()));   /* 509: the one timeout, from navigation start; 510: the poll keeps watching past it (it stops itself once all are in) -- the extras wait for the six themselves */
   }
@@ -7008,6 +7016,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
             flip(LD_CTA, 1000, LD.FADE);
             ldCounting = false;
             ldArm();
+            ldGateOpen();   /* 510 (review): a reload skip held for 'load' mid-count lands the moment the count hands over */
             /* The auto-open anchors HERE -- the moment the count hands over
                -- not inside ldArm. A return visit listens from boot so a
                click can cut through at any point, and a timer anchored there made
@@ -9759,7 +9768,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      to action, which the six gate. A held-down key's auto-repeat is not an
      input. */
   let ldEars = false;
-  const ldGo = e => { if (e && e.repeat) return; if (ldArmed && ldAssetsIn() && document.readyState === 'complete') ldFly(); else ldFlyQ = true; };
+  const ldGo = e => { if (e && e.repeat) return; if (ldArmed && ldAssetsIn() && (document.readyState === 'complete' || !ldCounting)) ldFly(); else ldFlyQ = true; };
   function ldListen(){
     if (ldEars) return;
     ldEars = true;
@@ -12535,6 +12544,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function warm(key){
     const cs = DATA.cases && DATA.cases[key || DATA.start];   /* the boot hero's case -- Cannes Lions 2024 */
     if (warmF || !cs || !cs.film || ytId(cs.film) || !('moveBefore' in Element.prototype) || !(window.Vimeo && Vimeo.Player)) return false;
+    /* 510 (review): the case may already be open with its own film -- that
+       iframe becomes the kept one (parkWarm takes it on close), never a
+       second hidden copy streaming beside it */
+    if (cards.some(c => c.iframe && c.iframe.tagName === 'IFRAME' && c.cs && String(c.cs.film) === String(cs.film))){ warmId = String(cs.film); return true; }
     const box = document.createElement('div'); box.className = 'c3-warm'; box.setAttribute('aria-hidden', 'true');
     const fr = document.createElement('iframe'); fr.tabIndex = -1; fr.title = '';
     fr.allow = 'autoplay; fullscreen; picture-in-picture';
@@ -12563,7 +12576,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const box = document.createElement('div'); box.className = 'c3-warm'; box.setAttribute('aria-hidden', 'true');
     document.body.appendChild(box);
     try { box.moveBefore(f, null); } catch (err) { box.remove(); return false; }
-    f.classList.remove('live'); f.style.cssText = '';   /* the card's px size and scale come off: the holder's cover size applies again */
+    f.classList.remove('live'); f.style.cssText = ''; f.tabIndex = -1;   /* the card's px size and scale come off: the holder's cover size applies again; never a tab stop while parked */
     const w = warmF = { id: warmId, f, box, adopted: false };
     let p = card.player;
     try { if (!p && window.Vimeo && Vimeo.Player) p = vmPlayer(f); } catch (err) { p = null; }
@@ -13663,10 +13676,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      are in (ldAfterSix -- never on the gate's timeout, never ahead of
      'load'), unless the visitor asked the browser to save data; and it is
      then kept for the life of the tab (parkWarm). */
-  if (!/jsdom/i.test(navigator.userAgent)) ldAfterSix(() => {
-    const landing = !location.hash || location.hash === '#' || location.hash === '#top';
-    if (landing && !ldSaveData()){ try { C3.warm(); } catch (e) {} }
-  });
+  /* 510 (review): the landing test is taken HERE, at boot -- read when the
+     six finish, it saw the #about / #case / #blog a visitor had moved to on
+     a slow line, and the film was never kept for the whole tab */
+  if (!/jsdom/i.test(navigator.userAgent)){
+    const bootLanding = !location.hash || location.hash === '#' || location.hash === '#top';
+    if (bootLanding) ldAfterSix(() => { if (!ldSaveData()){ try { C3.warm(); } catch (e) {} } });
+  }
 })();
 </script>
 
