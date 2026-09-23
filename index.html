@@ -3376,7 +3376,7 @@
      in with the intro, through the blur, first. */
   #viewCase3 .c3-lede{
     text-transform:none; letter-spacing:normal; word-spacing:normal; line-height:var(--sm-lh); font-size:calc(var(--ui-size) * var(--body-k));
-    width:calc((100% - 2 * var(--c3-mid)) / 2); margin:0 0 calc(2 * var(--c3-gap));
+    width:calc((100% - 2 * var(--c3-mid)) / 2); margin:0 0 var(--c3-gap);   /* ONE gap: .c3-cols' own margin-top is the other -- together the block separation (2x), as under the contribution */
     opacity:0; filter:blur(var(--c3-in-blur)); transition:opacity 900ms ease, filter 900ms ease;
   }
   #c3Intro.in .c3-lede{ opacity:1; filter:blur(0); }
@@ -3587,12 +3587,12 @@
   @supports (width: 1cqw){
     #black .c3-ctl{
       --sr-h:min(100cqh, 100cqw * 9 / 16);   /* the frame's height */
-      --sr-fs:calc(var(--sr-h) * var(--sr-cap-k) / .7);
+      --sr-fs:max(8px, calc(var(--sr-h) * var(--sr-cap-k) / .7));   /* 509 (review): an 8px floor -- on a small frame the captions shrink past legible, the controls must not */
       --sr-bar:calc(var(--sr-fs) * 3 / 11);
       font-size:var(--sr-fs);
     }
     #black .c3-ctl .bar{ align-items:center; gap:calc(var(--sr-fs) * 20 / 11); height:calc(var(--sr-fs) * 1.34);
-      bottom:calc(var(--sr-h) * (var(--sr-cap-foot) + var(--sr-cap-k) / 2) - var(--sr-fs) * .67); }   /* the row's middle ON the captions' cap-middle */
+      bottom:max(0px, calc(var(--sr-h) * (var(--sr-cap-foot) + var(--sr-cap-k) / 2) - var(--sr-fs) * .67)); }   /* the row's middle ON the captions' cap-middle; floored rows never hang below the frame */
     #black .c3-ctl .pp, #black .c3-ctl .fs{ width:calc(var(--sr-fs) * 14 / 11); height:calc(var(--sr-fs) * 14 / 11); margin-top:0; }
     #black .c3-ctl .tl{ height:100%; }
     #black .c3-ctl .tl::before, #black .c3-ctl .tl i{ top:calc(50% - var(--sr-bar) / 2); height:var(--sr-bar); }
@@ -8694,7 +8694,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* 509: growing moves the slots themselves, so the frames move WITH them,
          now -- deferring them to a blind spot left a page of stale frames
          on screen for as long as the drift took to carry them there */
-      [...host.children].forEach(c => { c._pm = undefined; c._B = undefined; const u = a4U(c); if (u !== c._vi) a4Img(c, u); c._dirty = false; });
+      [...host.children].forEach(c => { c._pm = undefined; c._B = undefined; const u = a4U(c); if (u !== c._vi){ a4Img(c, u); c._dirty = false; } });   /* 509 (review): a swap still WAITING for a blind spot is left to place() -- clearing it here kept a card a lap out of step until its next wrap */
     }
     function layout(){
       solve();
@@ -8765,8 +8765,6 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           }
         }
         c._pm = xm;
-        const u = Math.round((xm + cur * kC) / sp);   /* 509: the card's place on the unrolled belt (a4U, inline) */
-        if (u !== c._vi){ c._vi = u; c._dirty = true; }
         /* 484: the wrap stands down while the train holds the body displaced.
            A slot-space wrap mid-sweep teleported an on-screen card (the ring's
            edge sits ~100px past the frame while D carries cards far beyond
@@ -8819,6 +8817,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           const offS = 0.84 * Math.abs(xs) > halfVis4 + 60;
           if (Math.abs(xs - xm) < 1 || (offS && (0.84 * Math.abs(xm) > halfVis4 + 60 || Math.abs(xm) < 6)) || Math.abs(xs) > half + ring){ c._B = undefined; xs = xm; }
         } else xs = xm;
+        /* 509: the card's place on the unrolled belt, read off the lap it is
+           DRAWN on (a4U, inline). A car the train still holds banked is
+           drawn a lap behind its slot; reading the slot's lap gave it the
+           NEXT lap's frame as it crossed the centre, out of step with its
+           neighbours (review). Now its frame changes at the re-lap or the
+           release -- both unseen. */
+        const u = Math.round((xs + cK) / sp);
+        if (u !== c._vi){ c._vi = u; c._dirty = true; }
         const x = xs + (c._D || 0) * (1 - swE);   /* 423: THE TRAIN -- one compressing body on one eased clock */
         /* 501: the 499 "blind spot" was not blind -- at |x|=24 the lens still
            opens a ~9px face 20-29px right of centre (the file's own law:
@@ -9510,7 +9516,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       drift4 = 0; ovfT = 0; ovfC = 0;
       swP = 0; swE = 0; swDir = 0; swOn = false; swSnap = false;
       cards.forEach(c => { c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false;
-        const u = a4U(c); if (u !== c._vi) a4Img(c, u); c._dirty = false; });   /* 509: dressed for the REWOUND belt -- the old counts belonged to the last visit's */
+        const u = a4U(c); if (u !== c._vi){ a4Img(c, u); c._dirty = false; } });   /* 509: dressed for the REWOUND belt -- the old counts belonged to the last visit's */
       /* 507: NEVER gate the loop on a possibly-stale handle. requestAnimationFrame
          does not fire while the page is hidden, so a view opened in a background
          or occluded tab left `raf` holding an id that never ran -- and because
@@ -13551,7 +13557,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      visit (a routed load goes straight to its view) */
   addEventListener('load', () => {
     const landing = !location.hash || location.hash === '#' || location.hash === '#top';
-    if (landing && !/jsdom/i.test(navigator.userAgent)){ try { C3.warm(); } catch (e) {} }
+    /* 509 (review): not at 'load' itself -- that is while the loader is still
+       waiting on the six loops, and the film's stream would slow the very
+       gate it waits behind. It starts the moment the gate releases (at once
+       from the cache); the case cannot open before then anyway. */
+    if (landing && !/jsdom/i.test(navigator.userAgent)){ const go = () => { if (ldAssetsIn()){ try { C3.warm(); } catch (e) {} } else setTimeout(go, 400); }; go(); }
   }, { once: true });
 })();
 </script>
