@@ -2402,9 +2402,21 @@
     transition:filter .30s ease, opacity .30s ease;
   }
   body.cap-swap .h4-num, body.cap-swap .h4-title,
-  body.cap-swap .h4-role, body.cap-swap .h4-sum,
-  body.cap-swap .h4-cmark, body.cap-swap .h4-sub{
+  body.cap-swap .h4-role, body.cap-swap .h4-sum{
     filter:blur(5px); opacity:.35;
+  }
+  /* 509 THE CORNERS: BLUR, THEN FADE, THEN THE NEXT. The logo and the
+     subtitle go all the way OUT -- a logo's whole silhouette changes, so
+     any ink still standing at the swap reads as a cut -- and the blur
+     LEADS: it is most of the way in before the fade begins (opacity waits
+     .12s), and both are done inside the caption's 300ms, when the swap
+     lands unseen. The way back in rides the corners' own .3s. Their own
+     class, so re-fitting the SAME case (a resize) never blinks them; the
+     vsi-cap twin outranks the intro's fade-in, so a step in its last
+     second still leaves before it changes. */
+  body.cm-swap .h4-cmark, body.cm-swap .h4-sub,
+  body.vsi.vsi-cap.cm-swap .h4-cmark, body.vsi.vsi-cap.cm-swap .h4-sub{
+    filter:blur(6px); opacity:0; transition:filter .22s ease, opacity .16s ease .12s;
   }
   .h4-num, .h4-title{
     position:absolute; bottom:calc(100% - var(--h4-top) + .30em);
@@ -11644,6 +11656,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function markSub(i){
       const sub = byId('h4sub'), mk = byId('h4cmark');
       if (!sub || !mk) return;
+      mk._i = i;   /* 509: the case the corners are showing */
       const txt = SUBS[L[i][KEY]] || '';
       sub.innerHTML = (txt.indexOf('/') >= 0 ? txt.split('/') : txt.split(' '))
         .map(w => '<i>' + w.trim() + '</i>').join('');
@@ -11664,16 +11677,27 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     addEventListener('load', () => setTimeout(() => L.forEach(r => logoInk(encodeURI(ROOT + r[2]), () => {})), 1200));
     function chrome(i){
       railShift(i);
-      markSub(i);   /* 504: the corners answer the scroll-UI along with the caption */
       const a = byId('h4num'), b = byId('h4title'), c = byId('h4sum'), d = byId('h4role');
       /* A SEQUENCE, not a cut. The old text blurs out, the swap happens only
          once it is soft, and the new text comes back sharp. Writing the text
          in the same frame as the class was the bug -- the change landed
          before the blur had run, so it read as a hard cut. */
       const bc = document.body.classList;
+      /* 509: THE CORNERS TAKE THE SAME SEQUENCE. markSub ran here, ahead of
+         any class, so the next logo CUT in sharp -- and only then blurred
+         and came back. Now the old pair blurs and fades out, the swap lands
+         in the timer below while they are at zero, and the new pair fades
+         and sharpens in. A first paint has nothing to leave and fills now;
+         the SAME case again (a resize, the landing's re-place) re-fits in
+         place without a blink. */
+      const mk = byId('h4cmark');
+      if (!mk || mk._i === undefined || (mk._i === i && !bc.contains('cm-swap'))) markSub(i);
+      else bc.add('cm-swap');
       bc.add('cap-swap');
       clearTimeout(capT);
+      const n = chrome._n = (chrome._n || 0) + 1;   /* 509: only the LATEST swap may lift the blur */
       capT = setTimeout(() => {
+        if (bc.contains('cm-swap')) markSub(i);   /* 509: unseen -- the corners are at zero */
         if (a) a.textContent = String(i + 1).padStart(2, '0');
         if (b) b.textContent = L[i][TITLE];
         if (c) c.textContent = HOV[L[i][KEY]] || '';   /* 408: the registry's hover, by the card's key */
@@ -11681,11 +11705,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         tag2Words = L[i][ROLE].split(' '); tag2Solve();     // the right label, one word to a line
         /* The paragraph's height feeds the caption lift, so it is measured
            after the new text is in and before the blur comes off. */
+        /* 509: a step landing in the frame between an earlier timer and its
+           rAF used to have that stale rAF lift the blur under the newer swap
+           -- which then landed sharp, a cut. The latest swap lifts; any
+           other stands down. */
         if (c) requestAnimationFrame(() => {
+          if (n !== chrome._n) return;
           document.documentElement.style.setProperty('--h4-sumh', c.offsetHeight + 'px');
-          bc.remove('cap-swap');
+          bc.remove('cap-swap', 'cm-swap');
         });
-        else requestAnimationFrame(() => bc.remove('cap-swap'));
+        else requestAnimationFrame(() => { if (n === chrome._n) bc.remove('cap-swap', 'cm-swap'); });
       }, 300);
     }
 
