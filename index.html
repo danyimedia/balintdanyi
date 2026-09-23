@@ -8560,8 +8560,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          crop-to-fit in the untouched containers, looping forever. */
       ['a4Gal', 'a4GalV', 'a4GalB'].forEach(id => {
         const host = document.getElementById(id);
+        host._n = A4_N;   /* 508: the band's ring count; a4Ring() grows it to the window. 509: set FIRST -- a card is dressed for its place, and its place reads the ring */
         for (let i = 0; i < A4_N; i++) a4Card(host, i);
-        host._n = A4_N;   /* 508: the band's ring count; a4Ring() grows it to the window */
       });
     }
     /* 508: ONE card factory, for the build and for a ring that grows. _li is
@@ -8580,9 +8580,27 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          tail's displacement, so it trails the train like any parked card. */
       c.style.visibility = 'hidden'; c._v = 'hidden';
       c._D = host._Dtail || 0; c._hideL = false;
-      a4Img(c, i);   /* slot at birth is the virtual index */
       host.appendChild(c); cards.push(c);
+      a4Img(c, a4U(c));   /* 509: dressed for the place it stands in (the slot number alone put the left half a ring out of step) */
       return c;
+    }
+    /* 509 THE PICTURE IS WHERE THE CARD STANDS. A card's frame is its place
+       on the UNROLLED belt -- its slot plus the laps its ring position has
+       made -- so two cards side by side on screen are two frames side by side
+       in his sequence, by construction. It used to be a running count, bumped
+       by one ring at each wrap, and three things threw the count out of step
+       with the place: the first dress (every card took its slot number, so
+       the half of the ring that starts LEFT of centre was a ring ahead), a
+       ring grown to a wide window (every count reset to the slot), and a
+       reopen (the belt rewound to 0, the counts did not). Each left a SEAM
+       where the run restarted -- 10 11 12 | 1 2 3 ... 12 13, measured live
+       at 1990px -- a whole run of frames repeated next to itself. Nothing is
+       counted now; place() reads the index off the position every frame and
+       the frame still only changes where the lens provably shows nothing. */
+    function a4U(c){
+      const host = c.parentElement, k = host._k || 1;
+      const nb = host._n || A4_N, sp = A4_SP * gK4 * k, ring = nb * sp;
+      return Math.round((mod4(c._li * sp - cur * k + ring / 2, ring) - ring / 2 + cur * k) / sp);
     }
     /* 508: size a band's ring to the window. Grows only -- a longer ring is
        always valid, and shrinking would reshuffle the belt on every resize.
@@ -8591,13 +8609,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        would read the jump as a lap and dress a page of cards wrongly. */
     function a4Ring(host, k){
       if (!host || !host._n) return;   /* not built yet */
+      host._k = k;   /* 509: the band's scale, for a4U() */
       const sp = A4_SP * gK4 * k;
       const R = ((innerWidth - 2 * PAD) / 2 + 60) / 0.84;   /* the projected clip's reach, in slot units (the 501 zone) */
       const need = Math.max(A4_N, 2 * Math.ceil((R + A4_PARK * sp) / sp));
       if (need <= host._n) return;
-      for (let i = host._n; i < need; i++) a4Card(host, i);
-      host._n = need;
-      [...host.children].forEach(c => { c._pm = undefined; c._B = undefined; c._vi = c._li; c._dirty = true; });
+      const n0 = host._n; host._n = need;   /* 509: the new count first, so a grown card is born in step */
+      for (let i = n0; i < need; i++) a4Card(host, i);
+      /* 509: growing moves the slots themselves, so the frames move WITH them,
+         now -- deferring them to a blind spot left a page of stale frames
+         on screen for as long as the drift took to carry them there */
+      [...host.children].forEach(c => { c._pm = undefined; c._B = undefined; const u = a4U(c); if (u !== c._vi) a4Img(c, u); c._dirty = false; });
     }
     function layout(){
       solve();
@@ -8653,10 +8675,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         /* 497: the sequence advances at the wrap. The ring edge sits past
            the frame, so the src swap is never on the lens; the mod counts
            under the 484 bank too, so the virtual index stays true and the
-           resync teleports a card already wearing its new frame. */
+           resync teleports a card already wearing its new frame. 509: the
+           index is READ off the place, never counted (a4U) -- below. */
         if (c._pm !== undefined){
           const dW = xm - c._pm;
-          if (dW > half){ c._vi += nb; c._dirty = true;
+          if (dW > half){
             /* 508: a card held hidden off the left edge whose slot wraps
                mid-sweep would otherwise be revealed at the landing, sitting
                in its new slot near the right edge -- a pop. It joins the
@@ -8665,9 +8688,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
                the last car. */
             if (swE > 0 && swE < 1 && c._hideL && c.parentElement._Dtail){ c._hideL = false; c._D = c.parentElement._Dtail; }
           }
-          else if (dW < -half){ c._vi -= nb; c._dirty = true; }
         }
         c._pm = xm;
+        const u = Math.round((xm + cur * kC) / sp);   /* 509: the card's place on the unrolled belt (a4U, inline) */
+        if (u !== c._vi){ c._vi = u; c._dirty = true; }
         /* 484: the wrap stands down while the train holds the body displaced.
            A slot-space wrap mid-sweep teleported an on-screen card (the ring's
            edge sits ~100px past the frame while D carries cards far beyond
@@ -9411,7 +9435,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       drift4 = 0; ovfT = 0; ovfC = 0;
       swP = 0; swE = 0; swDir = 0; swOn = false; swSnap = false;
       cards.forEach(c => { c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false;
-        if (c._dirty){ c._dirty = false; a4Img(c, c._vi); } });
+        const u = a4U(c); if (u !== c._vi) a4Img(c, u); c._dirty = false; });   /* 509: dressed for the REWOUND belt -- the old counts belonged to the last visit's */
       /* 507: NEVER gate the loop on a possibly-stale handle. requestAnimationFrame
          does not fire while the page is hidden, so a view opened in a background
          or occluded tab left `raf` holding an id that never ran -- and because
