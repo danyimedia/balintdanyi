@@ -32,6 +32,7 @@
        onto --pad at every width, so the sheets follow the dial without being
        re-composed. */
     --a4-um:36px;
+    --a4-nav-h:calc(var(--t-sub) * 52 / 21);   /* 511d: the About nav's band, derived from its words -- the 52px band round the 21px words, as drawn */
     --track-s:.0576em; --wsp-s:.0384em; --sm-lh:1.13;   /* 384: rows midway back -- .85 read too tight against 1.41 */
     /* (1) The default pointer: a small cross, four arms of equal length,
        drawn rather than borrowed -- `crosshair` is a different figure at a
@@ -1332,7 +1333,8 @@
      the top. Both rules sit after the header variants and out-rank them. */
   .ab4{ --ink:#F5F5F5; --paper:#000; --rule:#3a3a3a; background:var(--paper); color:var(--ink);
     --a4-us:calc(var(--ui-size) / 2);          /* 388: the small class at HALF, this page only */
-    --a4-slh:calc(var(--sm-lh) * .85); }       /* 391: the halved rows were overlapping; more air (the artwork follows the solver) */
+    --a4-slh:calc(var(--sm-lh) * .85);         /* 391: the halved rows were overlapping; more air (the artwork follows the solver) */
+    --a4-ivs:calc(var(--t-body) / var(--a4-k, 1)); }   /* 511d: BODY(CAPS) inside a unit -- the token over the unit scale (--a4-k, lines()), so it SHOWS at BODY. It was JS off the first .menu span in the DOM: the dormant #stripe menu, 11px forever */
   #viewAbout4 .masthead.flat{ color:var(--ink); }
   /* the unified header (site3) rides ABOVE the view at body level: over this
      black page its two tokens swap, and everything derived follows -- names,
@@ -1393,7 +1395,8 @@
      corner links on wide windows). ONLY 12-YEARS-IN-ADVERTISING stands
      printed; the other two kickers open the sequence. */
   .a4-bgk{ position:absolute;
-    font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em; line-height:.8843;
+    font-size:calc(var(--t-sub-row) / var(--a4-k, 1)); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
+    font-variation-settings:'opsz' var(--a4-osr, 21);   /* 511d: S11, SUBTITLE-ROW on screen (it was 21 unit px, riding the zoom) */
     text-transform:uppercase; white-space:nowrap; }
   /* 419: the head re-arranged on his layout -- the three kicker lines
      STACKED on the left margin (three middle-register lines stand exactly
@@ -1411,13 +1414,14 @@
      stays as the pre-measurement fallback. */
   .a4-bgp{ position:absolute; top:372.1px; }
   .a4-bgp p{ margin:0; font-size:calc(var(--a4-ivs, 11px) * var(--body-k)); font-weight:var(--ui-weight);
-    line-height:var(--sm-lh); }   /* 504: the body register. --a4-ivs stays counter-scaled by uS, so the multiple rides it and lands at 12px on the window */   /* 416: the WORDS carry the reveal; 421: sentence case, on the approach's 4-column grid */
+    line-height:var(--sm-lh); font-variation-settings:'opsz' var(--a4-on, 12); }   /* 504: the body register. --a4-ivs stays counter-scaled by uS, so the multiple rides it and lands at 12px on the window */   /* 416: the WORDS carry the reveal; 421: sentence case, on the approach's 4-column grid */
   .a4-bgp.p1{ left:var(--a4-um); width:350px; }
   .a4-bgp.p2{ left:calc(var(--a4-um) + 372px); width:350px; }
   .a4-bgp.p3{ left:calc(var(--a4-um) + 744px); width:350px; }
   .a4-bgc{ position:absolute; top:699px; display:flex; align-items:center; gap:14px;
     height:52px; opacity:0; filter:blur(4px); }
   .a4-bgc .t{ font-size:var(--a4-ivs, 11px); font-weight:var(--ui-weight); line-height:var(--sm-lh);
+    letter-spacing:var(--track-s); word-spacing:var(--wsp-s); font-variation-settings:'opsz' var(--a4-ob, 11);   /* 511d: BODY(CAPS) whole -- the menu's tracking and word gap with its size */
     text-transform:uppercase; white-space:nowrap; }   /* 417: the education line IS the small class -- the paragraphs' register whole, not the mid */
   .a4-bgc .lg{ position:relative; display:block; }
   .a4-bgc.c1 .lg{ width:49px; height:48px; } .a4-bgc.c2 .lg{ width:37px; height:48px; } .a4-bgc.c3 .lg{ width:55px; height:26px; }
@@ -1426,7 +1430,7 @@
   .a4-bgc.c2{ left:50%; transform:translateX(-50%); }
   .a4-bgc.c3{ right:var(--a4-um); }
   .a4-bgk .w, .a4-rw4 .w, .a4-bgp p .w, .a4-ap p .w{ display:inline-block; font-style:normal; opacity:0; filter:blur(4px); }
-  .a4-mids.v{ color:#F5F5F5; }
+  .a4-mids.v{ color:#F5F5F5; font-size:calc(var(--t-sub-row) / var(--a4-k, 1)); font-variation-settings:'opsz' var(--a4-osr, 21); }   /* 511d: S10 PEOPLE / CULTURE are stacked in CONNECTING's row: SUBTITLE-ROW on screen */
   /* 417: THE CASE ROW'S OWN ENTRANCE, copied whole (the thing he means by
      BRIEF): a 28px slide FROM THE LEFT with the fade, 1600ms on the case's
      heavy ease-out cubic-bezier(.16,1,.3,1) -- the row's own numbers
@@ -1434,7 +1438,8 @@
      completes on its own; scrolling back above the trigger re-arms it. */
   .a4-brk{ position:absolute; width:560px; height:70px; }
   .a4-brk .bw{ position:absolute; top:2px; color:#F5F5F5;
-    font-size:74px; font-weight:1000; letter-spacing:-.045em; line-height:.78;
+    font-size:calc(var(--t-title) / var(--a4-k, 1)); font-weight:1000; letter-spacing:-.045em; line-height:.78;
+    font-variation-settings:'opsz' var(--a4-ot, 40);   /* 511d: T6, TITLE on screen (it was 74 unit px, riding the zoom) */
     text-transform:uppercase; white-space:nowrap; }
   .a4-brk .bwi{ display:inline-block; font-style:normal;
     opacity:0; transform:translateX(-28px);
@@ -1451,7 +1456,7 @@
   .a4-ap{ position:absolute; left:var(--a4-um); right:var(--a4-um); top:475px; }
   .a4-ap p{ position:absolute; left:0; top:0; width:350px; margin:0;
     font-size:calc(var(--a4-ivs, 11px) * var(--body-k)); font-weight:var(--ui-weight); line-height:var(--sm-lh);
-    color:#F5F5F5; }   /* 504: the body register, counter-scaled as above */   /* 413: dark card, own ink; 415: the menu's size (--a4-ivs); 416: the WORDS carry the reveal */
+    font-variation-settings:'opsz' var(--a4-on, 12); color:#F5F5F5; }   /* 504: the body register, counter-scaled as above */   /* 413: dark card, own ink; 415: the menu's size (--a4-ivs); 416: the WORDS carry the reveal */
   .a4-ap p.ap2{ left:372px; }
   .a4-sl2{ position:fixed; inset:0; z-index:5; background:#F5F5F5; visibility:hidden;
     pointer-events:none; will-change:transform; transform:translate3d(0,100vh,0); }
@@ -1463,9 +1468,9 @@
      centres. s = unitS(vw) -- the sheet margin onto the page margin -- seated by JS (508). */
   .a4-unit{ position:absolute; left:0; top:0; width:1486px; height:870px;
     transform-origin:0 0; color:#000; }
-  .a4-unit .a4-lbig{ font-size:74px; }
-  .a4-mids{ position:absolute; font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em;
-    line-height:.8843; text-transform:uppercase; white-space:nowrap; color:#000; }
+  .a4-unit .a4-lbig{ font-size:calc(var(--t-title) / var(--a4-k, 1)); font-variation-settings:'opsz' var(--a4-ot, 40); }   /* 511d: T5 / T7, TITLE on screen: the token over the unit scale (it was 74 unit px, riding the zoom) */
+  .a4-mids{ position:absolute; font-size:calc(var(--t-sub) / var(--a4-k, 1)); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws);
+    line-height:var(--t-sub-lh); text-transform:uppercase; white-space:nowrap; color:#000; font-variation-settings:'opsz' var(--a4-os, 21); }   /* 511d: S9, SUBTITLE on screen (it was 21 unit px) */
   .a4-mids .w{ display:inline-block; font-style:normal; opacity:0; filter:blur(4px); }
   .a4-mids.ml{ left:var(--a4-um); top:412.6px; }   /* 495: seated at runtime */
   .a4-mids.mc{ left:50%; transform:translateX(-50%); top:412.6px; }
@@ -1518,9 +1523,9 @@
   .a4-row1{ display:none; }
   .a4-row3{ position:fixed; left:var(--pad); right:var(--pad); bottom:var(--pad); margin:0; }   /* 504: on the bottom margin, now the corner links have gone up to the header */   /* fixed under the transformed slide = the slide's own window coordinates */
   .a4-row3 .a4-big{ text-align:left; margin-left:-.035em; }   /* CREATIVE LEAD's C lands the left ink */
-  .a4-cp{ position:fixed; left:50%; top:50%; transform:translate(-50%, calc(-50% + var(--a4-cpo, 18.585px)));
+  .a4-cp{ position:fixed; left:50%; top:50%; transform:translate(-50%, calc(-50% + var(--a4-cpo, calc(var(--t-sub) * var(--t-sub-lh)))));
     text-align:center; z-index:1; color:#F5F5F5;
-    font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em; line-height:.8843; text-transform:uppercase;
+    font-size:var(--t-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh); text-transform:uppercase;   /* 511d: S8, SUBTITLE (it was 21px); the line step before JS is one of its lines */
     transition:transform .45s cubic-bezier(.22,.61,.36,1); }   /* the middle register; 422: the container re-centres in two smooth TRIGGERED steps (18.36 / 9.18 / 0), the transition carrying each */
   /* 503: it was nowrap at a fixed 21px, so a tall/narrow window ran the
      statement straight off both edges. The three authored lines stand as
@@ -1538,8 +1543,11 @@
   .a4-big{ font-size:var(--big); font-weight:1000; letter-spacing:-.045em; line-height:.78;
     text-transform:uppercase; white-space:nowrap; margin-left:-.045em; }
   .a4-mid{ position:absolute; right:0; bottom:var(--a4-mids, 0px); text-align:right;
-    font-size:calc(var(--big) * .2838); font-weight:1000; letter-spacing:-.04em; word-spacing:.135em;
-    line-height:.8843; text-transform:uppercase; margin-right:-.02em; }
+    font-size:var(--t-sub-row); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws);
+    line-height:var(--t-sub-lh); text-transform:uppercase; margin-right:-.02em; }   /* 511d: S7, SUBTITLE-ROW (it was .2838 x --big); seated by ink (a4MidSeat) */
+  /* 511d: THE COLLAPSE (SPEC-511 sec. 3). Where --t-sub-row stands at its floor BODY (lines() sets
+     .a4-floor), the stacked subtitles -- S7, S10, S11 -- wear BODY(CAPS)'s weight, tracking, word gap, leading. */
+  #viewAbout4.a4-floor .a4-mid, #viewAbout4.a4-floor .a4-mids.v, #viewAbout4.a4-floor .a4-bgk{ font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh); }
   .a4-row4{ display:grid; grid-template-columns:1fr auto 1fr; margin-top:var(--a4-g4, 14px); }
   /* the HEADER's colours still flip -- it rides ABOVE the cards; the card
      edge passing under it is the trigger. Everything else owns its colours. */
@@ -1555,16 +1563,16 @@
      It rides the header's fold (a child of .hdr), and its backdrop is the
      SAME recipe as the header's, meeting it with no seam: one homogeneous
      blur. The words are the mid register; the travellers are driven by JS. */
-  .a4-nav{ display:none; position:absolute; left:0; right:0; top:100%; height:52px; pointer-events:none; }
+  .a4-nav{ display:none; position:absolute; left:0; right:0; top:100%; height:var(--a4-nav-h); pointer-events:none; }   /* 511d: the band follows its words (it was 52px round 21px words) */
   body.aboutopen.about4 .a4-nav{ display:block; }
   /* 398: NO separate backdrop -- two adjacent backdrop-filters can never
      blur as one (each samples its own box). The header's ::before itself
      stretches down behind the nav on About: one element, one glass, one
      tint transition -- seam and colour-lag both gone. */
   .a4-nav::before{ content:none; }
-  body.aboutopen.about4 .hdr::before{ top:0; bottom:-52px; height:auto; }
+  body.aboutopen.about4 .hdr::before{ top:0; bottom:calc(-1 * var(--a4-nav-h)); height:auto; }
   .a4-nav span{ position:absolute; top:50%; transform:translateY(-50%); left:0;
-    font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em; line-height:1;
+    font-size:var(--t-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);   /* 511d: S6, SUBTITLE (it was 21px at leading 1; centred in the band either way) */
     text-transform:uppercase; color:#F5F5F5; cursor:pointer; pointer-events:auto; will-change:left; }
   .a4-nav span.ct{ left:auto; right:var(--pad); margin-right:-.02em; will-change:auto; }   /* 412: CONTACT -- always on the right margin, right of BACKGROUND, and it NEVER moves */
   body.a4r .a4-nav span{ color:#000; }
@@ -8647,7 +8655,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (!nav || !nav.offsetParent) return;
       const sp = [...nav.querySelectorAll('span[data-k]')];   /* 412: the four travellers; CONTACT stands apart, static */
       const w = sp.map(e => e.getBoundingClientRect().width);
-      const vw = innerWidth, GAP = 30;
+      const kS = (parseFloat(getComputedStyle(sp[0]).fontSize) || 21) / 21;   /* 511d: the nav's air was drawn round 21px words; it follows them */
+      const vw = innerWidth, GAP = 30 * kS;
       const L = [PAD];   /* 508 */
       for (let k = 1; k < 4; k++) L[k] = L[k - 1] + w[k - 1] + GAP;
       L[3] = L[2] + w[2] + GAP;   /* 399: BACKGROUND's landing sits beside VISION -- its permanent HOLD is the 'you are here' */
@@ -8656,7 +8665,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       R[3] = vw - PAD - (ctW ? ctW + GAP : 0) - w[3];   /* 412: BACKGROUND rests just left of the pinned CONTACT */
       R[2] = R[3] - GAP - w[2];
       R[1] = R[2] - GAP - w[1];
-      navW = { sp, w, L, R, ln: [...nav.querySelectorAll('i')], ctW };
+      navW = { sp, w, L, R, ln: [...nav.querySelectorAll('i')], ctW, kS };
       sp.forEach((e, k) => { if (!e._nv){ e._nv = 1; e.addEventListener('click', () => {
         const E = innerHeight / A4_R2;
         vTr = Math.max(0, Math.min(maxSc(), A4S ? [0, A4S.g1.s + A4S.g1.T, A4S.g2.s + A4S.g2.T, A4S.g3.s + A4S.g3.T][k] : 0));   /* 423: a traveller lands on the FULL SCREEN -- the card seated, its content settled, the next not yet moving */
@@ -8666,14 +8675,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function navDrive(p1, p2, p3){
       if (!navW) navMeasure();
       if (!navW) return;
-      const { sp, w, L, R, ln } = navW;
+      const { sp, w, L, R, ln } = navW, kS = navW.kS || 1;
       const p = [1, Math.min(1, Math.max(0, p1)), Math.min(1, Math.max(0, p2)), Math.min(1, Math.max(0, p3))];
       const x = [PAD];
       /* the cube: a traveller barely moves before its page actually shows.
          And the HOLD: it rests a line's distance short of the cluster while
          ITS page is current -- the gap says 'you are here' -- joining only
          as the NEXT page's drive begins. BACKGROUND holds forever. */
-      const HOLD = 90;
+      const HOLD = 90 * kS;
       const jn = [1,
         Math.min(1, Math.max(0, p[2] * 6)),
         Math.min(1, Math.max(0, p[3] * 6)),
@@ -8684,14 +8693,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       }
       sp.forEach((e, k) => { e.style.left = x[k].toFixed(1) + 'px'; });
       for (let k = 0; k < 3; k++){
-        const a = x[k] + w[k] + 22, b = x[k + 1] - 22;
-        const on = b - a > 26;
+        const a = x[k] + w[k] + 22 * kS, b = x[k + 1] - 22 * kS;
+        const on = b - a > 26 * kS;
         ln[k].style.opacity = on ? '1' : '0';
         if (on){ ln[k].style.left = a.toFixed(1) + 'px'; ln[k].style.width = (b - a).toFixed(1) + 'px'; }
       }
       /* BACKGROUND's right-hand line, when the margin allows */
-      const a4 = x[3] + w[3] + 22, b4 = innerWidth - PAD - (navW.ctW ? navW.ctW + 22 : 0);   /* 413: the line stops the travellers' own air short of the pinned CONTACT -- never through it */
-      const on4 = b4 - a4 > 26;
+      const a4 = x[3] + w[3] + 22 * kS, b4 = innerWidth - PAD - (navW.ctW ? navW.ctW + 22 * kS : 0);   /* 413: the line stops the travellers' own air short of the pinned CONTACT -- never through it */
+      const on4 = b4 - a4 > 26 * kS;
       ln[3].style.opacity = on4 ? '1' : '0';
       if (on4){ ln[3].style.left = a4.toFixed(1) + 'px'; ln[3].style.width = (b4 - a4).toFixed(1) + 'px'; }
     }
@@ -8719,15 +8728,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function solve(){
       const ui = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui-size')) || 11) / 2;   /* 388: the page's own half-size register */
       view.style.setProperty('--a4-p', A4_P + 'px');
-      /* the mid block's last baseline onto the big line's: baseline sits
-         fs*(L/2 - .341) above the box foot; the difference is the lift */
-      const big = parseFloat(getComputedStyle(view.querySelector('.a4-big')).fontSize) || 68;
-      const bBig = big * (.78 / 2 - .341), bMid = (big * .2838) * (.8843 / 2 - .341);
-      /* 511a: RAISED by the difference. `bottom` counts up from the shared foot, so the
-         mid's last baseline (bMid over its own foot) meets the big one (bBig over the
-         row's) at bottom = bBig - bMid. The reversed sign dropped FOR BRAND FILM twice
-         that gap below CREATIVE LEAD: 3.0px at 74 on DM Sans, 1.8px on Inter's metrics. */
-      view.style.setProperty('--a4-mids', (bBig - bMid).toFixed(2) + 'px');
+      /* 511d: the mid block's last baseline onto the big line's, READ -- the .341 model (a box-foot
+         offset) missed on DM Sans by more than a pixel at 1280. a4MidSeat raises it by the measured gap. */
+      a4MidSeat();
       /* the first screen is 100vh INCLUDING the header. Under the unified
          header (site3) the view already pads --hdr-h; 414: this page now
          RESTS at the small size (the full words), so the expanded name's
@@ -9094,9 +9097,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const off = parseFloat(getComputedStyle(view).getPropertyValue('--a4-off')) || 0;
       const nav = document.getElementById('a4Nav'), hEl = document.querySelector('.hdr');
       let foot = 0;
+      const navH = (nav && parseFloat(getComputedStyle(nav).height)) || 0;   /* 511d: the band's height follows its words (--a4-nav-h; it was 52) */
       if (nav && nav.offsetParent) foot = nav.getBoundingClientRect().bottom;
-      else if (hEl && hEl.offsetParent) foot = hEl.getBoundingClientRect().bottom + 52;
-      if (!(foot > 0)) foot = off + 52;
+      else if (hEl && hEl.offsetParent) foot = hEl.getBoundingClientRect().bottom + navH;
+      if (!(foot > 0)) foot = off + navH;
       kB1 = Math.max(A4_KMIN, Math.min(1, (vh / 2 - foot - A4_BAND_GAP) / (bandH4 / 2)));
       bh1 = bandH4 * kB1; bhB = bandH4 * kBB;
       const put = (el, k, h) => { if (!el) return;
@@ -9134,9 +9138,18 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const keep = sl1.style.transform; sl1.style.transform = 'none';
       slotRest = document.getElementById('a4GalSlot').getBoundingClientRect().top + bh1 / 2;
       bwiEl = view.querySelector('.a4-brk.b1 .bwi');
-      rw2Solve(); a4Seat();
+      /* 511d: THE UNIT SCALE FIRST. The type inside the units is the token over it (--a4-k), and every
+         row is derived from that type, so the scale -- and the seats that carry it -- land before any
+         measure (the solves read rects over uS). */
+      uS = unitS(vw);
+      { const t0 = (vh - A4_UD.h * uS) / 2, l0 = PAD - A4_UM * uS, sc0 = ' scale(' + uS.toFixed(4) + ')';
+        ['a4Unit', 'a4Unit3', 'a4Unit4'].forEach(id => { const u = document.getElementById(id); if (u) u.style.transform = 'translate(' + l0.toFixed(2) + 'px,' + t0.toFixed(2) + 'px)' + sc0; }); }
+      a4Type();
+      a4CpL = 0;   /* #a4Cp's line step is re-read on the next frame */
+      rw2Solve(); a4Rows(); a4Seat();
       apSolve();
       bg4Layout();
+      a4MidSeat();
       requestAnimationFrame(() => requestAnimationFrame(bg4Layout));   /* 423: one deferred, AUTHORITATIVE pass once every var and font has truly settled (the 419 lesson, closed) */
       sl1.style.transform = keep;
       /* THE UNIT LAW: margin to margin at all times -- s = (vw-72)/1414
@@ -9145,8 +9158,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* 415: the SMALL class is the MENU'S OWN size. Inside the scaled
          unit a fixed px would ride uS, so the value is counter-scaled the
          moment uS exists -- one var, every small paragraph reads it. */
-      { const _mi = document.querySelector('.menu span');
-        view.style.setProperty('--a4-ivs', (((_mi ? parseFloat(getComputedStyle(_mi).fontSize) : 11) || 11) / (uS || 1)).toFixed(3) + 'px'); }
+      /* 511d: --a4-ivs is CSS's now -- the BODY token over --a4-k (a4Type). This read the first .menu span
+         in the DOM, the dormant #stripe menu: 11px forever, not the header's law. */
       bg4Layout();   /* 419: the columns just changed size with the var -- anchor the upper stack NOW, on the fresh metrics (the tail pass ran before the var landed) */
       const uTop = (vh - A4_UD.h * uS) / 2, uLeft = PAD - A4_UM * uS;
       u2Seat = { x: uLeft, y: uTop };   /* 424: the seats are REMEMBERED -- the parallax pull writes the WHOLE transform (seat + pull + scale); replacing it wholesale was the clobber that unscaled both white sheets */
@@ -9373,7 +9386,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            meets the eye early AND lands on the original centred
            composition untouched. */
         const uT0 = (vh - 870 * uS) / 2;
-        const P2 = .5 * (uT0 + 287.3 * uS), P4 = .5 * bg4TopW;   /* half the MEASURED edge-distance */
+        const P2 = .5 * (uT0 + a4RoleTopU * uS), P4 = .5 * bg4TopW;   /* half the MEASURED edge-distance (511d: the ROLE composition's ink top, a4Rows -- it was a drawn 287.3) */
         const un2 = document.getElementById('a4Unit');
         if (un2) un2.style.transform = 'translate3d(' + u2Seat.x.toFixed(2) + 'px,' + (u2Seat.y - P2 * (1 - e1 / vh)).toFixed(2) + 'px,0) scale(' + uS.toFixed(4) + ')';
         const un4 = document.getElementById('a4Unit4');
@@ -9399,7 +9412,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         swE = swP * swP * swP * (swP * (swP * 6 - 15) + 10);   /* one QUINTIC clock for the whole train */
         const cp = document.getElementById('a4Cp');
         if (cp){
-          const cpoT = qW > .375 ? 0 : qW > .02 ? 9.293 : 18.585;   /* 426: the new line advance (21 x .8843) */
+          const cpL = a4CpL || (a4CpL = parseFloat(getComputedStyle(cp).lineHeight) || 0);   /* 511d: its OWN line advance, SUBTITLE's (it was 21 x .8843) */
+          const cpoT = qW > .375 ? 0 : qW > .02 ? +(cpL / 2).toFixed(3) : +cpL.toFixed(3);   /* 426: two TRIGGERED steps, a half line each */
           if (cp._cpo !== cpoT){ cp._cpo = cpoT; cp.style.setProperty('--a4-cpo', cpoT + 'px'); }
           cp.style.opacity = Math.max(0, 1 - swP * 2).toFixed(3);   /* 426: gone by half the sweep (his double) */
           const dt = cp.querySelector('.dots');
@@ -9549,6 +9563,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     let swOn = false, swP = 0, swLast = 0, swE = 0, swDir = 0, swSnap = false, bg4TopW = 260, bg4BandW = 480;
     let u2Seat = { x: 0, y: 0 }, u4Seat = { x: 0, y: 0 };   /* 422: the sweep's trigger state and timed progress; the background's first-content seat */
     let uTopL = 0;
+    let a4RoleTopU = 0, a4CpL = 0;   /* 511d: the ROLE composition's ink top (unit px, a4Rows); #a4Cp's line step (px) */
     /* STRICTLY ONE AFTER THE OTHER: item i completes (92% of its slot)
        before item i+1 begins -- the sequence IS the reading order. The
        sequence starts only once the FIRST row has actually entered the
@@ -9567,6 +9582,104 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        runtime: paragraph feet 10 above the band, the title 15.75 above
        them, the kicker stack cap-aligned to the title (three middle lines
        = the large cap, the design's own equation). */
+    /* 511d: THE TYPE THE SHEETS SHOW. The unit scale goes to CSS (--a4-k): inside a unit a member is the
+       token over it. The optical sizes are the sizes SHOWN, clamped 9..40 (auto would pick the unit
+       size). At the floor -- the stacked fit x TITLE not over BODY -- the stacks collapse (.a4-floor). */
+    let a4Probe = null;
+    function a4Type(){
+      view.style.setProperty('--a4-k', uS.toFixed(5));
+      if (!a4Probe){ a4Probe = document.createElement('i'); a4Probe.setAttribute('aria-hidden', 'true'); a4Probe.style.cssText = 'position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;visibility:hidden;pointer-events:none;'; view.appendChild(a4Probe); }
+      const px = v => { a4Probe.style.fontSize = 'var(' + v + ')'; return parseFloat(getComputedStyle(a4Probe).fontSize) || 0; };
+      const T = px('--t-title'), S = px('--t-sub'), SR = px('--t-sub-row'), N = px('--t-nocaps'), B = px('--t-body');
+      const o = v => Math.min(40, Math.max(9, v)).toFixed(2);
+      view.style.setProperty('--a4-ot', o(T)); view.style.setProperty('--a4-os', o(S)); view.style.setProperty('--a4-osr', o(SR));
+      view.style.setProperty('--a4-on', o(N)); view.style.setProperty('--a4-ob', o(B));
+      const fit = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--t-fit')) || .28356;
+      view.classList.toggle('a4-floor', T > 0 && B > 0 && fit * T <= B + .001);
+    }
+    /* a box's LIVE baseline (window px): a zero-size inline-block on its first line (or its last) --
+       Chrome rounds the face's ascent and descent and floors the half-leading, which a model misses */
+    function a4Base(el, last){
+      const q = document.createElement('i');
+      q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;';
+      if (last) el.appendChild(q); else el.insertBefore(q, el.firstChild);
+      const y = q.getBoundingClientRect().bottom; q.remove(); return y;
+    }
+    /* the face's cap height per em at a weight (canvas), cached once the face is in */
+    function a4Cap(w){
+      const K = a4Cap.k || (a4Cap.k = {});
+      if (K[w]) return K[w];
+      let k = .7;
+      try {
+        const cx = a4Cap.cx || (a4Cap.cx = document.createElement('canvas').getContext('2d'));
+        cx.font = w + " 200px 'DM Sans', sans-serif";
+        const m = cx.measureText('H');
+        if (m && m.actualBoundingBoxAscent > 0) k = m.actualBoundingBoxAscent / 200;
+        if (document.fonts && document.fonts.check && document.fonts.check(w + " 200px 'DM Sans'")) K[w] = k;
+      } catch (e) {}
+      return k;
+    }
+    /* S7: FOR BRAND FILM's last baseline onto CREATIVE LEAD's (bottom counts up: raise by the gap) */
+    function a4MidSeat(){
+      const t = view.querySelector('.a4-row3 .a4-big'), m = view.querySelector('.a4-row3 .a4-mid');
+      if (!t || !m || !(t.getBoundingClientRect().height > 0) || !(m.getBoundingClientRect().height > 0)) return;
+      const d = a4Base(m, true) - Math.round(a4Base(t, true));   /* onto the title's PAINTED baseline (a whole device pixel) */
+      if (isFinite(d) && Math.abs(d) > .02){
+        const b0 = parseFloat(view.style.getPropertyValue('--a4-mids')) || 0;
+        view.style.setProperty('--a4-mids', (b0 + d).toFixed(2) + 'px');
+      }
+    }
+    /* THE DRAWN AIRS, in ems of the type that defines each (drawn at 74 / 21 unit px, DM Sans):
+       r23 FROM BRIEF's baseline .. the mids' cap 8.35 = .3977 S; r34 the mids' baseline .. FLAGSHIP's
+       cap 22.05 = 1.0499 S; rBelt FLAGSHIP's baseline .. the belt 7.1 = .0960 T; slitT CONNECTING's
+       baseline .. the slit 31.6 = .4271 T; slitB the slit .. the paragraphs' cap 33.77 = .4564 T;
+       bgP WHY ARE THEY WATCHING's baseline .. its paragraphs' cap 15.75 = .2128 T; bgBand the
+       BACKGROUND band's pads 20 = .2703 T. The ROLE composition (LEADING's cap .. the belt's foot)
+       keeps its drawn centre; the belt keeps its 52. */
+    const A4_AIR = { r23:.3977, r34:1.0499, rBelt:.0960, slitT:.4271, slitB:.4564, bgP:.2128, bgBand:.2703 };
+    const A4_ROLE_MID = 429.25, A4_BELT_H = 52;
+    function a4Rows(){
+      if (!(uS > 0) || !isFinite(uS)) return;
+      const q = s => view.querySelector(s), fs = e => parseFloat(getComputedStyle(e).fontSize) || 0;
+      const bo = e => (a4Base(e) - e.getBoundingClientRect().top) / uS;   /* a box's first baseline under its top, unit px */
+      const cT = a4Cap(1000);
+      /* ROLE: LEADING / VIDEO, FROM BRIEF TO DELIVERY one line pitch under, the mids, FLAGSHIP WORK FOR, the belt */
+      const l1 = q('#a4Unit .a4-lbig.s1l'), l1r = q('#a4Unit .a4-lbig.s1r'), r2 = q('#a4Unit .a4-rw2'), r2w = q('#a4Unit .a4-rw2 .w');
+      const mm = [...view.querySelectorAll('#a4Unit .a4-mids')], p4 = [q('#a4Unit .a4-p2l'), q('#a4Unit .a4-p2c'), q('#a4Unit .a4-p2r')], belt = q('#a4Belt2');
+      if (l1 && l1r && r2 && r2w && mm.length === 3 && p4.every(Boolean) && belt && l1.getBoundingClientRect().height > 0){
+        mm.forEach(e => { e.style.fontSize = ''; });
+        const room = A4_UD.w - 2 * A4_UM, S0 = fs(mm[0]);
+        const mw = mm.map(e => e.getBoundingClientRect().width / uS);   /* ml, mc, mr: the centre column is CENTRED, so each half holds an outer one and half of it */
+        const need = 2 * Math.max(mw[0], mw[2]) + mw[1] + 2 * S0;
+        if (need > room) mm.forEach(e => { e.style.fontSize = (S0 * room / need).toFixed(2) + 'px'; });   /* phones only: the three columns part */
+        const T = fs(l1), S = fs(mm[0]), pT = parseFloat(getComputedStyle(l1).lineHeight) || .78 * T;
+        const bT = bo(l1), bW = bo(r2w), bS = bo(mm[0]), bP = bo(p4[0]);
+        const y2 = pT;                                               /* the rows touch: one TITLE line pitch */
+        const y3 = y2 + bW + A4_AIR.r23 * S - (bS - cT * S);
+        const y4 = y3 + bS + A4_AIR.r34 * S - (bP - cT * T);
+        const yB = y4 + bP + A4_AIR.rBelt * T;
+        const top = bT - cT * T, o = A4_ROLE_MID - (top + yB + A4_BELT_H) / 2;
+        const put = (e, y) => { e.style.top = (y + o).toFixed(2) + 'px'; };
+        put(l1, 0); put(l1r, 0); put(r2, y2); mm.forEach(e => put(e, y3)); p4.forEach(e => put(e, y4)); put(belt, yB);
+        a4RoleTopU = top + o;
+      }
+      /* APPROACH: pivots on the vision slit (the band's geometry) -- CONNECTING's baseline the drawn air
+         above it, the paragraphs' cap the drawn air below; S10's stacks cap-top on CONNECTING's cap */
+      const brk = q('#a4Unit3 .a4-brk.b1'), bw = q('#a4Unit3 .a4-brk.b1 .bw'), v2 = [q('#a4Unit3 .a4-mids.ml2'), q('#a4Unit3 .a4-mids.mr2')];
+      const ap = q('#a4Unit3 .a4-ap'), ap1 = q('#a4Unit3 .a4-ap p');
+      if (brk && bw && v2.every(Boolean) && ap && ap1 && bw.getBoundingClientRect().height > 0){
+        const T = fs(bw), SR = fs(v2[0]), N = fs(ap1), cN = a4Cap(700);
+        const bC = bo(bw), bV = bo(v2[0]), bN = bo(ap1);
+        const yC = A4_V.slitT - A4_AIR.slitT * T - bC;               /* CONNECTING's box top */
+        brk.style.top = (yC - bw.offsetTop).toFixed(2) + 'px';
+        const capC = yC + bC - cT * T;
+        v2.forEach(e => { e.style.top = (capC - (bV - cT * SR)).toFixed(2) + 'px'; });
+        /* the paint puts each baseline on a whole device pixel: aim at the title's ROUNDED one (window px) */
+        const yT = Math.round(a4Base(bw)), dC = cT * (T - SR) * uS;
+        v2.forEach(e => { const d = (yT - dC) - a4Base(e); if (isFinite(d) && Math.abs(d) > .01) e.style.top = (parseFloat(e.style.top) + d / uS).toFixed(2) + 'px'; });
+        ap.style.top = (A4_V.slitB + A4_AIR.slitB * T - (bN - cN * N)).toFixed(2) + 'px';
+      }
+    }
     function bg4Layout(){
       if (!(uS > 0) || !isFinite(uS)) return;
       const ps = [...view.querySelectorAll('.a4-bgp p')];
@@ -9587,29 +9700,40 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       sl4.style.transform = 'none';
       un4El.style.transform = 'translate(' + u4Seat.x.toFixed(2) + 'px,' + u4Seat.y.toFixed(2) + 'px) scale(' + (uS || 1).toFixed(4) + ')';   /* 424: measure AT THE SEAT, pull-free -- the true origin the styles map through */
       const U4T = un4El.getBoundingClientRect().top;
+      /* 511d: the seats, LIVE, at the seat's scale: each box's baseline under its top (unit px) less the
+         face's cap. They were 2.3 / 1.76 / 2.26 / 2.47 -- offsets modelled for 74 / 21 / 12 unit px type. */
+      const rw = view.querySelector('.a4-rw4'), k1 = view.querySelector('.a4-bgk.k1');
+      const fsU = e => parseFloat(getComputedStyle(e).fontSize) || 0, boU = e => (a4Base(e) - e.getBoundingClientRect().top) / uS;
+      const Tu = rw ? fsU(rw) : 0, Su = k1 ? fsU(k1) : 0, Nu = fsU(ps[0]), cT = a4Cap(1000), cN = a4Cap(700);
+      const offT = rw ? boU(rw) - cT * Tu : 0, offS = k1 ? boU(k1) - cT * Su : 0, offN = boU(ps[0]) - cN * Nu;
+      const pitchS = k1 ? parseFloat(getComputedStyle(k1).lineHeight) || 0 : 0;   /* the kickers' own line pitch (it was 21 x .8843) */
       sl4.style.transform = keep4; un4El.style.transform = keepU;
+      if (!(Tu > 0) || !(pitchS > 0)) return;
       const off2 = parseFloat(getComputedStyle(view).getPropertyValue('--a4-off')) || 140;
       const footRm2 = PAD;   /* 508: the page margin itself (its old token was only ever a copy of it) */
       const hMax = Math.max(...ps.map(p => p.offsetHeight));   /* unit px: offsetHeight is pre-transform */
-      const aboveU = 51.8 + 15.75 + (hMax - 2.47);             /* kicker/title cap .. paragraph ink foot */
+      const capT = cT * Tu, airP = A4_AIR.bgP * Tu;             /* 511d: the title's cap (was 51.8 = 74 x .70); title baseline .. paragraph cap, the drawn 15.75 in TITLE ems */
+      /* 511d: at the floor the kickers (BODY(CAPS)) no longer fit the title's row: they stand above it */
+      const kDrop = view.classList.contains('a4-floor') && k1 ? cT * Su + 2 * pitchS + airP : 0;
+      const aboveU = kDrop + capT + airP + (hMax - offN);       /* kicker/title cap .. paragraph foot */
       const clu = view.querySelector('.a4-bgc');
       const eduU = clu ? Math.max(52, clu.offsetHeight) : 52;
       const bandWin = 274 * Math.min(1, uS);                   /* the band's VISIBLE window height */
-      const BG4_AIR = 20 * uS;   /* 508: renamed -- this is the band's own air, not the page margin */
+      const BG4_AIR = A4_AIR.bgBand * Tu * uS;   /* 508: renamed -- this is the band's own air, not the page margin. 511d: the drawn 20 in TITLE ems (window px) */
       const H = aboveU * uS + BG4_AIR + bandWin + BG4_AIR + eduU * uS;
       const top0 = off2 + 6, bot0 = vh2 - footRm2 - 12;
       const gTop = top0 + Math.max(0, (bot0 - top0 - H) / 2);
       const kCapU = (gTop - U4T) / uS;
-      const tTop = kCapU - 2.3, kTop = kCapU - 1.76;   /* 426: the refined register's cap offset (21 x .8843) */
-      const pTop = kCapU + 51.8 + 15.75 - 2.26;
+      const tTop = kCapU + kDrop - offT, kTop = kCapU - offS;   /* 511d: the live cap offsets */
+      const pTop = kCapU + kDrop + capT + airP - offN;
       bg4BandW = gTop + aboveU * uS + BG4_AIR;   /* the band's visible top, in WINDOW px, slide at rest */
-      const cTop = (bg4BandW + bandWin - U4T) / uS + 20 - 2;
+      const cTop = (bg4BandW + bandWin - U4T) / uS + BG4_AIR / uS - 2;   /* 511d: the same air under the band */
       bg4TopW = gTop;
-      view.querySelectorAll('.a4-bgp').forEach(el => { el.style.top = pTop.toFixed(1) + 'px'; });
-      const rw = view.querySelector('.a4-rw4'); if (rw) rw.style.top = tTop.toFixed(1) + 'px';
+      view.querySelectorAll('.a4-bgp').forEach(el => { el.style.top = pTop.toFixed(2) + 'px'; });
+      if (rw) rw.style.top = tTop.toFixed(2) + 'px';
       ['k1','k2','k3'].forEach((k, i) => { const el = view.querySelector('.a4-bgk.' + k);
-        if (el) el.style.top = (kTop + i * 18.585).toFixed(1) + 'px'; });
-      view.querySelectorAll('.a4-bgc').forEach(el => { el.style.top = cTop.toFixed(1) + 'px'; });
+        if (el) el.style.top = (kTop + i * pitchS).toFixed(2) + 'px'; });
+      view.querySelectorAll('.a4-bgc').forEach(el => { el.style.top = cTop.toFixed(2) + 'px'; });
     }
     function a4Seat(){
       /* 495: the sheet's margin-seated type, on rendered bearings -- margins
@@ -9636,7 +9760,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function rw2Solve(){
       const ws = [...view.querySelectorAll('.a4-rw2 .w')];
       if (ws.length !== 4 || !(uS > 0) || !isFinite(uS)) return;
-      const ls = -.045 * 74;
+      const ls = parseFloat(getComputedStyle(ws[0]).letterSpacing) || 0;   /* 511d: the trailing track at the words' OWN size (it was -.045 x 74) */
       const bs = ws.map(w => {
         const s = w.textContent.trim();
         const L = inkPx(w, s[0], true), R = inkPx(w, s[s.length - 1], true);   /* 495: rendered bearings, trackless -- rw2 handles ls itself */
@@ -9663,7 +9787,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       m.style.left = ((br + cl) / 2 - w / 2).toFixed(1) + 'px';
     }
     /* 511a: flushed first, so a font that lands late is never seated on the fallback's bearings */
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { inkPx.flush(); rw2Solve(); a4Seat(); apSolve(); bg4Layout(); });
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { inkPx.flush(); a4Cap.k = null; rw2Solve(); a4Rows(); a4Seat(); apSolve(); bg4Layout(); a4MidSeat(); });
     function scrubSeq(items, M, q){
       /* 418: THE UNIT CHAIN. Every item owns a window on the unit line as
          wide as its class (body 1, mid 3, large 9); windows overlap 20%
