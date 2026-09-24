@@ -112,6 +112,12 @@
     --t-fit:.28356;
     --t-title:min(calc(var(--t-sub) / var(--t-fit)), calc((100vw - 2 * var(--pad)) * .0584));
     --t-sub-row:max(var(--t-body), calc(var(--t-title) * var(--t-fit)));   /* a SUBTITLE stacked in a TITLE row; never below BODY */
+    /* 511c: SUBTITLE's style -- tracking, word gap, leading -- one definition each, read by every
+       SUBTITLE member (the About sites follow in 511d). A stacked SUBTITLE at its floor BODY wears
+       BODY(CAPS)'s --track-s / --wsp-s / --sm-lh instead (the collapse, SPEC-511 sec. 3). */
+    --t-sub-trk:-.04em;
+    --t-sub-ws:.135em;
+    --t-sub-lh:.8843;
     --t-large-k:2.27;
     --big:var(--t-title);      /* 511b: an alias -- the display size IS the TITLE (it was clamp(26px, 4.6vw, 74px)) */
     --ui-size:var(--t-body);   /* 511b: an alias -- the UI register IS BODY(CAPS) (it was a fixed 11px) */
@@ -950,8 +956,8 @@
      leave (body.ld-out) outranks these and still runs. */
   #ldCopy{ left:50%; right:auto; width:auto; max-width:82vw; transform:translateX(-50%); text-align:center; }   /* 440b: the id outranks the base rule that follows in source order */
   #ldCopy p{ animation:none; opacity:1; transform:none;
-    font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em; line-height:.8843;
-    text-transform:uppercase; margin:0; }   /* 441: two blocks, one rhythm -- the register's advance (21 x .8843) IS the pitch; any margin broke it */
+    font-size:var(--t-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
+    text-transform:uppercase; margin:0; }   /* 441: two blocks, one rhythm -- the register's advance (S x .8843) IS the pitch; any margin broke it. 511c: SUBTITLE, the tokens (it was a fixed 21px) */
   #ldCopy p b{ font-weight:inherit; display:inline-block; opacity:0; filter:blur(8px);
     transition:opacity .55s ease var(--wd, 0ms), filter .55s ease var(--wd, 0ms); }
   #ldCopy.wds p b{ opacity:1; filter:blur(0); }
@@ -2225,7 +2231,7 @@
   /* 504: the two margin words, on the case subtitle's own type spec. */
   .vs-sw{ display:none; position:absolute; top:var(--vs-navTop); height:var(--vs-navH);
     z-index:6; pointer-events:none; color:var(--ink);
-    font-size:21px; font-weight:1000; letter-spacing:-.04em; line-height:.8843;
+    font-size:var(--t-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);   /* 511c: SUBTITLE, the tokens (it was a fixed 21px, no word gap) */
     text-transform:uppercase; }
   body.hero-v8 .vs-sw{ display:flex; align-items:center; }   /* centred on the card, which is itself centred on the window */
   .vs-sw.l{ left:var(--pad); }
@@ -2243,9 +2249,9 @@
      them at visibly different weights. */
   .h4-sub{ position:absolute; right:0; bottom:var(--pad); text-align:right; color:var(--ink);
     transition:filter .3s ease, opacity .3s ease;
-    font-size:21px; font-weight:1000; letter-spacing:-.04em; line-height:.8843;
+    font-size:var(--t-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);   /* 511c: SUBTITLE, the tokens (it was a fixed 21px, no word gap); the logo beside it is scaled to this block's height (markFit), so it follows */
     text-transform:uppercase; }
-  .h4-sub i{ display:block; font-style:normal; line-height:.8843; }
+  .h4-sub i{ display:block; font-style:normal; line-height:var(--t-sub-lh); }
   .h4-cmark{ position:absolute; left:0; bottom:var(--pad); overflow:hidden;
     transition:filter .3s ease, opacity .3s ease; }   /* 506: the swap fades and blurs like the caption it sits with */   /* 504: -cmark, not -mark: .h4-mark is the dormant hdr4 wordmark and its later rule would win */
   .h4-cmark img{ display:block; filter:brightness(0); }   /* black, whatever the artwork's own colour */
@@ -3179,7 +3185,7 @@
        7  The page is data. Change the JSON, not the code.
      ===================================================================== */
   :root{
-    --c3-sub:33px;                 /* THE DISPLAY REGISTER: the rows' titles and numbers, the subtitle strip (the reference's title cap reads 22 = 31.4px; kept at 33, one number for the whole page) */
+    --c3-sub:var(--t-sub);         /* 511c: an alias -- THE DISPLAY REGISTER IS SUBTITLE (it was a fixed 33px at 900 / -.02em / leading 1). The rows and the intro's subtitles read --t-sub and its style tokens; only the dormant strip still reads this */
     --hdr-glass-over:10px;         /* the header's glass overhangs its foot by this; the head's band joins it there */
 
     /* ---- case study dials --------------------------------------------- */
@@ -3204,7 +3210,7 @@
     --c3-in-min:0.3;     /* ... over its own height of scroll, never less than this share of the window; one section after another, no overlap */
     --c3-media-w:8;      /* a picture's weight in the sequence, in words */
     --c3-qimg:36px;      /* the quote's portrait: a square roughly the width of a short name (SUZY) in the register */
-    --c3-group-gap:14.74px; /* one line pitch of the body register: the air between stacked stats, stacked quotes, and above a quote's footer */
+    --c3-group-gap:calc(var(--sm-lh) * var(--t-nocaps)); /* one line pitch of the body register: the air between stacked stats, stacked quotes, and above a quote's footer. 511c: the running copy's own pitch, BODY(NOCAPS) at --sm-lh (it was 14.74px = the retired 11 x 1.34) */
     --c3-in-blur:4px;    /* a word fades in THROUGH this much blur, on the scroll's own number */
     /* THE ROW'S ENTRANCE (29): once its section is animating (u > 0) the title and the number come in on their
        own -- a long, heavy-eased slide in from the left with a fade, the number a beat behind -- overlapping the words,
@@ -3244,7 +3250,7 @@
     /* written by JS */
     --c3-colw:366px; --c3-media:291px; --c3-gut2:22px;   /* the grid: a text column, the picture's side, a gutter -- the k dials times the content */
     --ink-t:0px;  --ink-b:0px;  --c3-cap:7.7px;   /* the body register (--ui-size, 1.34): cap-top / baseline offsets, cap height */
-    --cap3:23px;                               /* the subtitle register's cap height (the rows' hairline sits on its middle) */
+    --cap3:calc(var(--t-sub) * .7);            /* the subtitle register's cap height (the rows' hairline sits on its middle); inkTokens writes the measured one (511c: the default reads SUBTITLE -- it was 23px, the 33px register's) */
     --c3-brand-cap:0px;                        /* the title's cap height at full size (the hint's baseline is the title's) */
     --ink-t3:0px; --ink-b3:0px;                /* the display register (--c3-sub), on H (the rows) */
     --ink-t3s:0px; --ink-b3s:0px;              /* the subtitle strip, on its own text */
@@ -3312,16 +3318,21 @@
   body.c4 #viewCase3 .c3-head{ padding-bottom:var(--c3-head-pad); }   /* 404: the foot pad equals the top pad */
   #viewCase3 .c3-brand{ position:relative; }   /* 402: the sub4's frame */
   #viewCase3 .c3-sub4{
-    font-size:21px; font-weight:1000; letter-spacing:-.04em; word-spacing:.135em; line-height:.8843;
+    font-size:calc(var(--t-sub-row) / var(--c3-brand-k)); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
     text-transform:uppercase; text-align:right;
-    position:absolute; right:0; top:var(--c3-sub4-mt, 0px);   /* 402: seated on the margin by its ink; the LIVE law sizes it (three rows = the B) and rides it with the title */
+    position:absolute; right:0; top:var(--c3-sub4-mt, 0px);   /* 511c: SUBTITLE-ROW -- --t-sub-row ON SCREEN: it is drawn inside the words' scale (--c3-brand-k), so its size is the token over that scale. Seated by INK (sub4Seat): its first cap top on the title's cap top, so three rows put its last baseline on the title's baseline. 402's box law (three line boxes = the title's .78 box, S = .294 T, fed back every frame) is retired */
     /* 508: right:0, and the seat is measured (seatRowsRight, in videoScroll).
        The old -.045em resolved against the block's UNSCALED 49.4px font, so
        it pushed the box 2.22px past the margin -- an offset outside the
        scale's pivot, never scaled down with the glyphs -- and the ink of
        every case subtitle read 2.3-2.8px over. */
     white-space:normal; }
-  #viewCase3 .c3-sub4 i{ display:block; font-style:normal; line-height:.8843; }
+  #viewCase3 .c3-sub4 i{ display:block; font-style:normal; line-height:var(--t-sub-lh); }
+  /* 511c: THE COLLAPSE (SPEC-511 sec. 3). Where --t-sub-row stands at its floor BODY -- the fit x a
+     width-bound TITLE is not over BODY -- the stack wears BODY(CAPS): the menu's weight, tracking,
+     word gap and leading. sub4Seat sets the class from the live sizes. */
+  #viewCase3 .c3-sub4.sub-floor{ font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh); }
+  #viewCase3 .c3-sub4.sub-floor i{ line-height:var(--sm-lh); }
   body.c4 #viewCase3 .c3-head .c3-brand .c3-sub4{ transform:none; }
   #viewCase3 .c3-head .c3-strip{ margin-top:calc(var(--c3-sub-gap) - var(--ink-t3s)); margin-bottom:calc(-1 * var(--ink-b3s)); transform:translateY(var(--c3-sub-dy)); will-change:transform; }
   /* in flow at the locked gap under the full-size words; --c3-sub-dy (JS) keeps that gap at every size, and brings it up from the fold at rest */
@@ -3379,7 +3390,7 @@
   #viewCase3 .c3-credcol, #viewCase3 .c3-right{ flex:1 1 0; min-width:0; }
   #viewCase3 .c3-cred{ min-width:0; }
   #viewCase3 .c3-it{
-    font-size:var(--c3-sub); font-weight:900; line-height:1; letter-spacing:-.02em;
+    font-size:var(--t-sub); font-weight:1000; line-height:var(--t-sub-lh); letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws);   /* 511c: SUBTITLE (it was the 33px / 900 / -.02em / leading-1 display register) */
     text-transform:uppercase; margin:0 0 var(--c3-gap);
     opacity:0; transform:translateX(calc(-1 * var(--c3-row-in-dx)));
     transition:opacity var(--c3-row-in-ms) var(--c3-row-in-ease) var(--d, 0ms),
@@ -3696,8 +3707,9 @@
      but that empty padding. */
   #viewCase3 .c3-sec{ position:relative; }
   #viewCase3 .c3-sec + .c3-sec{ margin-top:calc(var(--c3-row-gap) - var(--cap3) - var(--c3-row-pad)); }
-  #viewCase3 .c3-sec .c3-grid{ padding-bottom:calc(var(--c3-row-pad) + var(--c3-sub) - var(--ink-t3) - var(--ink-b3)); }
-  /* a row's box height: the subtitle register's ink and the row's air under it */
+  #viewCase3 .c3-sec .c3-grid{ padding-bottom:calc(var(--c3-row-pad) + var(--cap3)); }
+  /* a row's box height: the subtitle register's ink and the row's air under it (511c: that ink IS --cap3 -- the line
+     box less both trims, at any leading; this read the 33px box at leading 1) */
   #viewCase3 .c3-sec:last-child .c3-grid{ padding-bottom:0; }
   /* THE ROW: the section's title on the left margin, its number on the right,
      in the subtitle's register, no movement. Sticky at the head's foot
@@ -3710,7 +3722,7 @@
     position:sticky; top:var(--c3-stack-top); z-index:7;
     display:flex; justify-content:space-between; align-items:flex-start;
     padding:0 0 var(--c3-row-pad);
-    font-size:var(--c3-sub); font-weight:900; line-height:1; letter-spacing:-.02em;
+    font-size:var(--t-sub); font-weight:1000; line-height:var(--t-sub-lh); letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws);   /* 511c: SUBTITLE (it was the 33px / 900 / -.02em / leading-1 display register) */
     text-transform:uppercase; white-space:nowrap;
   }
   #viewCase3 .c3-row span{ display:block; margin-top:calc(-1 * var(--ink-t3)); margin-bottom:calc(-1 * var(--ink-b3)); }
@@ -5629,7 +5641,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         new MutationObserver((m, o) => {
           if (ldC.classList.contains('lit')){
             o.disconnect();
-            ldC.style.top = (ldN.getBoundingClientRect().bottom + 16).toFixed(1) + 'px';
+            /* 511c: the air under the name is the statement's own measure -- the 16px it was set at (440)
+               against its 21px, so 16/21 of the SUBTITLE it is now */
+            const ldP = ldC.querySelector('p'), ldS = (ldP && parseFloat(getComputedStyle(ldP).fontSize)) || 21;
+            ldC.style.top = (ldN.getBoundingClientRect().bottom + ldS * 16 / 21).toFixed(1) + 'px';
             requestAnimationFrame(() => ldC.classList.add('wds'));
           }
         }).observe(ldC, { attributes: true, attributeFilter: ['class'] });
@@ -12219,14 +12234,23 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
 
   /* ---- dials -------------------------------------------------------- */
   /* 511b: the body register is READ off the intro's own copy -- BODY(CAPS), --t-body at the
-     menu's --sm-lh -- where it was restated here as 11 / 1.34. (SUB is 511c's.) */
+     menu's --sm-lh -- where it was restated here as 11 / 1.34. */
   const uiReg = () => {
     const e = document.getElementById('c3Cred'), cs = e ? getComputedStyle(e) : null;
     const px = cs ? parseFloat(cs.fontSize) : NaN, lh = cs ? parseFloat(cs.lineHeight) : NaN;
     const k = cs && /px$/.test(cs.lineHeight) ? lh / px : lh;
     return px > 0 ? { px, lh: k > 0 ? k : 1.13 } : { px: 11, lh: 1.13 };
   };
-  const SUB = 33;                     // the display register (--c3-sub): the rows, the subtitle strip
+  /* 511c: and the DISPLAY register -- the rows' titles and numbers, the intro's subtitles -- is
+     SUBTITLE, READ off an intro subtitle (--t-sub at its weight and --t-sub-lh), where it was
+     restated here as SUB = 33 (at weight 900, leading 1). */
+  const subReg = () => {
+    const e = document.querySelector('#c3Intro .c3-it'), cs = e ? getComputedStyle(e) : null;
+    const px = cs ? parseFloat(cs.fontSize) : NaN, lh = cs ? parseFloat(cs.lineHeight) : NaN;
+    const k = cs && /px$/.test(cs.lineHeight) ? lh / px : lh;
+    const lh0 = parseFloat(getComputedStyle(root).getPropertyValue('--t-sub-lh')) || .8843;
+    return px > 0 ? { px, lh: k > 0 ? k : lh0, w: parseFloat(cs.fontWeight) || 1000 } : { px: 2 * uiReg().px, lh: lh0, w: 1000 };
+  };
   const STRIP_K = 0.55;               // px of strip per px of scroll
   const STRIP_LAG = 0.045;            // per-frame catch-up; low = the long tail he asked for
   const PARA = 0.40;                  // the film's share of the scroll while it is being revealed (the picture drifts inside its frame)
@@ -12344,14 +12368,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const u = uiReg(), a = vtrim(700, u.px, u.px * u.lh);
     st.setProperty('--ink-t', a.t.toFixed(2) + 'px'); st.setProperty('--ink-b', a.b.toFixed(2) + 'px');
     st.setProperty('--c3-cap', a.cap.toFixed(2) + 'px');
-    const S = SUB;
-    const b = vtrim(900, S, S);
+    const S = subReg();   /* 511c: SUBTITLE, read -- its size, weight and leading (it was 33 at 900, leading 1) */
+    const b = vtrim(S.w, S.px, S.px * S.lh);
     st.setProperty('--ink-t3', b.t.toFixed(2) + 'px'); st.setProperty('--ink-b3', b.b.toFixed(2) + 'px');
     st.setProperty('--cap3', b.cap.toFixed(2) + 'px');
     /* the subtitle strip's own trims: measured on ITS text, so the tallest
        glyph -- a digit, an apex, its overshoot -- and not the H's cap sets
        where its ink begins (its ink top sat a hair above the fold at rest) */
-    const s = vtrimText(CASE.subtitle, 900, S, S);
+    const s = vtrimText(CASE.subtitle, 900, S.px, S.px);   /* 511c: the dormant strip keeps its own 900 at leading 1 */
     st.setProperty('--ink-t3s', s.t.toFixed(2) + 'px'); st.setProperty('--ink-b3s', s.b.toFixed(2) + 'px');
     stripTrim = s;
 
@@ -12443,6 +12467,36 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const x = inkR + gap + hr.width / 2;
     if (x + hr.width / 2 > s4.getBoundingClientRect().left - gap) return;   // no room before the stack: as always
     head.style.setProperty('--c3-hint-x', (x - head.getBoundingClientRect().left).toFixed(1) + 'px');
+  }
+  /* 511c: THE TITLE-ROW STACK, SEATED BY INK (SPEC-511 sec. 1, 3). Its size is CSS's: --t-sub-row on
+     screen. Here, at the scale just written:
+     - THE COLLAPSE: where --t-sub-row stands at its floor -- the fit x the title shown is not over
+       BODY -- the stack wears BODY(CAPS) (.sub-floor);
+     - its optical size is pinned to the size it SHOWS at (it is drawn at that over the scale);
+     - its first cap top onto the title's cap top: the LIVE baselines (a zero-size inline-block on
+       each first line -- Chrome rounds the face's ascent and descent and floors the half-leading,
+       which canvas arithmetic would miss), less each one's cap (the face's cap height, measured).
+       The difference goes into --c3-sub4-mt, an offset outside the scale, so one step lands it;
+     - its widest ink onto the right margin (seatRowsRight).
+     False while there is nothing laid out to read; the gate then asks again. */
+  function sub4Seat(head, s4, k){
+    const t = head.querySelector('.c3-brand span'), r0 = s4.firstElementChild;
+    if (!t || !r0 || !(t.getBoundingClientRect().height > 0) || !(s4.getBoundingClientRect().height > 0)) return false;
+    const T = parseFloat(getComputedStyle(t).fontSize) * k, B = uiReg().px, fit = parseFloat(getComputedStyle(root).getPropertyValue('--t-fit'));
+    if (!(T > 0) || !(fit > 0)) return false;
+    s4.classList.toggle('sub-floor', fit * T <= B + .001);
+    const cs = getComputedStyle(s4), S = parseFloat(cs.fontSize) * k;
+    if (!(S > 0)) return false;
+    s4.style.fontVariationSettings = "'opsz' " + Math.min(40, Math.max(9, S)).toFixed(2);
+    const base = el => { const q = document.createElement('i'); q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; el.appendChild(q); const y = q.getBoundingClientRect().bottom; q.remove(); return y; };
+    const cap = w => vtrim(w, 200, 200).cap / 200;
+    const d = base(t) - cap(1000) * T + cap(parseFloat(cs.fontWeight) || 1000) * S - base(r0);
+    if (isFinite(d) && Math.abs(d) > .02){
+      const mt = parseFloat(head.style.getPropertyValue('--c3-sub4-mt')) || 0;
+      head.style.setProperty('--c3-sub4-mt', (mt + d).toFixed(2) + 'px');
+    }
+    seatRowsRight(s4, k);
+    return true;
   }
   let headBox = null, headTop = 0, headTopCanvas = null, inkBot4 = 0, seatAdj4 = 0, followAdj4 = 0;   // the head's box at k = 1 (videoLayout) and its sticky top; the canvas measures the menu's ink (406)
   const dial = n => parseFloat(getComputedStyle(root).getPropertyValue(n)) || 0;
@@ -12956,7 +13010,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        margins trim its line box to the ink; the strip's margins trim its
        own), so the foot of the glass and the sections' slot can be placed
        from it without measuring */
-    const S3 = SUB, v3 = stripTrim || vtrim(900, S3, S3), stripInk = S3 - v3.t - v3.b;
+    const S3 = subReg().px, v3 = stripTrim || vtrim(900, S3, S3), stripInk = S3 - v3.t - v3.b;   /* 511c: the strip's size read (it was SUB = 33) */
     headBox = { pad: dial('--c3-head-pad'), cap: brandFull, sub: dial('--c3-sub-gap'), strip: stripInk, padB: dial('--c3-sub-gap') };
     headBox.h = headBox.pad + headBox.cap + (chosen.case === 4 ? headBox.pad : headBox.sub + headBox.strip + headBox.padB);   /* 404: V4's box is pad + words + pad -- REAL AND ASSEMBLED ALIKE (the 402 lesson: the two must never diverge), so the paper's seam, the foot and the slot all read the true slim box */
     /* THE SLOT: stuck, the title's cap top sits --c3-stick-gap under the
@@ -13141,38 +13195,26 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
             : grow ? BRAND_SMALL + (1 - BRAND_SMALL) * p
             : kS;
     const hb = headBox, head = $('#c3Head');
-    let hintDue = null;   /* 511b: the START hint's seat, run once --c3-brand-k is written (below) */
+    let hintDue = null, s4Due = null;   /* 511b: the START hint's seat -- 511c: and the stack's -- run once --c3-brand-k is written (below) */
     if (C4){
-      /* 402: THE REGISTER, LIVE. Three rows of the sub stand exactly as
-         tall as the B (= kB * cap = the title's own rect), and the block's
-         top rides on the title's -- both by FEEDBACK against real rects,
-         one linear correction a frame, so no build-order or typography
-         quirk can starve it. */
+      /* 511c: THE TITLE-ROW STACK IS SUBTITLE-ROW (SPEC-511 sec. 1). Its size is CSS's (--t-sub-row
+         on screen, over the words' scale); its seat is INK -- sub4Seat puts its first cap top on the
+         title's cap top, and three rows (cap + two pitches = .70 T at the fit) then land its last
+         baseline on the title's baseline. 402's box law (three line boxes = the title's .78 box,
+         S = .294 T, fed back against rects every frame) is retired. Only MARKED here, on a gate of
+         size, scale, window and words -- every caseSwap, resize, open and blog post, not per
+         frame: its rects must stand at the scale this call writes, not the last one. */
       const s4 = head.querySelector('.c3-sub4');
       if (s4 && s4.firstElementChild){
-        const cs = s4.children, tgtH = head.querySelector('.c3-brand span').getBoundingClientRect().height || kB * hb.cap;   /* 402: the reference IS the B -- the title's own live rect */
-        const nat = cs[cs.length - 1].getBoundingClientRect().bottom - cs[0].getBoundingClientRect().top;
-        if (nat > 4 && Math.abs(nat - tgtH) > 0.5){
-          const fs = parseFloat(getComputedStyle(s4).fontSize) || 21.6;
-          s4.style.fontSize = Math.min(90, Math.max(8, fs * tgtH / nat)).toFixed(2) + 'px';
-        }
-        const tR = head.querySelector('.c3-brand span').getBoundingClientRect();
-        const s0 = s4.getBoundingClientRect().top;
-        if (Math.abs(tR.top - s0) > 0.5){
-          const mt = parseFloat(head.style.getPropertyValue('--c3-sub4-mt')) || 0;
-          head.style.setProperty('--c3-sub4-mt', (mt + (tR.top - s0)).toFixed(1) + 'px');
-        }
-        /* 508: seat the stack by ink, at the scale this same call writes to
-           --c3-brand-k below (the computed transform would still hold the
-           last one). Gated on size+scale so it runs when either changes --
-           every caseSwap, resize, open and blog post -- and not per frame. */
-        try { const sk = s4.style.fontSize + '|' + k.toFixed(4); if (s4._sk !== sk){ s4._sk = sk; seatRowsRight(s4, k); } } catch (e) {}
+        const tw = (head.querySelector('.c3-brand span') || {}).textContent, fz = getComputedStyle(s4).fontSize;
+        try { const sk = fz + '|' + k.toFixed(4) + '|' + innerWidth + '|' + tw + '|' + s4.textContent; if (s4._sk !== sk){ s4._sk = sk; s4Due = s4; } } catch (e) {}
         /* 511b: the START hint yields to a long title (hintSeat) -- on the same gate, plus the window and the title.
            Only MARKED here: its rects must stand at the scale this call writes, not the last one. */
-        try { const hk = s4.style.fontSize + '|' + k.toFixed(4) + '|' + innerWidth + '|' + (head.querySelector('.c3-brand span') || {}).textContent; if (head._hk !== hk){ head._hk = hk; hintDue = s4; } } catch (e) {}
+        try { const hk = fz + '|' + k.toFixed(4) + '|' + innerWidth + '|' + tw; if (head._hk !== hk){ head._hk = hk; hintDue = s4; } } catch (e) {}
       }
     }
     $('#c3Body').style.setProperty('--c3-brand-k', k.toFixed(4));
+    if (s4Due) try { if (!sub4Seat(head, s4Due, k)) s4Due._sk = null; } catch (e) {}   /* 511c: at the scale just written, BEFORE the hint (it reads the stack's left edge) */
     if (hintDue) try { hintSeat(head, hintDue, k); } catch (e) {}   /* 511b: measured at the scale just written (the transform reads it) */
     head.style.setProperty('--c3-brand-a', (C4 || grow ? brandT + hb.cap : brandT).toFixed(2) + 'px');   /* 406: V4's anchor NEVER moves -- the title is baseline-glued to the box's foot from rest to stick (seam tight the whole ride, zero relative slide anywhere); the STUCK SEAT comes from seating the BOX deeper under the header, not from sliding the title inside it */
     /* the strip: --c3-sub-gap under the words' baseline -- in flow it is
@@ -13187,8 +13229,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        no feedback clamp to outgrow (the 406 lesson: the error scales with
        the window). */
     const tB4 = C4 ? head.querySelector('.c3-brand span').getBoundingClientRect().bottom : 0;
+    /* 511c: or the title-row stack's, where it hangs lower -- only a COLLAPSED stack ever does (BODY(CAPS) at
+       the floor: three rows taller than the title's cap, seated cap top on cap top) */
+    const s4B = C4 ? head.querySelector('.c3-sub4.sub-floor') : null, tB4s = s4B ? Math.max(tB4, s4B.getBoundingClientRect().bottom) : tB4;
     const follow = grow ? 0
-      : C4 ? (1 - kS) / (1 - kB || 1) * Math.max(0, (hT + hb.h) - (tB4 + dial('--c3-c4-head-gap')))
+      : C4 ? (1 - kS) / (1 - kB || 1) * Math.max(0, (hT + hb.h) - (tB4s + dial('--c3-c4-head-gap')))
       : (1 - kS) * hb.cap;   /* 406: V3's follow verbatim; V4's ramps over the same window but only to (pad - gap) -- the title's slack moved into the SEAT, so the slot lands the subtitle GAP under the title's ink */
     const dyX = chosen.case === 4 ? 0 : subExtra(now);   /* 404: the cushion was the strip's; V4 has neither */
     head.style.setProperty('--c3-hint-op', (1 - clamp01(trS / (dial('--c3-hint-fade') * PRE_WHEEL))).toFixed(3));
@@ -13239,7 +13284,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       let lift = 0;
       if (nx && rc.top - bL <= stackTop + 0.5){
         const nt = nx.el.getBoundingClientRect().top;
-        const need = 2 * (dial('--cap3') || 23.1);
+        const need = 2 * (dial('--cap3') || .7 * subReg().px);   /* 511c: the fallback reads SUBTITLE (it was 23.1, the 33px cap) */
         lift = Math.min(0, (nt - need) - (rc.bottom - bL));
       }
       r.lift = lift;
@@ -13587,7 +13632,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const stack = Math.min(colw, first) < (dial('--c3-col-min') || 220);
     host.classList.toggle('c3-stack', stack);
     root.style.setProperty('--c3-colw', colw.toFixed(2) + 'px'); root.style.setProperty('--c3-media', media.toFixed(2) + 'px'); root.style.setProperty('--c3-gut2', gut.toFixed(2) + 'px');
-    root.style.setProperty('--c3-push-gap', (2 * (dial('--cap3') || 23.1)).toFixed(2) + 'px');   /* 395: the pinned subtitles push each other from DOUBLE the character size */
+    root.style.setProperty('--c3-push-gap', (2 * (dial('--cap3') || .7 * subReg().px)).toFixed(2) + 'px');   /* 395: the pinned subtitles push each other from DOUBLE the character size (511c: SUBTITLE's, measured by inkTokens; the fallback reads it too -- it was 23.1) */
     return { content, colw, media, gut, first, stack };
   }
   function detailsBuild(){
