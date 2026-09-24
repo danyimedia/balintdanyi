@@ -2761,11 +2761,12 @@
 
   .c2-form{ margin:auto var(--pad) var(--c2-air); flex:0 0 auto; padding-top:var(--c2-air);   /* 511b: --c2-air, 6vh */
     transition:padding-top .32s cubic-bezier(.76,0,.24,1), margin-bottom .32s cubic-bezier(.76,0,.24,1); }   /* 511c2: on the field's curve */
-  /* 511c2: HIS CALL -- the open message keeps four lines and the AIR pays: the gap above the form gives
-     --c2-cut first, down to 0, then the foot under SEND gives the rest (never below 0). */
+  /* 511c2: HIS CALL -- the open message keeps four lines and the AIR pays.
+     511f: the two airs share --c2-cut, half each, never below 0 (taking the gap above first left
+     LET'S MAKE on the first rule at 1280x720 while SEND kept a 29.6px foot). Same total cut. */
   .c2-form:has(.c2-row.open){
-    padding-top:max(0px, var(--c2-air) - var(--c2-cut));
-    margin-bottom:max(0px, var(--c2-air) - max(0px, var(--c2-cut) - var(--c2-air)));
+    padding-top:max(0px, var(--c2-air) - var(--c2-cut) / 2);
+    margin-bottom:max(0px, var(--c2-air) - var(--c2-cut) / 2);
   }
   /* Same display size, line-height and row padding as the blog list, so the
      two sections share one rhythm rather than each inventing its own. */
@@ -2829,12 +2830,15 @@
      room for accents and descenders rather than just a cap band. DM Sans runs
      +.967 to -.260 em, a 1.227em ink span -- at half size that is .614 x big,
      inside the row's .78 x big box, so the rows still match the blog list.
-     511b: left as it is -- at the TITLE size an accented capital (.906em) or a
-     descender (.22em) overruns the .898em row, which clips; see the 511b report. */
+     511b: the SIZE is left as it is -- at the TITLE size an accented capital (.906em) or a
+     descender (.22em) overruns the .898em row, which clips; see the 511b report.
+     511f: the WEIGHT and SPACING are the spec's -- Thin (100), as the labels and his brief
+     (light apart from SEND), on TITLE's tracking and word-gap tokens. Neither changes the
+     row's height, so nothing clips. */
   .c2-row input, .c2-row textarea{
     flex:1; min-width:0; border:0; background:transparent; color:var(--ink);
-    font-family:inherit; font-weight:1000;
-    font-size:calc(var(--big) * .5); letter-spacing:-.03em;
+    font-family:inherit; font-weight:100;
+    font-size:calc(var(--big) * .5); letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws);
     text-transform:none; line-height:1.3; height:1.3em;
     text-align:right; padding:0; resize:none;
     transition:color .22s ease;
@@ -9979,7 +9983,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        when that fit falls below TITLE. NAME_TOP (168) no longer caps it. */
     hdrS0 = parseFloat(getComputedStyle(hdrName).fontSize) || 74;
     hdrFullF = Math.min(largeK() * hdrS0,
-      content / (hdrEmW1 + hdrEmW2 - hdrBl - hdrTrDanyi + LD.RULE_MIN));
+      content / (hdrEmW1 + hdrEmW2 - hdrBl - hdrTrDanyi + HDR_TRK + LD.RULE_MIN));   /* 511f: + the tracking after I (its ink passes its box) */
     hdrOK = hdrFullF >= hdrS0;
     /* Rest pose: full layout, hidden tails, footprints pulled back to the
        initials' ink by NEGATIVE margin-right -- in px, so every later
@@ -10019,7 +10023,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     w1.style.marginLeft  = (-hdrBl * F).toFixed(1) + 'px';
     w1.style.marginRight = ((big || hdrWordsOn) ? -hdrRbBalint * F
       : -(hdrEmW1 - (hdrEmB1 + HDR_TRK - hdrRbB)) * F).toFixed(1) + 'px';
-    w2.style.marginRight = ((big || hdrWordsOn) ? -hdrTrDanyi * F
+    w2.style.marginRight = ((big || hdrWordsOn) ? -(hdrTrDanyi - HDR_TRK) * F   /* 511f: DANYI's INK on the margin -- the box ends HDR_TRK short of it */
       : -(hdrEmW2 - (hdrEmB2 + HDR_TRK - hdrTrD)) * F).toFixed(1) + 'px';
   }
   /* 414: ABOUT ONLY. The page's rest pose: the full names at the SMALL
@@ -10044,7 +10048,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     });
     w1.style.marginRight = (on ? -hdrRbBalint * hdrS0
       : -(hdrEmW1 - (hdrEmB1 + HDR_TRK - hdrRbB)) * hdrS0).toFixed(1) + 'px';
-    w2.style.marginRight = (on ? -hdrTrDanyi * hdrS0
+    w2.style.marginRight = (on ? -(hdrTrDanyi - HDR_TRK) * hdrS0   /* 511f: as hdrSet */
       : -(hdrEmW2 - (hdrEmB2 + HDR_TRK - hdrTrD)) * hdrS0).toFixed(1) + 'px';
   }
     /* The trigger is everything from the header's TOP EDGE down to the middle
