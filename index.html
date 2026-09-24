@@ -112,7 +112,12 @@
   html,body{ height:100%; }
   body{
     margin:0; background:#000; overflow:hidden; overscroll-behavior:none;
-    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    /* 511a: DM SANS EVERYWHERE. The stack led with Inter, which this page never
+       loads: it drew only on a machine that has Inter installed, and every other
+       visitor got the system face. Every ink seat, solve and ratio on the site
+       (.341, .2838, .8843, the .70 cap) is DM Sans, so the page's own face leads;
+       the system faces stay behind it only for the moment before it lands. */
+    font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     -webkit-font-smoothing:antialiased;
     /* (1) The default pointer is a small cross, four arms of equal length,
        drawn rather than borrowed: `crosshair` is a different figure at a
@@ -1230,7 +1235,7 @@
      every word is live -- one seated line per measured ink box (the guide's
      canvas is the asset's, checked). His panel face: 900 at opsz 14. */
   .a2-rt{ position:absolute; inset:0; pointer-events:none; color:#000;
-    font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;   /* the img card is outside .a2-art, so the face must be named here -- the body is Inter */
+    font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;   /* the img card is outside .a2-art, so the face is named here (511a: the body is DM Sans too; this stays explicit) */
     font-weight:900; font-variation-settings:"opsz" 14, "wght" 900;
     font-optical-sizing:none; text-transform:uppercase; }
   .a2-rt i{ position:absolute; display:block; font-style:normal; line-height:1; white-space:pre; }
@@ -2714,6 +2719,12 @@
      being shaved by the row's overflow. */
   .c2-name{
     font-weight:100; white-space:nowrap; margin-left:-.065em;
+    /* 511a: DM Sans Thin at the display optical size runs far tighter than the Inter
+       Thin these labels were set in. At the row's -.062em the strokes of neighbouring
+       letters met (FU, LL, NA, MA, AI, SS, BJ...), where Inter kept them 4-7px apart.
+       -.015em is the tightest tracking at which no two neighbouring glyphs share even an
+       anti-aliased pixel at any window from 768 wide up (measured, 50% and 25% coverage). */
+    letter-spacing:-.015em;
     transition:color .22s ease;
   }
   .c2-row:hover .c2-name{ color:var(--paper); }
@@ -7088,7 +7099,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       return (mem[key] = inkPxRaw(refEl, ch, noTrack, cs0));
     } catch (e) { return inkPxRaw(refEl, ch, noTrack, cs0); }
   }
-  inkPx.flush = function (){ inkPx._mem = {}; inkPx._csm = new WeakMap(); };
+  /* 511a: the raster left-edge cache goes with the rest. Its key is the canvas font
+     string, which reads the same before and after the web font lands, so a seat taken on
+     the fallback face kept the fallback's left bearing once the font arrived late. */
+  inkPx.flush = function (){ inkPx._mem = {}; inkPx._csm = new WeakMap(); inkPx._rc = {}; };
   function inkPxRaw(refEl, ch, noTrack, cs0){
     try {
       const cs = cs0 || getComputedStyle(refEl);
@@ -8548,6 +8562,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (on4){ ln[3].style.left = a4.toFixed(1) + 'px'; ln[3].style.width = (b4 - a4).toFixed(1) + 'px'; }
     }
     addEventListener('resize', () => { navW = null; });
+    /* 511a: the nav words are DM Sans now, the web font (they inherited Inter): a font
+       that lands after the first measure drops the cache and the next frame re-measures */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { navW = null; });
     const maxSc = () => Math.max(0, view.scrollHeight - view.clientHeight);
     function scrollStep(now){
       const dt = Math.min(Math.max((now - (vLast || now)) / 1000, 1e-4), 0.05); vLast = now;
@@ -8572,7 +8589,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          fs*(L/2 - .341) above the box foot; the difference is the lift */
       const big = parseFloat(getComputedStyle(view.querySelector('.a4-big')).fontSize) || 68;
       const bBig = big * (.78 / 2 - .341), bMid = (big * .2838) * (.8843 / 2 - .341);
-      view.style.setProperty('--a4-mids', (bMid - bBig).toFixed(2) + 'px');
+      /* 511a: RAISED by the difference. `bottom` counts up from the shared foot, so the
+         mid's last baseline (bMid over its own foot) meets the big one (bBig over the
+         row's) at bottom = bBig - bMid. The reversed sign dropped FOR BRAND FILM twice
+         that gap below CREATIVE LEAD: 3.0px at 74 on DM Sans, 1.8px on Inter's metrics. */
+      view.style.setProperty('--a4-mids', (bBig - bMid).toFixed(2) + 'px');
       /* the first screen is 100vh INCLUDING the header. Under the unified
          header (site3) the view already pads --hdr-h; 414: this page now
          RESTS at the small size (the full words), so the expanded name's
@@ -9473,6 +9494,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          so its ink hung 1.11px over. The last word carries the edge. */
       const rw4 = view.querySelectorAll('.a4-rw4 .w');
       if (rw4.length) seatEdge(rw4[rw4.length - 1], 'right');
+      /* 511a: CONNECTING and the nav's CONTACT rode hand trims (-.044em / -.02em) tuned to
+         the old face; on DM Sans their ink stood 1.3-1.5px past the margin. Measured now. */
+      const bw1 = q('.a4-brk.b1 .bw'); if (bw1) seatEdge(bw1, 'left');
+      const nct = document.querySelector('#a4Nav span.ct'); if (nct) seatEdge(nct, 'right');
     }
     function rw2Solve(){
       const ws = [...view.querySelectorAll('.a4-rw2 .w')];
@@ -9503,7 +9528,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const w = m.getBoundingClientRect().width / uS;
       m.style.left = ((br + cl) / 2 - w / 2).toFixed(1) + 'px';
     }
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { rw2Solve(); a4Seat(); apSolve(); bg4Layout(); });
+    /* 511a: flushed first, so a font that lands late is never seated on the fallback's bearings */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { inkPx.flush(); rw2Solve(); a4Seat(); apSolve(); bg4Layout(); });
     function scrubSeq(items, M, q){
       /* 418: THE UNIT CHAIN. Every item owns a window on the unit line as
          wide as its class (body 1, mid 3, large 9); windows overlap 20%
@@ -9967,6 +9993,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      fallback-face solving; the ink engine re-solves on the true face the
      moment it lands (its own fonts.ready passes stand untouched). */
   const fontsUp = () => Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 4000))]);
+  /* 511a: the header name is DM Sans now -- the web font, for every visitor -- where
+     Inter drew from a copy installed on the machine, so this race can be lost for real:
+     fonts held 6.5s left B - D solved on the fallback face (22px off at 1920) until a
+     resize. Fonts that land after the race get the header solved again, as a resize
+     does. On time, nothing runs twice. */
+  { let raced = false; setTimeout(() => { raced = true; }, 4000);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (raced && s3()){ hdrSolve(); measure(); paint(); } }); }
 
   if (ldRoute >= 0){
     /* Teardown is synchronous -- the loader must never be seen -- but the
