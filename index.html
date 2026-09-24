@@ -2682,6 +2682,9 @@
     --c2-air:6vh;
     --c2-room:calc(100vh - var(--c2-top) - .78 * var(--big) - 18px - var(--sm-lh) * var(--t-body)
       - 2 * var(--c2-air) - 4 * (.898 * var(--big) + 1px) - 2 * (.09 - .031) * var(--big) - 1px);
+    /* 511c2: what the four open lines (5.2em of the field's .5 TITLE = 2.6 TITLE) lack in that room -- 0 on
+       every window that holds them. The open form gives it back out of its air (below). */
+    --c2-cut:max(0px, 2.6 * var(--big) - var(--c2-room));
   }
   @property --c2-open{ syntax:"<length>"; inherits:false; initial-value:0px; }   /* 511b: registered, so grow() reads it resolved */
 
@@ -2741,7 +2744,14 @@
     letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase;
   }
 
-  .c2-form{ margin:auto var(--pad) var(--c2-air); flex:0 0 auto; padding-top:var(--c2-air); }   /* 511b: --c2-air, 6vh */
+  .c2-form{ margin:auto var(--pad) var(--c2-air); flex:0 0 auto; padding-top:var(--c2-air);   /* 511b: --c2-air, 6vh */
+    transition:padding-top .32s cubic-bezier(.76,0,.24,1), margin-bottom .32s cubic-bezier(.76,0,.24,1); }   /* 511c2: on the field's curve */
+  /* 511c2: HIS CALL -- the open message keeps four lines and the AIR pays: the gap above the form gives
+     --c2-cut first, down to 0, then the foot under SEND gives the rest (never below 0). */
+  .c2-form:has(.c2-row.open){
+    padding-top:max(0px, var(--c2-air) - var(--c2-cut));
+    margin-bottom:max(0px, var(--c2-air) - max(0px, var(--c2-cut) - var(--c2-air)));
+  }
   /* Same display size, line-height and row padding as the blog list, so the
      two sections share one rhythm rather than each inventing its own. */
   .c2-row{
@@ -2836,7 +2846,8 @@
      on the transition above. Script only RAISES it past four rows, once the
      text genuinely needs more.
      511b: four rows WHERE THE FRAME HAS THEM -- else the room it leaves (--c2-room),
-     never under two rows. Still stated, not measured: every term is a token. */
+     never under two rows. Still stated, not measured: every term is a token.
+     511c2: the frame has them wherever the form's air can pay the difference (--c2-cut). */
   .c2-row.open textarea{
     /* flex:0 0 auto is the whole fix. The fields carry flex:1 -- flex-BASIS
        0 -- and opening turns this row into a column, which makes the main
@@ -2848,7 +2859,7 @@
        height finally applied -- then animated away.) */
     flex:0 0 auto;
     width:100%; text-align:left; overflow:hidden;
-    --c2-open:clamp(2.6em, var(--c2-room), 5.2em); height:var(--c2-open);
+    --c2-open:clamp(2.6em, var(--c2-room) + min(var(--c2-cut), 2 * var(--c2-air)), 5.2em); height:var(--c2-open);   /* 511c2: + the air the form gave */
   }
 
   /* Set like a field name, on the page's own off-white. The fill runs the
@@ -9779,6 +9790,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      not an element, so the words stay clickable home links -- and the
      collapse waits for the pointer to leave the row entirely. */
   var hdrH = 140, hdrFullF = 0, hdrOK = false, hdrBig = false, hdrS0 = 74;
+  var hdrHf = 0;   /* 511c2: the resting header's height unrounded (hdrH is offsetHeight); 0 until the first solve */
   var hdrWordsOn = false;   /* 414: ABOUT's rest pose -- the FULL WORDS at the small size (everywhere else rests as B--D) */
   var hdrTrD = .065, hdrTrDanyi = .065, hdrBl = .065, hdrReady = false;
   var hdrRbB = .02, hdrRbBalint = .02;   // right bearings of 'B' and of 'Balint'
@@ -9840,6 +9852,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     w1.style.marginRight = (-(hdrEmW1 - (hdrEmB1 + HDR_TRK - hdrRbB)) * hdrS0).toFixed(1) + 'px';
     w2.style.marginRight = (-(hdrEmW2 - (hdrEmB2 + HDR_TRK - hdrTrD)) * hdrS0).toFixed(1) + 'px';
     hdrH = hdr.offsetHeight;               // at rest: B -- D at the BIG size
+    hdrHf = hdr.getBoundingClientRect().height;   /* 511c2: unrounded, for the deck's composed-against header */
     document.documentElement.style.setProperty('--hdr-h', hdrH + 'px');
     void hdrName.offsetWidth;
     hdrName.classList.remove('snap');
@@ -10125,7 +10138,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      resize. Fonts that land after the race get the header solved again, as a resize
      does. On time, nothing runs twice. */
   { let raced = false; setTimeout(() => { raced = true; }, 4000);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (raced && s3()){ hdrSolve(); measure(); paint(); } }); }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (raced && s3()){ hdrSolve(); measure(); if (v67Ready) V67.reClear(); paint(); } }); }   /* 511c2: and the deck */
 
   if (ldRoute >= 0){
     /* Teardown is synchronous -- the loader must never be seen -- but the
@@ -10135,7 +10148,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        and solving against the fallback face sizes it wrong and then jumps. */
     ldBypass();
     fontsUp().then(() => {
-      if (s3()){ hdrSolve(); measure(); }
+      if (s3()){ hdrSolve(); measure(); if (v67Ready) V67.reClear(); }   /* 511c2: the deck re-clears against the true header too */
       if (location.hash === '#blog' && !document.body.classList.contains('blogopen')){ document.body.classList.add('blogopen'); playStack(); }   /* 508: #blog is the list */
       if (location.hash === '#case')  openCase();
       if (location.hash === '#about') abOpen();
@@ -10149,7 +10162,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     fontsUp().then(() => {
       ldSolve();
       hdrSolve();                    // the first REAL header solve (post-parse)
-      if (s3()){ measure(); paint(); }   // the deck re-clears against true hdrH
+      if (s3()){ measure(); if (v67Ready) V67.reClear(); paint(); }   // the deck re-clears against true hdrH (511c2: V67's too -- it solved against the 140 placeholder)
       ldName.classList.add('lit');
       ldCopy.classList.add('lit');
       ldCnt.classList.add('lit');
@@ -10314,6 +10327,18 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const mod  = (n, m) => ((n % m) + m) % m;
     const cl   = (v, lo, hi) => Math.round(Math.min(Math.max(v, lo), hi));
     const s4   = () => document.body.classList.contains('s4');
+    /* 511c2: THE DECK FOLLOWS THE HEADER. 511b set the header's name row at TITLE, so the header grew
+       by .78 (the row's line-height) x (TITLE - the display size the deck was composed under,
+       clamp(26px, 4.6vw, 74px) before 511b). The composition is solved against the header less that
+       growth -- the header it was composed against -- and then rides down by it, whole, so the air
+       between the menu's ink and the top cards is what it was at every window. TITLE is the header's
+       own resting size (hdrS0 while the hover holds an inline size). Header 3 only: V4 has its own. */
+    const hdrGrow = W => {
+      if (s4() || !document.body.classList.contains('site3')) return 0;
+      const n = document.getElementById('hdrName'); if (!n) return 0;
+      const T = n.style.fontSize ? hdrS0 : (parseFloat(getComputedStyle(n).fontSize) || hdrS0);
+      return .78 * (T - Math.min(74, Math.max(26, W * .046)));
+    };
     /* Mirrors clamp(16px, 1.2vw, 34px) in the V4 stylesheet, and is used
        for BOTH the hero width and the deck's reach so the two cannot
        drift apart. */
@@ -10760,6 +10785,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (!on()) return;
       build();
       const W = innerWidth, H = innerHeight;
+      /* 511c2: the header's growth, and the header the deck was composed against -- rounded as offsetHeight
+         rounds, from the unrounded height, so it is the pixel the pre-511b header measured */
+      const grow = hdrGrow(W), hfC = grow && hdrHf ? Math.round(hdrHf - grow) : headFoot() - grow;
       if (!v8() && rot){ rot = 0; posed = false; }
       if (!v8() && vsMoveCl){ vsMoveCl = false; document.body.classList.remove('vs-move'); }
       /* 431: the card-to-card WIDTH difference breathes with the window --
@@ -10826,7 +10854,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         if (v7()){
           let sumK = 0; for (let i = 1; i <= N - 1; i++) sumK += Math.pow(VTAPER, i);
           const tb = Math.max(0, (N - 1) - BLUR_FROM + 1) * BLUR_STEP;
-          const clearC = headFoot() + TOP7 + tb * BLEED7 * .5;
+          const clearC = hfC + TOP7 + tb * BLEED7 * .5;   /* 511c2: against the header as composed (grow rides below) */
           const aboveOf = c => Math.min(20, Math.max(10, 12 + (c - 280) * .010)) * sumK / VTAPER;
           for (let p = 0; p < 3; p++){
             const chCap = Math.max(H * HH7F, H - 2 * (clearC + aboveOf(hh)));   /* never below what it was */
@@ -10862,7 +10890,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            read from the same two constants place() uses so the two cannot
            drift apart. */
         const topBlur  = Math.max(0, (N - 1) - BLUR_FROM + 1) * BLUR_STEP;
-        const clearTop = headFoot() + TOP7 + topBlur * BLEED7 * .5;   /* 455c: the halo is soft -- half under the rule reads clean; the full reserve pushed the short-window deck low */
+        const clearTop = hfC + TOP7 + topBlur * BLEED7 * .5;   /* 511c2: as composed; top0 takes the growth below. 455c: the halo is soft -- half under the rule reads clean; the full reserve pushed the short-window deck low */
         /* 432: the displacement is the MOCK'S -- a small near-constant step
            that only barely breathes with the card. The room no longer
            inflates it on tall windows nor starves it on short ones; the
@@ -10882,7 +10910,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const give = above > 0 ? Math.min(overRaw, above * 0.6) : 0;   /* 455c: the peeks GIVE first -- they compress to absorb the push before the deck moves */
         peekF *= above > 0 ? (above - give) / above : 1;
         const over = overRaw - give;
-        top0 = Math.round((H - ch) / 2 + above * LOWER + over);
+        top0 = Math.round((H - ch) / 2 + above * LOWER + over) + Math.round(grow);   /* 511c2: + the header's growth, whole px (the menu's baselines snap) -- the deck follows it */
       } else {
         /* Dead-centred UNLESS the caption block would then cross the header.
            The block hangs off the card's top edge and opens upward, so on a
@@ -12071,7 +12099,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     }
     v67Ready = true;
     if (on()) layout();
-    return { on, wheel, sync, layout, overDeck, v8, wheel8, pageSync, turning, run8, unit8, J1, liftOf, blockP8, FILM_AT };
+    const reClear = () => { if (on() && !introOn && !introRun._waiting) layout(); };   /* 511c2: the boot's header solve re-seats the deck against the true header */
+    return { on, wheel, sync, layout, overDeck, v8, wheel8, pageSync, turning, run8, unit8, J1, liftOf, blockP8, FILM_AT, reClear };
   })();
   watchAssets();   /* 509: HERE -- V67's layout() just above built the pool and the stills; where it used to run, the gate collected nothing */
 
