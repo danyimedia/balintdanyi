@@ -4001,8 +4001,30 @@
   }
 
   /* M512:SHOWREEL */
+  /* THE REEL TURNS A QUARTER CLOCKWISE (SPEC-512 sec. F). The film box keeps the desktop's law (under the header
+     bar, a pad at the sides and the foot), the pad being the phone margin. On a phone-mode window taller than wide
+     (html.m-rot, written by srTurn) the 16:9 film lies along the window's HEIGHT: the shot is laid out as a
+     landscape frame whose long side is the band's height (bounded by its width x 16/9 -- on every phone the width
+     binds, so the turned film runs margin to margin), centred in the band and turned 90deg about its middle. The
+     film's foot is then the window's LEFT side, its start at the top. Everything of the reel lives inside the shot
+     -- the player, the veil, the chrome -- so it all turns together: the playback bar runs down the left side,
+     MUTE / play / fullscreen turned with it, and the 509 row holds as it stands, because every part of it is a
+     share of --sr-h, the frame's height, which the turn makes the band's WIDTH. Fullscreen squares the turned
+     shot to the window (the window's height is the film's long side) and the chrome to the picture Vimeo
+     contains inside it, as the upright fullscreen does. The 508 floor (no cq units) is below this build's phones. */
+  html.mob{ --film-pad:var(--m-pad); }
+  html.mob.m-rot #black .film .shot{ position:absolute; left:50%; top:50%; width:min(100cqh, 100cqw * 16 / 9); transform:translate(-50%, -50%) rotate(90deg); }
+  html.mob.m-rot #black .c3-ctl{ --sr-h:min(100cqw, 100cqh * 9 / 16); }
+  html.mob.m-rot body.sr-fs #black .film .shot{ width:100cqh !important; height:100cqw !important; }
+  html.mob.m-rot body.sr-fs #black .c3-ctl{ left:calc((100cqh - min(100cqh, 100cqw * 16 / 9)) / 2); top:calc((100cqw - min(100cqw, 100cqh * 9 / 16)) / 2); width:min(100cqh, 100cqw * 16 / 9); height:min(100cqw, 100cqh * 9 / 16); }
 
   /* M512:CONTACT */
+  /* THE CONTACT PAGE ON A PHONE (SPEC-512 sec. F): its classes as they are, two changes. LET'S MAKE GREAT WORK
+     TOGETHER does not ride the cursor (c2Pull stands down on MOB.on; this holds the words where they are seated).
+     The column's foot --m-kb is written by c2Clear while a focused field must clear the on-screen keyboard: the
+     form's auto margin turns it into lift, and past that it is scroll room. */
+  html.mob .c2-line span{ transform:none !important; }
+  html.mob .contact .variant.on{ padding-bottom:var(--m-kb, 0px); }
 
   /* M512:CASE */
 
@@ -4926,7 +4948,7 @@ function c2Pull(line){
   }
   function run(){ if (!raf) raf = requestAnimationFrame(step); }
   addEventListener('pointermove', e => {
-    if (!line.offsetParent) return;   /* only while its page shows */
+    if (MOB.on || !line.offsetParent) return;   /* only while its page shows; 512c: never on a phone -- no cursor there, the line rests where it is seated */
     const rb = line.getBoundingClientRect();
     if (rb.bottom < 0 || rb.top > innerHeight) return;   /* 412: the footer's clone answers only on screen */
     retarget(e.clientX);
@@ -5365,6 +5387,53 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       row.classList.remove('open');
     });
   });
+  /* 512c: THE FIELD CLEARS THE KEYBOARD (SPEC-512 sec. F). A phone's on-screen keyboard shrinks only the VISUAL
+     viewport -- the layout viewport stays (iPhone; Android Chrome by default) -- and the form sits at the foot of the
+     contact column, so the field being typed into was under the keys. While a field of the form holds focus on a
+     phone, its whole row is brought into the band the visual viewport shows -- under the header bar, half a margin
+     of air over the keyboard -- by the least move: the column scrolls, and where it has no scroll left it gains a
+     foot (--m-kb) that the form's auto margin turns into lift, and past that into scroll room. Each pass measures
+     the row where it stands now and moves by the difference -- a correction, never a target -- so a browser's own
+     pan (iOS scrolls the visual viewport itself) is honoured, not doubled, and a row with room under it gives the
+     foot back (the keyboard went). Passes run on focus and typing -- again as GET IN TOUCH (.5s) and the message
+     field (.32s) finish moving -- and on every visual-viewport change; focus leaving the form, or a switch to the
+     desktop, gives the foot back. Nothing is written above 600px. */
+  const c2Kb = { px:0, n:0, raf:0, t:[] };
+  function c2Clear(){
+    c2Kb.raf = 0;
+    const col = document.querySelector('.contact .variant.on'), f = document.activeElement;
+    const row = (MOB.on && col && f && f !== document.body && col.contains(f)) ? f.closest('.c2-row') : null;
+    if (!row){ if (c2Kb.px){ c2Kb.px = 0; if (col) col.style.removeProperty('--m-kb'); } return; }
+    const vv = window.visualViewport, hb = document.getElementById('hdr'), air = padPx() / 2;
+    const top = Math.max(vv ? vv.offsetTop : 0, hb ? hb.getBoundingClientRect().bottom : 0);
+    const bot = (vv ? vv.offsetTop + vv.height : innerHeight) - air;
+    const r = row.getBoundingClientRect();
+    /* d > 0: the row rises by d; d < 0: it comes down (the foot back first, then the column's scroll) */
+    const d = r.bottom > bot ? Math.min(r.bottom - bot, r.top - top)
+            : r.top < top ? r.top - top
+            : -Math.min(c2Kb.px, bot - r.bottom);
+    if (Math.abs(d) < .5 || ++c2Kb.n > 8) return;
+    if (d > 0){
+      const room = Math.max(0, col.scrollHeight - col.clientHeight - col.scrollTop), sc = Math.min(d, room);
+      if (sc > 0) col.scrollTop += sc;
+      if (d - sc >= .5){ c2Kb.px += d - sc; col.style.setProperty('--m-kb', c2Kb.px.toFixed(1) + 'px'); }
+    } else {
+      const back = Math.min(-d, c2Kb.px), sc = Math.min(-d - back, col.scrollTop);
+      if (back > 0){ c2Kb.px -= back; if (c2Kb.px < .5) c2Kb.px = 0; col.style.setProperty('--m-kb', c2Kb.px.toFixed(1) + 'px'); }
+      if (sc > 0) col.scrollTop -= sc;
+    }
+    c2Kb.raf = requestAnimationFrame(c2Clear);   /* measure where it landed; the next pass corrects what is left */
+  }
+  function c2Soon(){
+    if (!MOB.on && !c2Kb.px) return;   /* the desktop: nothing to do, nothing scheduled */
+    c2Kb.n = 0; c2Kb.t.forEach(clearTimeout);
+    if (!c2Kb.raf) c2Kb.raf = requestAnimationFrame(c2Clear);
+    c2Kb.t = [380, 700].map(ms => setTimeout(() => { c2Kb.n = 0; if (!c2Kb.raf) c2Kb.raf = requestAnimationFrame(c2Clear); }, ms));
+  }
+  { const fm = document.getElementById('c2Form');
+    if (fm){ fm.addEventListener('focusin', c2Soon); fm.addEventListener('focusout', c2Soon); fm.addEventListener('input', c2Soon); }
+    if (window.visualViewport){ visualViewport.addEventListener('resize', c2Soon); visualViewport.addEventListener('scroll', c2Soon); }
+    addEventListener('resize', c2Soon); MOB.hooks.push(c2Soon); }
   const TITLE_PARALLAX = 0.40;        // the display type outruns its own slide
 
   // Top edge of the black frame, in viewport px. At rest PEEK() shows --
@@ -6919,10 +6988,27 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      SHOWREEL menu, any play, the chrome. Parked at frame 0 by the prime,
      the reel holds Vimeo's own look-ahead (measured ~30s) for the life of
      the tab: nothing ever unloads it. */
+  /* 512c: THE PHONE'S REEL. His mobile cut of the showreel will get its own Vimeo link: its id goes HERE and only
+     here -- a one-line swap (an unlisted film's link reads vimeo.com/<id>/<hash>: write '<id>/<hash>'). Until it
+     arrives it is the desktop's film, the id in #vimeo's data-src. The choice is made once, when the reel is
+     fetched (srLoad): a phone-mode window then gets this film; a live player is never re-pointed afterwards (one
+     iframe, one signed session: the 480f and 510 laws). */
+  const SR_FILM_MOB = '1182514258';
+  const srSrc = u => {
+    if (!u || !MOB.on) return u;
+    const [id, h] = SR_FILM_MOB.split('/');
+    return u.replace(/\/video\/\d+\?/, '/video/' + id + '?' + (h ? 'h=' + h + '&' : ''));
+  };
+  /* 512c: the reel turns for a phone-mode window TALLER than wide (a portrait phone; a narrow desktop window of the
+     same shape). Landscape phones (512e, html.mobl) and a squat narrow window keep it upright. Re-read on every
+     resize (after mobEval, the first listener) and on every mode switch; nothing in the DOM moves, so the player
+     never reloads -- only the shot's box turns. */
+  function srTurn(){ document.documentElement.classList.toggle('m-rot', MOB.on && !MOB.land && innerHeight > innerWidth); }
+  addEventListener('resize', srTurn); MOB.hooks.push(srTurn); srTurn();
   function srLoad(){
     if (srIn) return;
     const fr = document.getElementById('vimeo');
-    const src = fr && (fr.getAttribute('src') || fr.dataset.src);
+    const src = fr && (fr.getAttribute('src') || srSrc(fr.dataset.src));   /* 512c: on a phone, the phone's film (SR_FILM_MOB) */
     if (!src) return;
     srIn = true;
     if (!fr.getAttribute('src')) fr.src = src;   /* before the player is wired: it reads the src */
@@ -12455,8 +12541,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       }, { capture:true });
       el.querySelector('.tl').addEventListener('click', e => {
         e.stopPropagation(); srLoad(); if (!wire() && !p) return;
-        const r = e.currentTarget.getBoundingClientRect();
-        const q = Math.min(1, Math.max(0, (e.clientX - r.left) / Math.max(1, r.width)));
+        const r = e.currentTarget.getBoundingClientRect(), dn = r.height > r.width;   /* 512c: the phone's turned reel -- the line runs down the window's left side, its start at the top */
+        const q = Math.min(1, Math.max(0, dn ? (e.clientY - r.top) / Math.max(1, r.height) : (e.clientX - r.left) / Math.max(1, r.width)));
         el.querySelector('.tl i').style.width = (q * 100).toFixed(2) + '%';
         p.getDuration().then(d => p.setCurrentTime(q * d)).catch(() => {});
       });
