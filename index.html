@@ -4027,6 +4027,87 @@
   html.mob .contact .variant.on{ padding-bottom:var(--m-kb, 0px); }
 
   /* M512:CASE */
+  /* THE CASE AND POST PAGES ON A PHONE (SPEC-512 sec. G; a post is the same page). The engine's rules stand;
+     these re-seat them for a portrait screen, with the case engine's MOB branches (videoLayout, videoScroll,
+     cardsLayout, gridTokens, the stack's seat, the rows' ink, the intro's reveal).
+     TWO PADDINGS, by ink (the register trims inkTokens measures: --ink-t/-b BODY, --ink-t3/-b3 SUBTITLE):
+     P1 = a subtitle to its own content -- his reference, a section row's baseline to its first cap top, the
+       engine's --c3-row-pad; the intro's subtitles, a paragraph to a film (to its CAPTION's cap top) and a film
+       to the next film follow it.
+     P2 = between sub-sections -- his reference, the last block of BRIEF to the APPROACH row, the stacked
+       section's --c3-row-gap; the title row to the intro, MY ROLE / SUMMARY / CREDITS and CREDITS to BRIEF
+       follow it.
+     --m-c3-film-gap: the start slide's film foot to the title row's glass band (the head's own pad above the
+       title's cap): the band begins exactly where the film ends, so the glass never lies on the picture. */
+  html.mob{ --m-p1:var(--c3-row-pad); --m-p2:var(--c3-row-gap); --m-c3-film-gap:var(--c3-head-pad); }
+  /* THE START SLIDE. The film's layer scrolls WITH the page (absolute; JS lifts it to the page's top), so the
+     film goes up under the header -- there is no morph on a phone. The title row: the title SUBTITLE, the
+     subtitle ONE row of BODY(CAPS) beside it, its baseline on the title's and its ink on the right margin
+     (seated in JS); it is drawn inside the words' scale like the desktop's stack, so its size is BODY over it. */
+  html.mob #viewCase3 .c3-3d{ position:absolute; }
+  html.mob #viewCase3 .c3-sub4, html.mob #viewCase3 .c3-sub4.sub-floor{
+    font-size:calc(var(--m-body) / var(--c3-brand-k)); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s);
+    line-height:var(--sm-lh); white-space:nowrap;
+  }
+  html.mob #viewCase3 .c3-sub4 i, html.mob #viewCase3 .c3-sub4.sub-floor i{ display:inline; line-height:var(--sm-lh); }
+  html.mob #viewCase3 .c3-sub4 i + i::before{ content:' '; }
+  /* SCROLL DOWN FOR CASE / POST: static at the foot of the window -- its baseline on the bottom margin, one line
+     justified margin to margin (the trailing tracking given back on the right) -- and gone the moment the page
+     moves: JS writes --c3-hint-op 1 or 0, this transition is the fade. */
+  html.mob #viewCase3 .c3-hint{
+    position:fixed; left:var(--pad); right:calc(var(--pad) - var(--track-s)); top:auto; bottom:calc(var(--pad) - var(--ink-b));
+    transform:none; white-space:normal; text-align:justify; text-align-last:justify; transition:opacity .3s ease;
+  }
+  /* THE INTRO: one column (MY ROLE, SUMMARY, CREDITS; a post's lede first), its top on the title's baseline
+     (it rises under the head's foot pad), every subtitle P2 under the block above it and P1 over its text. */
+  html.mob #viewCase3 .c3-intro{ margin-top:calc(-1 * var(--c3-head-pad)); padding:0 var(--pad); }
+  html.mob #viewCase3 .c3-cols{ flex-direction:column; gap:0; margin-top:0; }
+  html.mob #viewCase3 .c3-credcol{ order:2; }
+  html.mob #viewCase3 .c3-it{ margin:calc(var(--m-p2) - var(--m-t3, var(--ink-t3))) 0 calc(var(--m-p1) - var(--m-b3, var(--ink-b3))); }
+  html.mob #viewCase3 .c3-lede{ margin:calc(var(--m-p2) - var(--m-tn, var(--ink-t))) 0 calc(-1 * var(--m-bn, var(--ink-b))); }
+  /* CREDITS never overrun: the role wraps (left), the name stays whole (right), the hairline takes the rest */
+  html.mob #viewCase3 .c3-cred .cr .pos{ flex:0 1 auto; min-width:0; white-space:normal; }
+  html.mob #viewCase3 .c3-cred .cr .nm{ flex:0 0 auto; }
+  html.mob #viewCase3 .c3-cred .cr i{ flex:1 0 .6em; }
+  /* THE INTRO'S ENTRANCE, TIMED FOR THE PHONE: each text (a subtitle, a paragraph, a credit row, the lede) comes
+     in on its own as ITS top crosses the line (JS: .m-rv), with the desktop's movement and no wall-clock delay;
+     back on the start slide they leave, quickly. The phone's states key on .m-rv alone. */
+  html.mob #viewCase3 .c3-it:not(.m-rv){ opacity:0; transform:translateX(calc(-1 * var(--c3-row-in-dx))); transition-duration:.3s; transition-delay:0ms; }
+  html.mob #viewCase3 .c3-it.m-rv{ opacity:1; transform:none; transition-delay:0ms; }
+  html.mob #viewCase3 .c3-contrib:not(.m-rv), html.mob #viewCase3 .c3-summary:not(.m-rv), html.mob #viewCase3 .c3-lede:not(.m-rv){ opacity:0; filter:blur(var(--c3-in-blur)); transition-duration:.3s; transition-delay:0ms; }
+  html.mob #viewCase3 .c3-contrib.m-rv, html.mob #viewCase3 .c3-summary.m-rv, html.mob #viewCase3 .c3-lede.m-rv{ opacity:1; filter:blur(0); transition-delay:0ms; }
+  html.mob #viewCase3 .c3-cred .cr:not(.m-rv) .pos, html.mob #viewCase3 .c3-cred .cr:not(.m-rv) .nm{ opacity:0; filter:blur(var(--c3-in-blur)); transition-duration:.3s; transition-delay:0ms; }
+  html.mob #viewCase3 .c3-cred .cr:not(.m-rv) i{ transform:scaleX(0); opacity:0; transition-duration:.3s; transition-delay:0ms; }
+  html.mob #viewCase3 .c3-cred .cr.m-rv .pos, html.mob #viewCase3 .c3-cred .cr.m-rv .nm{ opacity:1; filter:blur(0); }
+  html.mob #viewCase3 .c3-cred .cr.m-rv i{ transform:scaleX(1); opacity:1; }
+  /* THE SECTIONS. The row swaps -- number LEFT, subtitle RIGHT (their ink seats swap in JS). The cells stack
+     margin to margin, each P1 under the one above: a film's P1 runs to its CAPTION's cap top, so a film comes
+     down by the caption's gap and cap height; a film is square (a non-square one keeps its own aspect); a
+     stat's lines end on the right margin. A section's foot to the next row is the engine's own (P2). */
+  html.mob #viewCase3 .c3-details{ padding-top:var(--m-p2); }
+  html.mob #viewCase3 .c3-row{ flex-direction:row-reverse; }
+  html.mob #viewCase3 .c3-details.c3-stack .c3-grid{ row-gap:var(--m-p1); }
+  html.mob #viewCase3 .c3-details.c3-stack .cell.text, html.mob #viewCase3 .c3-details.c3-stack .cell.stat, html.mob #viewCase3 .c3-details.c3-stack .cell.quote{
+    width:100%; max-width:none; height:auto; min-height:0;
+  }
+  html.mob #viewCase3 .c3-details.c3-stack .cell.media{ width:100%; height:auto; aspect-ratio:1 / 1; margin-top:calc(var(--c3-cap-gap) + .7 * var(--t-nocaps)); }
+  html.mob #viewCase3 .c3-details.c3-stack .cell.media.natural{ aspect-ratio:auto; }
+  html.mob #viewCase3 .cell.media.natural .pic{ width:100%; height:auto; }
+  html.mob #viewCase3 .cell.media.natural .pic video, html.mob #viewCase3 .cell.media.natural .pic img{ width:100%; height:auto; aspect-ratio:auto 16 / 9; }
+  /* LIVE TRIMS (mTrims): each register's cap-top and last-baseline offsets as Chrome lays them out -- SUBTITLE
+     (--m-t3/-b3), BODY(CAPS) (--m-t1/-b1), the running copy NOCAPS (--m-tn/-bn); the engine's modelled ones are
+     the fallback. So every P1 / P2 above is the true ink gap. */
+  html.mob #viewCase3 .c3-row span{ margin-top:calc(-1 * var(--m-t3, var(--ink-t3))); margin-bottom:calc(-1 * var(--m-b3, var(--ink-b3))); }
+  html.mob #viewCase3 .ink{ margin-top:calc(-1 * var(--m-t1, var(--ink-t))); margin-bottom:calc(-1 * var(--m-b1, var(--ink-b))); }
+  html.mob #viewCase3 .c3-sec .ink{ margin-top:calc(-1 * var(--m-tn, var(--ink-t))); margin-bottom:calc(-1 * var(--m-bn, var(--ink-b))); }
+  html.mob #viewCase3 .c3-intro .c3-contrib{ margin-bottom:calc(-1 * var(--m-b1, var(--ink-b))); }
+  html.mob #viewCase3 .cell .c3-cap{ bottom:calc(100% + var(--c3-cap-gap) - var(--m-bn, var(--ink-b))); }
+  /* a picture's ground: 1px inside its cell top and bottom only (491's ring guard; the sides are whole pixels on
+     the margins), and the cell gives that pixel back below */
+  html.mob #viewCase3 .c3-details.c3-stack .cell.media:not(.natural){ margin-bottom:-1px; }
+  html.mob #viewCase3 .c3-details.c3-stack .cell.media:not(.natural) .pic{ inset:1px 0; }
+  /* the rows' and the intro's slide-in: 12px on a phone (28 started the left-margin number off the screen) */
+  html.mob #viewCase3{ --c3-row-in-dx:calc(var(--m-pad) / 2); }
 
   /* M512:LAND */
 
@@ -13205,11 +13286,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const base = el => { const q = document.createElement('i'); q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; el.appendChild(q); const y = q.getBoundingClientRect().bottom; q.remove(); return y; };
     const cap = w => vtrim(w, 200, 200).cap / 200;
     const d = base(t) - cap(1000) * T + cap(parseFloat(cs.fontWeight) || 1000) * S - base(r0);
-    if (isFinite(d) && Math.abs(d) > .02){
+    const dM = MOB.on ? base(t) - base(r0) : d;   /* 512d: on a phone the stack is ONE row of BODY(CAPS) beside the title: its baseline on the title's */
+    if (isFinite(dM) && Math.abs(dM) > .02){
       const mt = parseFloat(head.style.getPropertyValue('--c3-sub4-mt')) || 0;
-      head.style.setProperty('--c3-sub4-mt', (mt + d).toFixed(2) + 'px');
+      head.style.setProperty('--c3-sub4-mt', (mt + dM).toFixed(2) + 'px');
     }
-    seatRowsRight(s4, k);
+    if (MOB.on) seatRowsRight({ children:[s4.lastElementChild], style:s4.style }, k);   /* 512d: one row -- its LAST word's ink on the right margin */
+    else seatRowsRight(s4, k);
     return true;
   }
   let headBox = null, headTop = 0, headTopCanvas = null, inkBot4 = 0, seatAdj4 = 0, followAdj4 = 0;   // the head's box at k = 1 (videoLayout) and its sticky top; the canvas measures the menu's ink (406)
@@ -13254,6 +13337,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (!el._ioRows) el._ioRows = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); el._ioRows.unobserve(e.target); } }), { rootMargin:'0px 0px -8% 0px' });
       el._ioRows.disconnect();
       host.querySelectorAll('.cr').forEach(r => el._ioRows.observe(r)); }
+    mRvEls = null;   /* 512d: the phone's reveal re-reads the new rows */
   }
 
   /* ================= THE STRIP ======================================= */
@@ -13288,7 +13372,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      gap to 8. One clamped step a frame; the sticky var lands right here,
      `followAdj4` next videoScroll. */
   function c4Settle(){
-    if (chosen.case !== 4 || !document.body.classList.contains('caseopen') || !vGeo || !headBox) return;
+    if (MOB.on || chosen.case !== 4 || !document.body.classList.contains('caseopen') || !vGeo || !headBox) return;   /* 512d: a phone's seat is the B - D bar's baseline, measured live (videoLayout) -- this corrector's target is the desktop menu's lowest word, which a phone does not lay out: run on a phone it froze the desktop's correction into the phone's seat */
     const S = window.scrollY; if (S <= vGeo.Sin + 40) return;
     const t = document.querySelector('#c3Brand span'); if (!t) return;
     const tR = t.getBoundingClientRect();
@@ -13718,7 +13802,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      the head's own glass band over it. It plays while it is uncovered,
      i.e. until the head sticks. */
   function videoLayout(){
-    const W = innerWidth, H = innerHeight, hf = hdrH;
+    const W = MOB.on ? root.clientWidth : innerWidth, H = MOB.on ? root.clientHeight : innerHeight, hf = hdrH;   /* 512d: a phone lays out on ITS width and height (innerWidth / innerHeight are the layout viewport's, which any overflow -- or a desktop layout still standing at a switch -- zooms out) */
     /* THE HEAD'S BOX at k = 1: the air, the words' ink, the sub gap, the
        subtitle's ink, the air below -- exactly the CSS's flow (the h1's
        margins trim its line box to the ink; the strip's margins trim its
@@ -13753,6 +13837,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const bl = lr.top + half + tm.fontBoundingBoxAscent;
         if (isFinite(bl) && bl > 0) inkBot = bl + (tm.actualBoundingBoxDescent || 0);
       } catch (err) {}
+      if (MOB.on){   /* 512d: on a phone the header's lowest ink is the B - D bar's baseline -- measured live, off the bar's own top */
+        const w1 = hdr.querySelector('#hdrName .w1'), q = w1 ? document.createElement('i') : null;
+        if (q){ q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; w1.appendChild(q); const y = q.getBoundingClientRect().bottom - hdr.getBoundingClientRect().top; q.remove(); if (y > 0) inkBot = y; }
+      }
       inkBot4 = inkBot;   /* 406: cache the MEASURED ink; the seat itself is computed per frame with the LIVE kB (videoLayout's is stale -- the header solve lands after it) */
       headTop = inkBot + dial('--c3-c4-head-gap') - headBox.pad - (1 - kB4) * brandFull;
     } else {
@@ -13767,7 +13855,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        small words' cap top, a margin from each; the box overlaps the room
        the words grow into, and the film has gone full-window by then. */
     const rest = PAD;   /* 508: the title rests on the bottom margin itself (--c3-rest was a copy of it) */
-    const stageH = H - (rest + brandFull + headBox.pad);                  // the head's box top at rest
+    let stageH = H - (rest + brandFull + headBox.pad);                    // the head's box top at rest (512d: let -- a phone seats it from the film)
     /* THE FILM'S BOX. The doors' hinges are hingeK of the film's height, and
        must stay GAL_CLEAR clear of the header's glass foot above and the
        band's top below at rest -- that room, less the clearance, is what a
@@ -13778,10 +13866,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const bandTop0 = H - (rest + brandFull * BRAND_SMALL + headBox.pad);   // the band's top at rest
     const roomT = hf + over + GAL_CLEAR, roomB = bandTop0 - GAL_CLEAR;      // the hinges' room
     const hingeK = deckDials(W).hingeK;                                     // the hinge, a share of the film: the film half way between a door's sides
-    const vw = Math.min(W - 2 * PAD, Math.max(0, roomB - roomT) / hingeK * 16 / 9), vh = vw * 9 / 16;
-    const xc = (W - vw) / 2, yc = (roomT + roomB) / 2 - vh / 2;
+    let vw = Math.min(W - 2 * PAD, Math.max(0, roomB - roomT) / hingeK * 16 / 9), vh = vw * 9 / 16;   /* 512d: let -- a phone re-seats the box below */
+    let xc = (W - vw) / 2, yc = (roomT + roomB) / 2 - vh / 2;
     /* DEV CHECK: the hinges inside the room */
     console.assert(yc + vh / 2 - hingeK * vh / 2 >= roomT - 0.01 && yc + vh / 2 + hingeK * vh / 2 <= roomB + 0.01, 'the hinges leave the glasses\' room');
+    if (MOB.on){   /* 512d: THE PHONE'S START SLIDE (SPEC-512 sec. G) -- the film margin to margin, centred in the window; the title row under it, its glass band's top on the film's foot (--m-c3-film-gap); so the head's rest box is seated from the film (the hint holds the bottom margin) */
+      vw = W - 2 * PAD; vh = vw * 9 / 16; xc = PAD; yc = (H - vh) / 2;
+      stageH = yc + vh + dial('--m-c3-film-gap') - headBox.pad - (1 - (hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2)) * brandFull;
+    }
     $('#c3Stage').style.height = Math.max(0, stageH).toFixed(2) + 'px';   // to the sub-pixel: a rounded stage moved the head's foot by half a px
     const Sin = Math.max(1, stageH - headTop);                          // the scroll at which the head reaches its slot and sticks
     /* the picture's layout size: the window's cover, so the film is crisp at
@@ -13890,7 +13982,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* the track: the film from its box to full-window and the words from
        BRAND_SMALL to the intro's size, together, the page still -- m is the
        frame's state, 1 the box; p the track's progress */
-    const p = clamp01(trS / PRE_WHEEL), m = 1 - p, grow = chosen.case === 4 ? false : p < 1;   /* 401: V4 never grows */
+    const p = clamp01(trS / PRE_WHEEL), m = MOB.on ? 1 : 1 - p, grow = chosen.case === 4 ? false : p < 1;   /* 512d: m = 1 on a phone -- the film never morphs, its layer scrolls with the page, up under the header */   /* 401: V4 never grows */
     const dSigned = S;
     /* the words: growing, about their BASELINE at the foot of the window;
        grown, full size through the climb; stuck under the header, down to
@@ -13951,7 +14043,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       : C4 ? (1 - kS) / (1 - kB || 1) * Math.max(0, (hT + hb.h) - (tB4s + dial('--c3-c4-head-gap')))
       : (1 - kS) * hb.cap;   /* 406: V3's follow verbatim; V4's ramps over the same window but only to (pad - gap) -- the title's slack moved into the SEAT, so the slot lands the subtitle GAP under the title's ink */
     const dyX = chosen.case === 4 ? 0 : subExtra(now);   /* 404: the cushion was the strip's; V4 has neither */
-    head.style.setProperty('--c3-hint-op', (1 - clamp01(trS / (dial('--c3-hint-fade') * PRE_WHEEL))).toFixed(3));
+    head.style.setProperty('--c3-hint-op', (MOB.on ? (S > 0.5 ? 0 : 1) : 1 - clamp01(trS / (dial('--c3-hint-fade') * PRE_WHEEL))).toFixed(3));   /* 512d: a phone's hint is static and gone the moment the page moves (the CSS fades it) */
     head.style.setProperty('--c3-sub-dy', (dyX - follow).toFixed(2) + 'px');
     /* the band: --c3-head-pad above the cap top (which rises while the
        words grow), --c3-sub-gap under the subtitle's baseline (which
@@ -14042,8 +14134,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     doorFade = m;
     if (!stepQ) cardsPaint();
     detailsScroll(window.scrollY);
+    if (MOB.on || mRvOn) mIntroReveal(S);   /* 512d: the intro's entrance on a phone (and its clean-up after a switch) */
     layer3d.classList.toggle('rest', m >= 0.999 && !busy);
-    ctlEach(c => c.classList.toggle('away', m < 0.999 || busy));
+    ctlEach(c => c.classList.toggle('away', m < 0.999 || busy || (MOB.on && S > 0.5)));   /* 512d: on a phone the film scrolls away under a fixed control: it goes with the first move */
     /* the film plays while the title is at its rest position: the moment
        the page moves (not the scale -- the move) it stops; back at the
        start it plays again; and not while a case is on its way in */
@@ -14155,6 +14248,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function cardsLayout(){
     const g = vGeo, d = deck;
     layer3d.style.width = g.W + 'px'; layer3d.style.height = g.H + 'px';
+    layer3d.style.top = MOB.on ? (-g.stageH).toFixed(2) + 'px' : '';   /* 512d: absolute on a phone, in #c3Body (which starts under the stage): lifted by the stage to the page's top */
     layer3d.style.perspective = d.P.toFixed(1) + 'px';
     layer3d.style.perspectiveOrigin = d.cx0.toFixed(1) + 'px ' + d.cy0.toFixed(1) + 'px';
     group3d.style.transformOrigin = d.cx0.toFixed(1) + 'px ' + d.cy0.toFixed(1) + 'px';
@@ -14341,10 +14435,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      column, the picture's side, a gutter -- and whether the columns still
      make sense (--c3-col-min): narrower, the cells stack. */
   function gridTokens(){
-    const content = innerWidth - 2 * PAD, host = $('#c3Details');
+    const content = (MOB.on ? root.clientWidth : innerWidth) - 2 * PAD, host = $('#c3Details');   /* 512d: the phone's width, not the layout viewport's */
     const colw = content * (dial('--c3-col-k') || .2478), media = Math.min(content * (dial('--c3-media-k') || .1971), dial('--c3-media-max') || 291.5), gut = content * (dial('--c3-gut-k') || .0149);
     const first = content - 2 * colw - media - 3 * gut;       // the first column: the remainder
-    const stack = Math.min(colw, first) < (dial('--c3-col-min') || 220);
+    const stack = MOB.on || Math.min(colw, first) < (dial('--c3-col-min') || 220);   /* 512d: a phone always stacks */
     host.classList.toggle('c3-stack', stack);
     root.style.setProperty('--c3-colw', colw.toFixed(2) + 'px'); root.style.setProperty('--c3-media', media.toFixed(2) + 'px'); root.style.setProperty('--c3-gut2', gut.toFixed(2) + 'px');
     root.style.setProperty('--c3-push-gap', (2 * (dial('--cap3') || .7 * subReg().px)).toFixed(2) + 'px');   /* 395: the pinned subtitles push each other from DOUBLE the character size (511c: SUBTITLE's, measured by inkTokens; the fallback reads it too -- it was 23.1) */
@@ -14455,14 +14549,142 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     host.querySelectorAll('.stat .st-lines p, .c3-cap .cr, .cell.quote .qn span').forEach(e => inkX(e, 'right'));
     host.querySelectorAll('.c3-row .ttl').forEach(e => inkX(e, 'left'));
     host.querySelectorAll('.c3-row .no').forEach(e => inkX(e, 'right'));
+    rowInkMob = false;   /* 512d: seated the desktop's way (rowInk re-seats a phone's) */
     /* loops only play in view */
     const io = new IntersectionObserver(es => es.forEach(e => {
       const v = e.target; if (e.isIntersecting){ const p = v.play(); if (p) p.catch(() => {}); } else v.pause();
     }), { threshold:0.1 });
     host.querySelectorAll('.cell.media video').forEach(v => io.observe(v));
   }
+  /* 512d: THE ROWS' INK, BY SIDE. On a phone the row swaps (number LEFT, subtitle RIGHT -- M512:CASE), so the
+     subtitle's last glyph goes onto the right margin and the number's first onto the left; back on the desktop
+     the other way. Only when the mode differs from the seat on the rows. */
+  let rowInkMob = false;
+  function rowInk(){
+    if (!MOB.on && rowInkMob === false) return;
+    rowInkMob = MOB.on;
+    $('#c3Details').querySelectorAll('.c3-row').forEach(r => {
+      const t = r.querySelector('.ttl'), n = r.querySelector('.no'); if (!t || !n) return;
+      t.style.marginLeft = t.style.marginRight = n.style.marginLeft = n.style.marginRight = '';
+      if (rowInkMob){ mSeatX(t, 'right'); mSeatX(n, 'left'); }
+      else { inkX(t, 'left'); inkX(n, 'right'); }
+    });
+  }
+  /* 512d: a span's edge glyph onto its box's margin, by the LIVE glyph: its Range box on the page, and its
+     outline's extent from the face at 1000px (the size at which the rigs read ink). The margin is the ink's offset
+     from the span's own box, so a transform on the span (the entrance's slide) cancels out. */
+  let mSeatCv = null;
+  function mSeatX(el, side){
+    const n = [...el.childNodes].find(x => x.nodeType === 3 && x.nodeValue.trim()); if (!n) return;
+    const tx = n.nodeValue, i = side === 'left' ? tx.search(/\S/) : tx.replace(/\s+$/, '').length - 1; if (i < 0) return;
+    const rg = document.createRange(); rg.setStart(n, i); rg.setEnd(n, i + 1);
+    const q = rg.getBoundingClientRect(), b = el.getBoundingClientRect(), cs = getComputedStyle(el), px = parseFloat(cs.fontSize);
+    if (!(q.width > 0) || !(px > 0)) return;
+    const cv = mSeatCv || (mSeatCv = document.createElement('canvas').getContext('2d')); if (!cv) return;
+    cv.font = cs.fontStyle + ' ' + cs.fontWeight + ' 1000px ' + cs.fontFamily;
+    const ch = cs.textTransform === 'uppercase' ? tx[i].toUpperCase() : tx[i], m = cv.measureText(ch);
+    if (m.actualBoundingBoxRight === undefined) return;
+    if (side === 'left') el.style.marginLeft = (-((q.left - m.actualBoundingBoxLeft / 1000 * px) - b.left)).toFixed(2) + 'px';
+    else el.style.marginRight = ((q.left + m.actualBoundingBoxRight / 1000 * px) - b.right).toFixed(2) + 'px';
+  }
+  /* 512d: THE INTRO'S ENTRANCE ON A PHONE (SPEC-512 sec. G). The desktop's one trigger (#c3Intro.in and its
+     wall-clock --d cascade) ran every text in while most were still below a phone's fold. Here each text -- the
+     lede, a subtitle, a paragraph, a credit row -- takes .m-rv as ITS OWN top crosses M_RV_LINE of the window,
+     and only once the page has moved (the start slide is the film, the title row and the hint); back at the top
+     they leave. M512:CASE keys the phone's states on .m-rv alone. */
+  const M_RV_LINE = 0.9;
+  let mRvEls = null, mRvOn = false;
+  function mIntroReveal(S){
+    if (!mRvEls) mRvEls = [...document.querySelectorAll('#c3Lede, #c3Intro .c3-it, #c3Contrib, #c3Summary, #c3Cred .cr')];
+    const lim = innerHeight * M_RV_LINE, go = MOB.on && S > 0.5;
+    mRvOn = MOB.on;
+    for (const e of mRvEls){
+      const on = go && (e._mRv || e.getBoundingClientRect().top < lim);
+      if (e._mRv !== on){ e._mRv = on; e.classList.toggle('m-rv', on); }
+    }
+  }
+  /* 512d: A MODE FLIP KEEPS THE READER'S PLACE (SPEC-512 sec. A: a switch re-runs the solves, no reload). A phone
+     turned to landscape, or a window pulled across 600px, re-lays the page for the other mode, and the browser
+     clamps the scroll while the document is briefly the wrong length -- BEFORE the resize is dispatched (a phone
+     turned back went to its start slide). So the place is taken from the last scroll the page made before the flip
+     (a frame's scroll events land after its resize) against the blocks' tops at the last layout: which block (the
+     intro, a section) the header's foot was in, and how far through it -- the bottom stays the bottom, the top the
+     top. Every layout() for MF_KEEP ms after the flip (its resizes settle over a few frames) puts that place back
+     under the header, the track with it; a touch, a wheel or a key hands the page back at once. The flip also
+     clears the other mode's state as a fresh load has it: the desktop seat's settle correction (seatAdj4, measured
+     against the desktop menu) and the desktop intro's one-shot entrance triggers (a phone pass fires them). */
+  const MF_KEEP = 1500;
+  let mfY = 0, mfTab = null, mfKeep = null, mfArm = false;
+  function mfTable(){
+    const y0 = window.scrollY, keys = ['top'], tops = [0];
+    const add = (k, el) => { if (el && el.getClientRects().length){ keys.push(k); tops.push(el.getBoundingClientRect().top + y0); } };
+    add('intro', $('#c3Intro'));
+    secs.forEach((sec, i) => add('s' + i, sec.el));
+    keys.push('end'); tops.push(document.documentElement.scrollHeight);
+    return { keys, tops, hh: hdrH, max: maxScroll() };
+  }
+  function mfPlace(t, y){
+    if (!t || y <= 0.5) return { top:true };
+    if (y >= t.max - 1) return { end:true };
+    const line = y + t.hh;
+    for (let i = t.tops.length - 2; i >= 0; i--) if (line >= t.tops[i]) return { k:t.keys[i], k2:t.keys[i + 1], f:(line - t.tops[i]) / Math.max(1, t.tops[i + 1] - t.tops[i]) };
+    return { top:true };
+  }
+  function mfTo(p, t){
+    if (p.top) return 0;
+    if (p.end) return t.max;
+    const a = t.keys.indexOf(p.k), b = t.keys.indexOf(p.k2);
+    if (a < 0 || b < 0) return Math.min(t.max, window.scrollY);
+    return Math.max(0, Math.min(t.max, t.tops[a] + p.f * (t.tops[b] - t.tops[a]) - t.hh));
+  }
+  addEventListener('scroll', () => { if (mfKeep && performance.now() > mfKeep.until) mfKeep = null; if (!mfKeep) mfY = window.scrollY; }, { passive:true });
+  ['touchstart', 'wheel', 'keydown'].forEach(n => addEventListener(n, () => { mfKeep = null; }, { passive:true, capture:true }));
+  MOB.hooks.push(() => {
+    seatAdj4 = 0;
+    if (!active()){ mfKeep = null; mfArm = false; return; }   /* a closed case re-arms on its next open (caseSwap rebuilds the intro) */
+    const now = performance.now(); mfArm = true;
+    mfKeep = { p: mfKeep && now < mfKeep.until ? mfKeep.p : mfPlace(mfTab, mfY), until: now + MF_KEEP };
+  });
+  function mfAfterLayout(){
+    if (mfKeep && performance.now() > mfKeep.until) mfKeep = null;
+    if (mfKeep){
+      const y = mfTo(mfKeep.p, mfTable());
+      sOwnY = y; tr = trS = y > 0.5 ? HOLD() + wheelOf(y) : 0; sV = 0;
+      if (Math.abs(window.scrollY - y) > 0.5 || (y === 0 && window.scrollY !== 0)) window.scrollTo(0, y);
+      mfY = window.scrollY;   /* the place in THIS layout: a flip back from here starts from it */
+      videoScroll(); detailsScroll(window.scrollY);
+    }
+    if (mfArm){
+      mfArm = false;
+      const el = $('#c3Intro');
+      if (el._io){ el.classList.remove('in'); el._vis = false; el._io.unobserve(el); el._io.observe(el); }
+      if (el._ioRows){ el._ioRows.disconnect(); $('#c3Cred').querySelectorAll('.cr').forEach(r => { r.classList.remove('in'); el._ioRows.observe(r); }); }
+    }
+    mfTab = mfTable();
+  }
+  /* 512d: THE PHONE'S TRIMS, LIVE. inkTokens models each register's cap-top and last-baseline offsets from canvas
+     metrics, which miss Chrome's own line-box rounding by up to a pixel -- on a phone, where every gap is P1 or
+     P2, that pixel shows. Each register is read here off a live element: the first line's baseline (a zero-size
+     inline-block at its start) less M_CAPK em (DM Sans' cap height) from the box top, and the box's foot less the
+     last baseline. M512:CASE reads them; off a phone they are removed (and nothing reads them there). */
+  const M_CAPK = 0.7;
+  function mTrims(){
+    const st = root.style, names = ['--m-t3', '--m-b3', '--m-t1', '--m-b1', '--m-tn', '--m-bn'];
+    names.forEach(n => st.removeProperty(n));
+    if (!MOB.on) return;
+    const pick = sel => [...document.querySelectorAll(sel)].find(e => e.getClientRects().length && e.textContent.trim());
+    const probe = (el, first) => { const q = document.createElement('i'); q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;';
+      if (first) el.insertBefore(q, el.firstChild); else el.appendChild(q); const y = q.getBoundingClientRect().bottom; q.remove(); return y; };
+    const read = (el, t, b) => { if (!el) return; const r = el.getBoundingClientRect(), px = parseFloat(getComputedStyle(el).fontSize); if (!(r.height > 0) || !(px > 0)) return;
+      const t0 = probe(el, true) - M_CAPK * px - r.top, b0 = r.bottom - probe(el, false);
+      if (isFinite(t0) && isFinite(b0)){ st.setProperty(t, t0.toFixed(2) + 'px'); st.setProperty(b, b0.toFixed(2) + 'px'); } };
+    read(pick('#c3Intro .c3-it'), '--m-t3', '--m-b3');
+    read(pick('#c3Contrib, #c3Summary'), '--m-t1', '--m-b1');
+    read(pick('#c3Details .cell.text .tx p, #c3Lede'), '--m-tn', '--m-bn');
+  }
   function layoutDetails(){
     gridTokens();
+    rowInk();
     /* the ranges are solved by layout() AFTER videoLayout(): the stage's height (the head's rest box) sits above the
        details, and 27 read the sections' tops before it was set -- every range was a stage too early, and at a wide
        window the brief was in before the page had moved */
@@ -14498,8 +14720,40 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (sec.s0 > sec.s1 - 1) sec.s0 = sec.s1 - 1;
       cap = sec.s0;
     }
+    if (MOB.on) mItemsAt(y0);   /* 512d: a phone's words come in by their own place (mDetailsScroll) */
+  }
+  /* 512d: THE WAY IN ON A PHONE. The desktop spreads a section's words over its range by COUNT (a picture weighs
+     --c3-media-w words); a stacked phone section is tall and its pictures are the tallest thing in it, so a
+     picture came in only half way up the screen. Here every word and picture has its own place (read at layout,
+     with its left edge's share of the measure) and comes in as it rises past --c3-in-line, over M_IN_RAMP of the
+     window, a line's words left to right; a picture is triggered at its start, as on the desktop. The row, its
+     entrance and its hairline keep the section's own progress. */
+  const M_IN_RAMP = 0.12;
+  let mLine = 0, mRamp = 1, mBlur = 4;
+  function mItemsAt(y0){
+    const c = Math.max(1, root.clientWidth - 2 * PAD);
+    secs.forEach(sec => sec.items.forEach(it => { const r = it.el.getBoundingClientRect(); it.y = r.top + y0; it.xf = clamp01((r.left - PAD) / c); it.p = -1; }));
+    mLine = innerHeight * (dial('--c3-in-line') || .85); mRamp = Math.max(1, innerHeight * M_IN_RAMP); mBlur = dial('--c3-in-blur') || 4;
+  }
+  function mDetailsScroll(y){
+    for (const sec of secs){
+      const u = clamp01((y - sec.s0) / Math.max(1, sec.s1 - sec.s0));
+      if (u !== sec.u){ sec.u = u; sec.row.classList.toggle('in', u > 0); sec.line.style.setProperty('--c3-line-u', u.toFixed(4)); }
+      for (const it of sec.items){
+        if (it.y === undefined) continue;
+        const p = clamp01((mLine - (it.y - y)) / mRamp * 1.5 - it.xf * 0.5);
+        if (p === it.p) continue;
+        it.p = p;
+        if (it.pic) it.el.classList.toggle('on', p > 0);
+        else {
+          it.el.style.opacity = p === 1 ? '1' : (p === 0 ? '0' : p.toFixed(3));
+          it.el.style.filter = p >= 1 ? 'none' : 'blur(' + ((1 - p) * mBlur).toFixed(2) + 'px)';
+        }
+      }
+    }
   }
   function detailsScroll(y){
+    if (MOB.on){ mDetailsScroll(y); return; }   /* 512d: a phone's words come in by their own place */
     const blur = dial('--c3-in-blur') || 4;
     for (const sec of secs){
       const u = clamp01((y - sec.s0) / Math.max(1, sec.s1 - sec.s0));
@@ -14534,9 +14788,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     brand();
     if (chosen.case !== 4) stripBuild($('#c3Strip0'), CASE.subtitle, +1);   /* 404: no strip in V4 (the zero-period guard stays as the belt) */
     layoutDetails();
+    mTrims();   /* 512d: a phone's registers, read live */
     videoLayout();
     detailsRanges();                 // last: every height above the details is now what it is
     detailsScroll(window.scrollY);
+    mfAfterLayout();   /* 512d: after a mode flip, the reader's place back under the header; always, the blocks' tops for the next flip */
   }
   /* THE FILM UNDER THE POINTER: in its box, over the picture, the control
      shows and the pointer says the picture is clickable; a click on the
@@ -14566,6 +14822,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     detailsBuild();
     ctlBuild();
     layout();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (active() && MOB.on) layout(); });   /* 512d: a phone's live trims and word places are the web font's */
     if (ctl) ctl.addEventListener('pointerleave', e => { ctlShow(overFilm(e)); });
     if (!stripRaf) stripRaf = requestAnimationFrame(stripTick);
 
