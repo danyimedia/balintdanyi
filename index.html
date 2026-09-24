@@ -91,8 +91,30 @@
     /* 400: the dot and the cross are gone. Every `cursor:var(--x-cur),
        default` rule now falls to `default` -- and under cur-corner (the one
        cursor, always on) `cursor:none !important` overrides them all. */
-    --big:clamp(26px, 4.6vw, 74px);   /* display size, shared by blog + contact */
-    --ui-size:11px;      /* one size for menu, labels and showreel */
+    /* 511b: ONE LINKED TYPE SYSTEM (SPEC-511 sec. 1). The header menu leads: its law IS
+       --t-body, unchanged, and every other size derives from it. Each is defined here once;
+       everything else reads it. On screen at 1280 / 1920 / 2560 wide:
+         BODY(CAPS)   --t-body     10     / 11.904 / 13
+         BODY(NOCAPS) --t-nocaps   10.909 / 12.986 / 14.18   (x --body-k)
+         SUBTITLE     --t-sub      20     / 23.808 / 26      (2 x BODY)
+         TITLE        --t-title    70.53  / 83.96  / 91.69   (SUBTITLE / .28356)
+         LARGE        2.27 x TITLE 160.1  / 190.6  / 208.1   (written by the header and
+                      contact engines: bounded by the fit to the margins, never below TITLE)
+       .28356 is the ink fit of three SUBTITLE lines in one TITLE row, as the About INTRO's
+       bottom row is built: .70 T = .70 S + 2 x .8843 S (DM Sans cap .70, SUBTITLE pitch .8843).
+       THE TITLE WIDTH BOUND is .0584 x (window - 2 x --pad): the share of the content width
+       TITLE holds at 1280 (70.53 / 1208 = .05839, rounded up). It never binds from 1280 wide
+       up -- it first binds below 1279.7px -- and under that TITLE keeps the proportions it has
+       at 1280: 55.6px at 1024, 40.6 at 768, 18.6 at 390. */
+    --t-body:clamp(10px, .62vw, 13px);
+    --t-nocaps:calc(var(--t-body) * var(--body-k));
+    --t-sub:calc(var(--t-body) * 2);
+    --t-fit:.28356;
+    --t-title:min(calc(var(--t-sub) / var(--t-fit)), calc((100vw - 2 * var(--pad)) * .0584));
+    --t-sub-row:max(var(--t-body), calc(var(--t-title) * var(--t-fit)));   /* a SUBTITLE stacked in a TITLE row; never below BODY */
+    --t-large-k:2.27;
+    --big:var(--t-title);      /* 511b: an alias -- the display size IS the TITLE (it was clamp(26px, 4.6vw, 74px)) */
+    --ui-size:var(--t-body);   /* 511b: an alias -- the UI register IS BODY(CAPS) (it was a fixed 11px) */
     /* 504: RUNNING COPY has its own dial. --ui-size is the UI register (menu,
        labels, showreel, the case intro's caps); the sentence-case body text --
        the case study's sections below BRIEF, and About's APPROACH and
@@ -105,7 +127,7 @@
     --peek:56px;         /* black frame always showing at the foot of the hero */
     --film-pad:28px;     /* black margin around the film */
     --gap-head:14px;     /* between the names' baseline and the meta strip */
-    --ld-count-size:11px;/* loading counter: small and Light, unlike the old */
+    --ld-count-size:var(--t-body);/* loading counter: small and Light, unlike the old (511b: the BODY size) */
   }
 
   *{ box-sizing:border-box; }
@@ -340,7 +362,9 @@
   .ent-row{
     position:relative; overflow:hidden;
     width:100%; display:flex; justify-content:center; align-items:center;
-    padding:calc(.09 * var(--big)) 0;
+    /* 511b: the title's .78 box sets its cap top .031em lower than the old .718 box did;
+       the padding gives that back, so the ink and the rules stay exactly where they were */
+    padding:calc((.09 - .031) * var(--big)) 0;
     border-top:1px solid var(--rule);
     opacity:0; transform:translateY(-9px);
   }
@@ -367,11 +391,12 @@
   }
   .ent{
     position:relative; display:inline-block;
-    /* .718 makes the box hug the cap band exactly (DM Sans: cap 700,
+    /* .718 made the box hug the cap band exactly (DM Sans: cap 700,
        ascender 992, descender -310), so the rules land on the cap line and
-       the rows can stack with nothing wasted between them. */
-    font-size:var(--big); font-weight:1000; line-height:.718;
-    letter-spacing:-.062em; text-transform:uppercase; color:var(--ink);
+       the rows can stack with nothing wasted between them. 511b: the TITLE's
+       own .78 and -.045em; the row's padding keeps the cap line where it was. */
+    font-size:var(--big); font-weight:1000; line-height:.78;
+    letter-spacing:-.045em; text-transform:uppercase; color:var(--ink);
     transition:color .22s ease; cursor:var(--x-cur), default;
   }
   .ent .big{ display:block; }
@@ -380,7 +405,7 @@
      above and below, which is what lets the titles stack tightly. */
   .ent-row .cap{
     position:absolute; z-index:1; white-space:nowrap;
-    font-size:var(--ui-size); line-height:.718;
+    font-size:var(--t-body); line-height:var(--sm-lh);   /* 511b: BODY(CAPS), the menu's leading */
     letter-spacing:var(--track-s); word-spacing:var(--wsp-s); color:var(--ink); font-weight:700;
     /* The labels sit outside .ent, so they never inherited its uppercasing. */
     text-transform:uppercase;
@@ -396,12 +421,12 @@
      children in the markup and not the title's. */
   /* With both boxes hugging their caps, aligning them needs no metric maths --
      the row's own padding edge is the cap line for each. */
-  .ent-row .cap.tl{ left:var(--pad);  top:calc(.09 * var(--big)); }
+  .ent-row .cap.tl{ left:var(--pad);  top:calc(.09 * var(--big) - (var(--sm-lh) - .718) * .5em); }   /* 511b: the cap line held -- the 1.13 box's cap sits (1.13 - .718) / 2 em below its top */
   /* Both captions on the row's top line: same padding edge, and since each
      box hugs its own cap there is no metric maths to do -- they share a cap
      line by construction. (The class still reads 'br' from when it sat at the
      bottom right; it is the right-hand caption.) */
-  .ent-row .cap.br{ right:var(--pad); top:calc(.09 * var(--big)); }
+  .ent-row .cap.br{ right:var(--pad); top:calc(.09 * var(--big) - (var(--sm-lh) - .718) * .5em); }
   .ent{ z-index:1; }
   .ent .big{ cursor:pointer; }        /* the text alone is the link */
 
@@ -671,7 +696,7 @@
   }
   .hdr .menu span.has-pick.pick-on .cs-pick{ display:flex; }
   .hdr .menu span.has-pick .cs-pick button{
-    font:inherit; letter-spacing:inherit; text-transform:inherit;
+    font:inherit; letter-spacing:inherit; word-spacing:inherit; text-transform:inherit;   /* 511b: a button resets word-spacing; the menu's word gap is inherited too */
     background:transparent; border:0; color:var(--ink);
     padding:.55em .8em; text-align:left; white-space:nowrap; cursor:pointer;
   }
@@ -1005,8 +1030,8 @@
      mastheads and the stripe stand down; every page's top margin is
      calculated from below this header via --hdr-h. Hovering the name row
      expands it into the full BALINT--DANYI masthead figure -- unless the
-     window could not hold the full names anyway (the loader's own NAME_MIN
-     rule), in which case the row stays as it is. The expansion OVERLAYS the
+     window could not hold the full names anyway (511b: their fit falls below
+     TITLE), in which case the row stays as it is. The expansion OVERLAYS the
      page: content keeps the non-hover offset, so nothing jumps. */
   body.site3 #masthead, body.site3 .stripe{ display:none; }
   body.site3 .view > .masthead{ display:none; }
@@ -1283,7 +1308,7 @@
   .a2-foot{
     position:absolute; left:var(--pad); right:var(--pad); bottom:var(--pad); z-index:6;
     display:grid; grid-template-columns:max-content max-content; justify-content:space-between; align-items:end;
-    font-size:clamp(10px, 0.62vw, 13px); font-weight:700; line-height:var(--sm-lh);
+    font-size:var(--t-body); font-weight:700; line-height:var(--sm-lh);
     letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase;
     margin-bottom:calc(-1 * var(--a2-foot-ink));
   }
@@ -1765,14 +1790,18 @@
 
   /* Small and Light where the old one was huge and Black. Two layers share
      one right-aligned slot, so a fade between them happens in place with no
-     reflow. The BASELINE sits on the margin, not the box: at line-height 1 it
-     is .159em above the box bottom (DM Sans asc 992 / desc -310). */
+     reflow. The BASELINE sits on the margin, not the box: 511b, at the menu's
+     1.13 it is .224em above the box bottom (1.13 - (1.13 - 1.302) / 2 - .992;
+     DM Sans asc 992 / desc -310) -- it was .159em at line-height 1. Chrome rounds
+     the ascent and descent to whole pixels and floors the half-leading, which at
+     11.9-13px left the baseline up to 1px high: ldSeatCount() measures where it
+     really sits and --ld-count-dy takes up the difference. */
   .ld-count{
-    position:fixed; right:var(--pad); bottom:calc(var(--pad) - .159em);
+    position:fixed; right:var(--pad); bottom:calc(var(--pad) - .224em + var(--ld-count-dy, 0px));
     z-index:9993; height:1em;
     font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-    color:var(--ink); font-size:var(--ld-count-size); line-height:1;
-    letter-spacing:var(--track); text-transform:uppercase;
+    color:var(--ink); font-size:var(--t-body); line-height:var(--sm-lh);   /* 511b: BODY(CAPS) */
+    letter-spacing:var(--track-s); text-transform:uppercase;
     font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1;
     opacity:0; filter:blur(8px);   /* 449a: the count enters on the site standard too */
     transition:opacity .55s ease, filter .55s ease;
@@ -1897,7 +1926,7 @@
        rather than the formula. The row gap goes with it: header 4 has none,
        the step IS the line box. */
     row-gap:0; column-gap:0;
-    font-size:clamp(10px, 0.62vw, 13px); font-weight:700; line-height:var(--sm-lh);
+    font-size:var(--t-body); font-weight:700; line-height:var(--sm-lh);
   }
   /* The base .menu span is a flex cell with its own padding, so it would set
      the row height instead of the line box. Blocks, no padding: the type is
@@ -2034,7 +2063,7 @@
     bottom:calc(var(--pad) - var(--vs-social-ink)); z-index:1130; pointer-events:auto;
     will-change:transform;
     grid-template-columns:max-content max-content; justify-content:space-between; align-items:end;
-    font-size:clamp(10px, 0.62vw, 13px); font-weight:700; line-height:var(--sm-lh);
+    font-size:var(--t-body); font-weight:700; line-height:var(--sm-lh);
     letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase; color:var(--ink);
   }
   /* the header V3 menu's own treatment, at the corners, riding with the
@@ -2267,7 +2296,7 @@
     --rail4:23.6%; --hero4:52.8%;   /* the hero's fixed share of the frame */
     /* On the BODY, not on .h4 -- the contact page needs --cap too, to clear
        the header, and a token declared on the header is invisible to it. */
-    --sm:clamp(10px, 0.62vw, 13px);        /* the small text, held steady */
+    --sm:var(--t-body);        /* the small text, held steady (511b: the BODY token) */
     --wm:max(clamp(48px, 9.6vw, 168px), calc(var(--sm) * 11.4));
     --cap:calc(var(--wm) * 0.716);         /* DM Sans cap height per em */
     --pad4:clamp(14px, 1.1vw, 26px); /* breathing room off the card's edge */
@@ -2456,7 +2485,7 @@
     /* Measured: 290 of a 559 rail = 52%. Wider than that and it runs
        under the role sitting on the frame margin. */
     width:calc(var(--rail4) * 0.52);
-    font-size:11px; font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase;
+    font-size:var(--t-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase;   /* 511b: BODY(CAPS) */
     line-height:var(--sm-lh); text-align:left;
     /* transition is a SHORTHAND -- naming only opacity here dropped the
        filter transition set earlier, so the paragraph cut instead of
@@ -2484,7 +2513,7 @@
      (was .14), the blur unchanged. */
   body .h4-cursor{
     display:inline-flex; align-items:center; position:fixed; left:0; top:0;
-    width:max-content; height:36.2px; padding:0 22.2px 0 27.4px; margin:0; border-radius:0;   /* 441: the rectangular blur pill x2 each side (his ask twice over -- this element, not the circle, was the target); text and triangle untouched */
+    width:max-content; height:calc(3.62 * var(--t-body)); padding:0 calc(2.22 * var(--t-body)) 0 calc(2.74 * var(--t-body)); margin:0; border-radius:0;   /* 441: the rectangular blur pill x2 each side (his ask twice over -- this element, not the circle, was the target); text and triangle untouched. 511b: sized off the label as it always was -- 36.2 / 22.2 / 27.4px at the 10px label -- so the chip follows BODY */
     z-index:1400; pointer-events:none;
     backdrop-filter:blur(7px) saturate(.9); -webkit-backdrop-filter:blur(7px) saturate(.9);
     background:rgba(20,20,20,.16);
@@ -2493,7 +2522,7 @@
   }
   body.h4-hover .h4-cursor, body.c3-hover .h4-cursor{ opacity:1; transform:scale(1); }
   .h4-cursor span{
-    font-size:10px; font-weight:700; letter-spacing:.078em; word-spacing:.052em; text-transform:uppercase;
+    font-size:var(--t-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh); text-transform:uppercase;   /* 511b: BODY(CAPS), the menu's register */
     color:#F5F5F5; text-align:center;
   }
   body.h4-hover .vs-card, body.h4-hover .hs-card{ cursor:none; }
@@ -2629,7 +2658,26 @@
   .contact .variant.on{
     display:flex; flex-direction:column; position:absolute; inset:0;
     overflow-y:auto; overscroll-behavior:contain;
+    scrollbar-width:none;   /* 511b: hidden, as html and About are -- a bar took 15px and pulled the column off the margins */
   }
+  .contact .variant.on::-webkit-scrollbar{ display:none; }
+  /* 511b: THE COLUMN'S AIR, NAMED ONCE, AND THE MESSAGE STATE FITS THE FRAME.
+     --c2-top is the head's top margin (each header sets its own, below); --c2-air is the
+     form's air above its first rule and the foot under SEND. --c2-room is what the frame
+     leaves the open message field, top to bottom: the head's top margin; GET IN TOUCH at
+     TITLE (.78, where c2Apply puts it while a message is written); the LET'S MAKE line (its
+     18px margin and one BODY line); the air; three field rows and SEND (.898 TITLE and a
+     1px rule each); the message row's own padding and rule; the foot. At the TITLE size the
+     four rows the field opened to (183px at 1280) no longer fit a 720px frame, so it opens
+     to four rows where the frame has them and to the room where it does not (126.6px at
+     1280x720), never under two rows; past that the slide scrolls, as it always has. */
+  .contact{
+    --c2-top:9vh;
+    --c2-air:6vh;
+    --c2-room:calc(100vh - var(--c2-top) - .78 * var(--big) - 18px - var(--sm-lh) * var(--t-body)
+      - 2 * var(--c2-air) - 4 * (.898 * var(--big) + 1px) - 2 * (.09 - .031) * var(--big) - 1px);
+  }
+  @property --c2-open{ syntax:"<length>"; inherits:false; initial-value:0px; }   /* 511b: registered, so grow() reads it resolved */
 
   /* ---- contact V2 ----
      CONTACT is sized so its INK spans margin to margin: at weight 1000 with
@@ -2637,11 +2685,11 @@
      T's right, so the size is simply the usable width over that. The -.045em
      nudge takes off the C's side bearing so the ink starts on the margin
      rather than the box doing so. */
-  .c2-head{ margin:9vh var(--pad) 0; flex:0 0 auto; }
+  .c2-head{ margin:var(--c2-top) var(--pad) 0; flex:0 0 auto; }   /* 511b: --c2-top, 9vh unless a header sets it */
   /* Site 3: the 9vh was sized to duck the old masthead; the unified header
      is taller, so GET IN TOUCH slid beneath it. Same law as every page in
      the fork: the top margin is calculated from below the header. */
-  body.site3 .c2-head{ margin-top:calc(var(--hdr-h, 140px) + 24px); }
+  body.site3 .contact{ --c2-top:calc(var(--hdr-h, 140px) + 24px); }
   /* V4 also carries .site3 (it is V3's machinery on a new grid), and that
      rule sits after mine and clears the OLD header's height. V4's header is
      a different size entirely, so it has to clear --cap instead. Placed
@@ -2649,16 +2697,17 @@
   body.s4 .c2-head{
     /* Tucked up under the header: its own band plus one margin, no extra
        viewport fraction. */
-    margin-top:calc(var(--m4) * 2 + var(--cap));
+    margin-top:var(--c2-top);   /* 511b: set on body.s4 .contact below, so the room law reads it too */
     /* The contact page sat on --pad, the old 36px site gutter. Under V4 it
        belongs on the frame margin like everything else. */
     margin-left:var(--m4); margin-right:var(--m4);
   }
+  body.s4 .contact{ --c2-top:calc(var(--m4) * 2 + var(--cap)); }
   body.s4 .c2-form{ margin-left:var(--m4); margin-right:var(--m4); }
   /* Set exactly as BALINT / DANYI are -- same weight, line-height and
      tracking -- and spread by the gaps between the words, the way the small
-     line beneath it is. Size is synced from the masthead in script, since that
-     one grows into the frame rather than sitting at a fixed value.
+     line beneath it is. Size is written in script (511b: LARGE -- c2Large, the
+     header's hover law; the retired masthead solve no longer sizes it).
      The end trims are each word's own bearing: G .045em, H .065em. */
   .c2-title{
     display:flex; justify-content:space-between; align-items:baseline;
@@ -2682,24 +2731,24 @@
   .c2-line span{ display:inline-block; will-change:transform; }   /* 395: MAKE/GREAT/WORK ride the cursor */
   .c2-line{
     display:flex; justify-content:space-between; margin-top:18px;
-    font-size:var(--ui-size); font-weight:700;
+    font-size:var(--t-body); font-weight:700; line-height:var(--sm-lh);   /* 511b: BODY(CAPS), the menu's leading */
     letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase;
   }
 
-  .c2-form{ margin:auto var(--pad) 6vh; flex:0 0 auto; padding-top:6vh; }
+  .c2-form{ margin:auto var(--pad) var(--c2-air); flex:0 0 auto; padding-top:var(--c2-air); }   /* 511b: --c2-air, 6vh */
   /* Same display size, line-height and row padding as the blog list, so the
      two sections share one rhythm rather than each inventing its own. */
   .c2-row{
     position:relative; overflow:hidden; cursor:text;
     display:flex; align-items:center; justify-content:space-between; gap:24px;
-    padding:calc(.09 * var(--big)) 0;
-    /* The title's box is the tallest thing in the row (.718em against the
+    padding:calc((.09 - .031) * var(--big)) 0;   /* 511b: .031em given back to the .78 box -- the blog list's rows, exactly */
+    /* The title's box is the tallest thing in the row (.78em against the
        field's .65em), so the moment focus takes it out of the flow the row
        lost the difference and the line shrank. The floor is the row's natural
        height, so nothing moves whichever child is in flow. */
     min-height:.898em;
-    font-size:var(--big); font-weight:1000; line-height:.718;
-    letter-spacing:-.062em; text-transform:uppercase;
+    font-size:var(--big); font-weight:1000; line-height:.78;
+    letter-spacing:-.045em; text-transform:uppercase;
   }
   .c2-row::before{
     content:""; position:absolute; inset:0; z-index:1; background:var(--ink);
@@ -2746,7 +2795,9 @@
   /* Typed text is half the display size and keeps its own case, so it needs
      room for accents and descenders rather than just a cap band. DM Sans runs
      +.967 to -.260 em, a 1.227em ink span -- at half size that is .614 x big,
-     inside the row's .718 x big box, so the rows still match the blog list. */
+     inside the row's .78 x big box, so the rows still match the blog list.
+     511b: left as it is -- at the TITLE size an accented capital (.906em) or a
+     descender (.22em) overruns the .898em row, which clips; see the 511b report. */
   .c2-row input, .c2-row textarea{
     flex:1; min-width:0; border:0; background:transparent; color:var(--ink);
     font-family:inherit; font-weight:1000;
@@ -2777,7 +2828,9 @@
      than measured, so it cannot depend on a measurement landing at the right
      instant. Both ends are em lengths on one font size, so the change carries
      on the transition above. Script only RAISES it past four rows, once the
-     text genuinely needs more. */
+     text genuinely needs more.
+     511b: four rows WHERE THE FRAME HAS THEM -- else the room it leaves (--c2-room),
+     never under two rows. Still stated, not measured: every term is a token. */
   .c2-row.open textarea{
     /* flex:0 0 auto is the whole fix. The fields carry flex:1 -- flex-BASIS
        0 -- and opening turns this row into a column, which makes the main
@@ -2788,7 +2841,8 @@
        way out: dropping .open made the axis horizontal again, so the pending
        height finally applied -- then animated away.) */
     flex:0 0 auto;
-    width:100%; text-align:left; overflow:hidden; height:5.2em;
+    width:100%; text-align:left; overflow:hidden;
+    --c2-open:clamp(2.6em, var(--c2-room), 5.2em); height:var(--c2-open);
   }
 
   /* Set like a field name, on the page's own off-white. The fill runs the
@@ -2816,10 +2870,10 @@
     position:relative; overflow:hidden; display:block;
     width:100%; text-align:left;
     margin:0; padding:0; border:0; cursor:pointer;
-    padding:calc(.09 * var(--big)) 0;
+    padding:calc((.09 - .031) * var(--big)) 0;   /* 511b: as the rows */
     background:var(--paper); color:var(--ink);
     font-family:inherit; font-size:var(--big); font-weight:1000;
-    line-height:.718; letter-spacing:-.062em; text-transform:uppercase;
+    line-height:.78; letter-spacing:-.045em; text-transform:uppercase;   /* 511b: the TITLE's */
     transition:color .22s ease;
   }
   .c2-send::before{
@@ -3201,10 +3255,12 @@
      brief, the hint, the control's words, the details' columns, captions
      and numbers -- is THE INTRO'S REGISTER, the rule below verbatim as it
      stood in 354 (29: 28 unified the page to the mock's 14px instead; the
-     intro was the reference). DISPLAY is --c3-sub. Nothing between. */
+     intro was the reference). DISPLAY is --c3-sub. Nothing between.
+     511b: that register IS BODY(CAPS) now -- the menu's size, tracking, word gap
+     and leading (it was 11px, .096em, no word gap, 1.34). inkTokens reads it. */
   #viewCase3 .t{
-    font-size:var(--ui-size); font-weight:700; letter-spacing:var(--track);
-    text-transform:uppercase; line-height:1.34; margin:0;
+    font-size:var(--t-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s);
+    text-transform:uppercase; line-height:var(--sm-lh); margin:0;
   }
   #viewCase3 .t p{ margin:0; }
   /* Ink: the block's first cap-top sits on its box top, its last baseline
@@ -3292,7 +3348,7 @@
   /* SCROLL FOR CASE: at rest, mid-window, its baseline on the title's (the
      bottom margin), in the credits' register; gone over the first
      --c3-hint-fade of the track */
-  #viewCase3 .c3-hint{ position:absolute; left:50%; top:calc(var(--c3-head-pad) + var(--c3-brand-cap) - var(--c3-cap) - var(--ink-t)); transform:translateX(-50%); margin:0; white-space:nowrap; opacity:var(--c3-hint-op, 1);
+  #viewCase3 .c3-hint{ position:absolute; left:var(--c3-hint-x, 50%); top:calc(var(--c3-head-pad) + var(--c3-brand-cap) - var(--c3-cap) - var(--ink-t)); transform:translateX(-50%); margin:0; white-space:nowrap; opacity:var(--c3-hint-op, 1);
     letter-spacing:var(--track-s); word-spacing:var(--wsp-s); }   /* 395: the menu's register, not the body's */
   #viewCase3 .c3-glass{
     position:fixed; left:0; right:0; top:0; height:0; z-index:6; pointer-events:none;
@@ -3362,7 +3418,7 @@
   /* 427 (4): from 01 BRIEF onward the body copy drops the caps -- the
      sections' own text only; the intro, the hint and every subtitle keep
      theirs. */
-  #viewCase3 .c3-sec .t{ text-transform:none; letter-spacing:normal; word-spacing:normal; line-height:var(--sm-lh); font-size:calc(var(--ui-size) * var(--body-k)); }   /* 504: the running copy below BRIEF at the body register (11 -> 12px); the intro above it keeps the UI size, and --sm-lh is unitless so the leading follows */   /* 429: the body text wears About's small register (measured: normal tracking, 1.13 leading) -- the caps tracking and 1.34 leading were built for uppercase */
+  #viewCase3 .c3-sec .t{ text-transform:none; letter-spacing:normal; word-spacing:normal; line-height:var(--sm-lh); font-size:var(--t-nocaps); }   /* 511b: BODY(NOCAPS), the token. 504: the running copy below BRIEF at the body register (11 -> 12px); the intro above it keeps the UI size, and --sm-lh is unitless so the leading follows */   /* 429: the body text wears About's small register (measured: normal tracking, 1.13 leading) -- the caps tracking and 1.34 leading were built for uppercase */
   /* Credits: position left, name right, a hairline between them at cap-mid. */
   #viewCase3 .c3-cred .cr{ display:flex; align-items:baseline; }
   #viewCase3 .c3-cred .cr i{
@@ -3386,7 +3442,7 @@
      WHY IT MATTERS follow -- and a block's separation above them. It comes
      in with the intro, through the blur, first. */
   #viewCase3 .c3-lede{
-    text-transform:none; letter-spacing:normal; word-spacing:normal; line-height:var(--sm-lh); font-size:calc(var(--ui-size) * var(--body-k));
+    text-transform:none; letter-spacing:normal; word-spacing:normal; line-height:var(--sm-lh); font-size:var(--t-nocaps);   /* 511b: BODY(NOCAPS) */
     width:calc((100% - 2 * var(--c3-mid)) / 2); margin:0 0 var(--c3-gap);   /* ONE gap: .c3-cols' own margin-top is the other -- together the block separation (2x), as under the contribution */
     opacity:0; filter:blur(var(--c3-in-blur)); transition:opacity 900ms ease, filter 900ms ease;
   }
@@ -3454,7 +3510,7 @@
   #viewCase3 .c3-ctl .pp .play{ display:block; }
   #viewCase3 .c3-ctl.playing .pp .play{ display:none; }
   #viewCase3 .c3-ctl.playing .pp .pause{ display:block; }
-  #viewCase3 .c3-ctl .tl{ flex:1 1 auto; position:relative; height:calc(var(--ui-size) * 1.34); cursor:pointer; }
+  #viewCase3 .c3-ctl .tl{ flex:1 1 auto; position:relative; height:calc(var(--t-body) * var(--sm-lh)); cursor:pointer; }   /* 511b: one line of the words beside it (BODY at the menu's leading) */
   #viewCase3 .c3-ctl .tl::before{ content:''; position:absolute; left:0; right:0; top:calc(var(--ink-t) + var(--c3-cap) / 2 - var(--c3-ctl-bar) / 2); height:var(--c3-ctl-bar); background:currentColor; opacity:.35; }
   #viewCase3 .c3-ctl .tl i{ position:absolute; left:0; top:calc(var(--ink-t) + var(--c3-cap) / 2 - var(--c3-ctl-bar) / 2); height:var(--c3-ctl-bar); width:0; background:currentColor; }
   #viewCase3 .c3-ctl .mu{ flex:0 0 auto; color:inherit; cursor:pointer; white-space:nowrap; }
@@ -3704,7 +3760,7 @@
   }
   #viewCase3 .cell{ position:relative; min-width:0; }
   /* text: a column of one or two sentences, left-aligned, its cap top on the row's top */
-  #viewCase3 .cell.text .tx p + p{ margin-top:calc(1.34 * var(--ui-size)); }
+  #viewCase3 .cell.text .tx p + p{ margin-top:calc(var(--sm-lh) * var(--t-nocaps)); }   /* 511b: one line pitch of the running copy it separates (it was the retired 11 x 1.34) */
   /* one line pitch of the register */
   /* media: the square, cropped to cover, on its own layer (.pic: the picture and the ground under it until the asset comes -- the two fade in as one, --c3-media-w words of the sequence); its caption is the CELL's child, above the picture by ink, its own words */
   #viewCase3 .cell.media{ background:transparent; overflow:visible; width:var(--c3-media); height:var(--c3-media); }
@@ -4616,6 +4672,30 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const small = msgOpen || document.body.classList.contains('s4');
     c2Title.style.fontSize = (small ? bd : c2F) + 'px';
   };
+  /* 511b: GET IN TOUCH IS LARGE -- the header's hover law, not the retired masthead solve:
+     --t-large-k x TITLE, bounded by the fit to the margins, and never below TITLE. The fit is
+     the words' own ink plus one word space per gap -- as far as the edge-to-edge spread can
+     close -- measured at the size the title stands at (every measure is linear in it). */
+  function c2Large(){
+    const T = (typeof hdrS0 === 'number' && hdrS0 > 0) ? hdrS0 : 74, L = largeK() * T;
+    let fit = Infinity;
+    try {
+      const ws = [...c2Title.children], cs = getComputedStyle(c2Title), F = parseFloat(cs.fontSize);
+      const ls = parseFloat(cs.letterSpacing) || 0, wsp = parseFloat(cs.wordSpacing) || 0;
+      const cx = c2Large.cx || (c2Large.cx = document.createElement('canvas').getContext('2d'));
+      cx.font = cs.fontWeight + ' ' + F + 'px ' + cs.fontFamily;
+      let ink = 0;
+      ws.forEach(w => {
+        const t = (w.textContent || '').trim().toUpperCase(); if (!t) return;
+        const a = cx.measureText(t[0]), z = cx.measureText(t[t.length - 1]);
+        /* the box less the tracking after the last glyph and both outer bearings */
+        ink += w.getBoundingClientRect().width - ls + a.actualBoundingBoxLeft - (z.width - z.actualBoundingBoxRight);
+      });
+      const em = (ink + (cx.measureText(' ').width + ls + wsp) * Math.max(0, ws.length - 1)) / F;
+      if (F > 0 && em > 0 && isFinite(em)) fit = (innerWidth - 2 * PAD) / em;
+    } catch (e) {}
+    return Math.max(T, Math.min(L, fit));
+  }
   const stripeSpace = document.getElementById('stripeSpace');
   const STRIPE_TOP = 18;              // px it stops short of the very edge
   let stripeY = 0, stripeH = 0;
@@ -4626,6 +4706,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      a pre-CSS or no-custom-property engine only. It is refreshed first on
      every resize: this listener is registered before every solve's. */
   function padPx(){ const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--pad')); return v > 0 ? v : 36; }
+  /* 511b: LARGE's multiple of TITLE (--t-large-k), read rather than restated. A number token
+     reads back as its own text, so parseFloat takes it; the fallback is for an engine with
+     no custom properties. */
+  function largeK(){ const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--t-large-k')); return v > 0 ? v : 2.27; }
   let PAD = padPx();
   addEventListener('resize', () => { PAD = padPx(); });
 
@@ -4814,16 +4898,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     // push the pair past the two-D gap the cap was calculated to protect.
     const setName = () => {
       F = Math.floor(F * 10) / 10;
-      names.style.fontSize = F + 'px';
-      c2F = F; c2Apply();                              // contact reads at the same size
+      names.style.fontSize = F + 'px';   /* 511b: the hidden masthead only -- GET IN TOUCH no longer reads it */
     };
     setName();
+    c2F = c2Large(); c2Apply();   /* 511b: GET IN TOUCH is LARGE, the header's hover law (hdrSolve runs first: T is fresh) */
     /* NOT headFoot(). These two reads size the MASTHEAD against its own
        clearance, and the masthead only exists under headers 1, 5 and 6 --
        where headFoot() returns masthead.offsetHeight anyway, so the number
        is identical. Under headers 2/3/4 it is hidden and the solve is inert
-       except that F feeds c2F; switching it would move the contact title
-       under headers 2 and 3, which is not what was asked. */
+       (511b: F fed c2F until GET IN TOUCH took the LARGE law, c2Large). */
     if (capW > base){
       const slack = (footTarget - S.foot1 * fit)
                   - (masthead.offsetHeight + HEAD_GAP - S.top1 * fit);
@@ -4977,10 +5060,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const content = t.scrollHeight;
       t.style.height = keep;                     // restore...
       void t.offsetHeight;                       // ...and commit, so it moves
-      /* One clear row past the last line -- but never below the four the CSS
-         already gives, which is why anything shorter simply hands the height
-         back to the stylesheet. */
-      if (content + one > 4 * one) t.style.height = (content + one).toFixed(1) + 'px';
+      /* One clear row past the last line -- but never below the open height the
+         CSS already gives, which is why anything shorter simply hands the height
+         back to the stylesheet. 511b: that height is four rows or the frame's
+         room (--c2-open, registered, so it reads resolved and never mid-transition);
+         four rows only where the property is not resolved. */
+      const open = parseFloat(getComputedStyle(t).getPropertyValue('--c2-open')) || 4 * one;
+      if (content + one > open) t.style.height = (content + one).toFixed(1) + 'px';
       else t.style.height = '';
     };
     t.addEventListener('focus', () => {
@@ -4995,7 +5081,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        animates on the same transition as the opening. */
     t.addEventListener('blur', () => {
       if (t.value) return;              // anything typed keeps it open
-      /* Both ends are stylesheet values -- 5.2em to 1.3em -- so dropping the
+      /* Both ends are stylesheet values -- --c2-open to 1.3em -- so dropping the
          class and the inline height together animates instead of flashing
          through a stale inline size on the way out. */
       t.style.height = '';
@@ -6652,7 +6738,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        the name at the largest size this site ever sets it, and the flight is
        then purely a shrink onto whatever the hero solved for this window.
        It also decides where the rule stops being pinned to RULE_MIN and
-       starts to breathe -- at this value, from about 1276px of frame up. */
+       starts to breathe -- at this value, from about 1276px of frame up.
+       511b: no longer a type size anywhere live. The loading name wears the
+       header's TITLE (.ld-name, !important), so this only seats the loader's
+       box (ldSolve's top) and picks the words over B / D; LARGE is --t-large-k
+       x TITLE (hdrSolve, c2Large) and is no longer capped here. */
     NAME_MAX : NAME_TOP,
     NAME_MIN : 80,     // px below which the words drop to B and D
     TOP_MIN  : 40,     // px the name keeps clear of the top edge
@@ -6903,7 +6993,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        content itself, whatever the box around it is doing. */
     const ent = document.querySelector('.ent');
     const big = ent ? parseFloat(getComputedStyle(ent).fontSize)
-                    : Math.min(74, Math.max(26, innerWidth * 0.046));
+                    : (parseFloat(getComputedStyle(ldName).fontSize) || 74);   /* 511b: the TITLE, read -- not the retired --big law restated */
     const keep = ldCopy.style.fontSize;
     ldCopy.style.fontSize = '200px';
     const rg = document.createRange();
@@ -6947,6 +7037,22 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
                        (innerHeight - LD.FOOT - mid) / (ldLines.length * 0.898));
     ldCopy.style.fontSize = Math.max(11, C).toFixed(1) + 'px';
     ldCopy.style.top = mid.toFixed(1) + 'px';
+    ldSeatCount();   /* 511b: the counter's baseline onto the margin, measured */
+  }
+  /* 511b: THE COUNTER'S BASELINE ON THE MARGIN, BY MEASURE. A zero-size inline-block on the
+     front layer's baseline reads where the line really sits (layout units, before the paint
+     snaps it to a pixel); the difference from the margin goes into --ld-count-dy. Both layers
+     share the size and leading, so one seat serves the counter and the call to action. */
+  function ldSeatCount(){
+    const a = document.getElementById('ldA');
+    if (!a || !ldCnt.isConnected) return;
+    const k = document.createElement('i');
+    k.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline;';
+    a.appendChild(k);
+    const y = k.getBoundingClientRect().bottom;
+    k.remove();
+    const d = y - (innerHeight - PAD), dy = parseFloat(ldCnt.style.getPropertyValue('--ld-count-dy')) || 0;
+    if (y > 0 && isFinite(d) && Math.abs(d) < 4) ldCnt.style.setProperty('--ld-count-dy', (dy + d).toFixed(3) + 'px');
   }
 
   /* ---- the counter. Numbers step through a ramp, then fade onto a landing;
@@ -6955,7 +7061,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      Its two layers and its writer live out here rather than inside the loop,
      because a return visit has to be able to put the call to action up
      directly without waiting for the schedule to reach it. */
-  const LD_TRACK = 0.096;
+  /* 511b: the tracking CSS adds after the last glyph, READ off the layer -- BODY's --track-s
+     now; it was the retired .096em, written twice (here and in the rule). */
+  const ldTrack = el => { const cs = getComputedStyle(el), v = parseFloat(cs.letterSpacing) / parseFloat(cs.fontSize); return isFinite(v) ? v : 0; };
   let ldFrontEl = null, ldBackEl = null, ldCounting = false;
   /* The trailing trim is the last glyph's own bearing plus the tracking CSS
      adds after it -- the same correction the menu's last cell carries.
@@ -6965,7 +7073,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     el.textContent = text;
     el.style.fontWeight = weight;
     el.style.marginRight =
-      (-(ldInk(text, weight, { left:0, right:0 }).right + LD_TRACK)).toFixed(4) + 'em';
+      (-(ldInk(text, weight, { left:0, right:0 }).right + ldTrack(el))).toFixed(4) + 'em';
   };
 
   /* Everything the loading screen was still animating, put straight to its
@@ -9649,8 +9757,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      as per-letter glyphs; the initials are pinned, everything after them
      sits at zero width until .full opens it -- staggered by --ki going up,
      --ko coming back, so the collapse is the appearance played backwards.
-     hdrSolve runs the v4 fit probe for the full figure (hdrOK is the
-     loader's own NAME_MIN rule) and measures the resting header into
+     hdrSolve runs the v4 fit probe for the full figure (511b: hdrOK is
+     'the fit reaches TITLE'; LARGE is --t-large-k x TITLE) and measures the resting header into
      --hdr-h, which every page's top margin and the deck's clearance read.
      The expansion trigger is the TOP HALF of the row only -- pointer math,
      not an element, so the words stay clickable home links -- and the
@@ -9701,14 +9809,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     hdrEmB1 = (w1.getBoundingClientRect().width - u1.getBoundingClientRect().width) / 200;
     hdrEmB2 = (w2.getBoundingClientRect().width - u2.getBoundingClientRect().width) / 200;
     hdrName.style.fontSize = '';
-    hdrFullF = Math.min(LD.NAME_MAX,
+    /* 511b: LARGE = --t-large-k x TITLE -- the resting size, read live -- bounded by the fit to
+       the margins (the words less their outer bearings, plus RULE_MIN of rule). No expansion
+       when that fit falls below TITLE. NAME_TOP (168) no longer caps it. */
+    hdrS0 = parseFloat(getComputedStyle(hdrName).fontSize) || 74;
+    hdrFullF = Math.min(largeK() * hdrS0,
       content / (hdrEmW1 + hdrEmW2 - hdrBl - hdrTrDanyi + LD.RULE_MIN));
-    hdrOK = hdrFullF >= LD.NAME_MIN;
+    hdrOK = hdrFullF >= hdrS0;
     /* Rest pose: full layout, hidden tails, footprints pulled back to the
        initials' ink by NEGATIVE margin-right -- in px, so every later
        animation of these rides one curve. The rule's 5% inset laughs at any
        sub-pixel here; nothing clips, so nothing can fragment. */
-    hdrS0 = parseFloat(getComputedStyle(hdrName).fontSize) || 74;
     [u1, u2].forEach(u => u.querySelectorAll('b').forEach(b => { b.style.opacity = 0; }));
     w1.style.marginLeft  = (-hdrBl * hdrS0).toFixed(1) + 'px';
     w1.style.marginRight = (-(hdrEmW1 - (hdrEmB1 + HDR_TRK - hdrRbB)) * hdrS0).toFixed(1) + 'px';
@@ -10645,7 +10756,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         /* the social links: last baseline on the bottom margin, by ink --
            the descent the 1.41 line box carries under the baseline at the
            menu's clamped size */
-        const fs = Math.min(13, Math.max(10, W * 0.0062));
+        const vsS = document.getElementById('vsSocial'), fs = (vsS && parseFloat(getComputedStyle(vsS).fontSize)) || 10;   /* 511b: the links' own size (--t-body), read -- not the menu law restated */
         document.documentElement.style.setProperty('--vs-social-ink', descentPx(600, fs, fs * 1.41).toFixed(2) + 'px');
       }
 
@@ -12107,7 +12218,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const root = document.documentElement;
 
   /* ---- dials -------------------------------------------------------- */
-  const UI = 11, UI_LH = 1.34;        // the body register: the intro's, the page's every line of copy
+  /* 511b: the body register is READ off the intro's own copy -- BODY(CAPS), --t-body at the
+     menu's --sm-lh -- where it was restated here as 11 / 1.34. (SUB is 511c's.) */
+  const uiReg = () => {
+    const e = document.getElementById('c3Cred'), cs = e ? getComputedStyle(e) : null;
+    const px = cs ? parseFloat(cs.fontSize) : NaN, lh = cs ? parseFloat(cs.lineHeight) : NaN;
+    const k = cs && /px$/.test(cs.lineHeight) ? lh / px : lh;
+    return px > 0 ? { px, lh: k > 0 ? k : 1.13 } : { px: 11, lh: 1.13 };
+  };
   const SUB = 33;                     // the display register (--c3-sub): the rows, the subtitle strip
   const STRIP_K = 0.55;               // px of strip per px of scroll
   const STRIP_LAG = 0.045;            // per-frame catch-up; low = the long tail he asked for
@@ -12223,7 +12341,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   };
   function inkTokens(){
     const st = root.style;
-    const a = vtrim(700, UI, UI * UI_LH);
+    const u = uiReg(), a = vtrim(700, u.px, u.px * u.lh);
     st.setProperty('--ink-t', a.t.toFixed(2) + 'px'); st.setProperty('--ink-b', a.b.toFixed(2) + 'px');
     st.setProperty('--c3-cap', a.cap.toFixed(2) + 'px');
     const S = SUB;
@@ -12283,6 +12401,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     el.style.fontSize = F.toFixed(1) + 'px';    // the intro's size; the words are SCALED from it (see .c3-head .c3-brand span)
     const TR = { left:.065, right:.065 };
     const sp = [...el.children].filter(e => !e.classList.contains('c3-sub4'));
+    /* 511b: drawn at F and scaled to the TITLE, so the optical size is pinned to the size the
+       words SHOW at -- auto would pick DM Sans' opsz for F (SPEC-511 sec. 2) */
+    { const oz = Math.min(40, Math.max(9, Math.min(F, (typeof hdrS0 === 'number' && hdrS0) || F))).toFixed(2);
+      sp.forEach(e => { e.style.fontVariationSettings = "'opsz' " + oz; }); }
     sp[0].style.marginLeft = (-ldInk(words[0], 1000, TR).left * F).toFixed(1) + 'px';
     if (sp[1]) sp[1].style.marginRight = (-ldInk(words[1], 1000, TR).right * F).toFixed(1) + 'px';
     const v = vtrim(1000, F, F * .78);
@@ -12300,6 +12422,28 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     hs.setProperty('--c3-brand-r', (sp[1] ? ldInk(words[1], 1000, TR).right * F : 0).toFixed(2) + 'px');
   }
   let brandFull = 0, brandT = 0, brandBuiltC4 = null;   /* 401: which mode the head was last built for */
+  /* 511b: THE START HINT GIVES WAY, NOT THE TITLE (SPEC-511 sec. 3: keep TITLE as large as
+     possible; the lesser element yields first). At rest the hint stands mid-window on the
+     title's baseline. A title whose ink now reaches it at the TITLE size -- a long post title
+     at 1280 -- moves the hint right, one SUBTITLE (2 x its own BODY size) clear of that ink;
+     only while the row has room before the subtitle stack. With none it stays mid-window,
+     as it always has. Measured on the live rects: the title's last glyph less its tracking
+     and right bearing, both at the words' scale k. */
+  function hintSeat(head, s4, k){
+    const h = $('#c3Hint'), t = head.querySelector('.c3-brand span');
+    head.style.removeProperty('--c3-hint-x');
+    if (!h || !t || !t.firstChild || t.firstChild.nodeType !== 3) return;
+    const n = t.firstChild, L = n.nodeValue.length; if (!L) return;
+    const rg = document.createRange(); rg.setStart(n, L - 1); rg.setEnd(n, L);
+    const q = rg.getBoundingClientRect(), cs = getComputedStyle(t), F = parseFloat(cs.fontSize), ls = parseFloat(cs.letterSpacing) || 0;
+    if (!(q.width > 0) || !(F > 0)) return;
+    const inkR = q.right - k * (ls + bear(n.nodeValue.slice(-1).toUpperCase(), 1000, F).r);
+    const hr = h.getBoundingClientRect(), gap = 2 * (parseFloat(getComputedStyle(h).fontSize) || 10);
+    if (hr.left >= inkR + gap) return;                                   // clear: mid-window, as always
+    const x = inkR + gap + hr.width / 2;
+    if (x + hr.width / 2 > s4.getBoundingClientRect().left - gap) return;   // no room before the stack: as always
+    head.style.setProperty('--c3-hint-x', (x - head.getBoundingClientRect().left).toFixed(1) + 'px');
+  }
   let headBox = null, headTop = 0, headTopCanvas = null, inkBot4 = 0, seatAdj4 = 0, followAdj4 = 0;   // the head's box at k = 1 (videoLayout) and its sticky top; the canvas measures the menu's ink (406)
   const dial = n => parseFloat(getComputedStyle(root).getPropertyValue(n)) || 0;
   /* 508: the intro's three labels are the CASE page's words (Credits / My
@@ -12997,6 +13141,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
             : grow ? BRAND_SMALL + (1 - BRAND_SMALL) * p
             : kS;
     const hb = headBox, head = $('#c3Head');
+    let hintDue = null;   /* 511b: the START hint's seat, run once --c3-brand-k is written (below) */
     if (C4){
       /* 402: THE REGISTER, LIVE. Three rows of the sub stand exactly as
          tall as the B (= kB * cap = the title's own rect), and the block's
@@ -13022,9 +13167,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            last one). Gated on size+scale so it runs when either changes --
            every caseSwap, resize, open and blog post -- and not per frame. */
         try { const sk = s4.style.fontSize + '|' + k.toFixed(4); if (s4._sk !== sk){ s4._sk = sk; seatRowsRight(s4, k); } } catch (e) {}
+        /* 511b: the START hint yields to a long title (hintSeat) -- on the same gate, plus the window and the title.
+           Only MARKED here: its rects must stand at the scale this call writes, not the last one. */
+        try { const hk = s4.style.fontSize + '|' + k.toFixed(4) + '|' + innerWidth + '|' + (head.querySelector('.c3-brand span') || {}).textContent; if (head._hk !== hk){ head._hk = hk; hintDue = s4; } } catch (e) {}
       }
     }
     $('#c3Body').style.setProperty('--c3-brand-k', k.toFixed(4));
+    if (hintDue) try { hintSeat(head, hintDue, k); } catch (e) {}   /* 511b: measured at the scale just written (the transform reads it) */
     head.style.setProperty('--c3-brand-a', (C4 || grow ? brandT + hb.cap : brandT).toFixed(2) + 'px');   /* 406: V4's anchor NEVER moves -- the title is baseline-glued to the box's foot from rest to stick (seam tight the whole ride, zero relative slide anywhere); the STUCK SEAT comes from seating the BOX deeper under the header, not from sliding the title inside it */
     /* the strip: --c3-sub-gap under the words' baseline -- in flow it is
        that under the full-size words; when the baseline rises (the
@@ -13650,8 +13799,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     { const h = $('#c3Hint'); if (h) h.textContent = SRC === 'blogs' ? 'Scroll down for post' : 'Scroll down for case'; }   /* 508 */
     /* 508: the ink memo is keyed on the family string, which reads the same
        before and after DM Sans arrives, so a case opened on the fallback
-       face would keep that seat until something moved. */
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (active()){ const s4 = $('#c3Head .c3-sub4'); if (s4) s4._sk = null; videoScroll(); } });
+       face would keep that seat until something moved. 511b: the START hint's
+       seat (hintSeat, gated on head._hk) is keyed the same way, so it is cleared too. */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (active()){ const s4 = $('#c3Head .c3-sub4'); if (s4) s4._sk = null; const hd = $('#c3Head'); if (hd) hd._hk = null; videoScroll(); } });
     credits();
     detailsBuild();
     ctlBuild();
