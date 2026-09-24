@@ -4110,6 +4110,55 @@
   html.mob #viewCase3{ --c3-row-in-dx:calc(var(--m-pad) / 2); }
 
   /* M512:LAND */
+  /* THE LANDSCAPE PHONE (SPEC-512 sec. A, H): a coarse pointer, landscape, at most 500px tall -- html.mob.mobl, on top
+     of every phone rule above (the same header and menu slide, no hover, the same SUBTITLE solve, the phone's content).
+     The alignments below are re-negotiated for a wide, short screen; the start slide's film is fit to the height in JS
+     (videoLayout: a margin under the B - D baseline, the title row under the film, a margin to the hint's cap top). */
+  /* THE MENU SLIDE, IN TWO COLUMNS. The portrait slide hangs 01-04 from the top and stands 05-08 on the open bar, and
+     nothing couples the two groups: on a wide, short screen -- the more so with the browser's bars showing, which the
+     slide keeps (it never scrolls) -- 01-04 ran into 05-08. Here the anchors stay (MENU on the top margin, 01 three
+     pitches under it; 08 three pitches over the open bar's baseline) but each group takes a HALF, split at the middle
+     with two margins between: 01-04 left (the number on the left margin, the item on the column's right edge), 05-08
+     right (the item on the column's left edge, the number on the right margin). They cannot meet at any height. The
+     case titles run under SELECTED WORKS as right-aligned lines of BODY(CAPS), one SUBTITLE apart, wrapping in the
+     column (two lines on every landscape phone). The left column's one other neighbour is the open bar: MENU -> 01
+     is three pitches, closing toward 1.5 only when the window cannot hold the column with the titles open and a
+     pitch of air over the bar's cap top (below 257px tall at S 20 -- under every phone, bars and all). The SUBTITLE
+     solve measures the menu rows against this column (mColK). */
+  html.mob.mobl .m-top{ right:calc(50% + var(--pad)); top:calc(var(--pad) - .141em + clamp(1.5em, 100% - 2 * var(--pad) - 7.44em, 3em)); }
+  html.mob.mobl .m-bot{ left:calc(50% + var(--pad)); }
+  html.mob.mobl .m-list-in{ display:flex; flex-wrap:wrap; justify-content:flex-end; column-gap:var(--m-sub); }
+  html.mob.mobl .m-list button{ margin:0 -.0576em 0 0; }
+  /* THE SHOWREEL, UNROTATED AND FULL SCREEN. The film box is the whole window less the bottom margin (paint()'s inline
+     top / height give way, as they do to the reel's own fullscreen, which keeps this box) and the picture is contained
+     in it: its top on the window's top, black either side. The margin under it is the phone's gesture strip: the
+     control row stands on the burned-in captions as a share of the frame (1.9% up), so with the frame's foot on the
+     window's foot the seek bar lay ~10px over the edge, where an iPhone's home indicator takes a drag along the bottom
+     as an app switch. Lifted by a margin, the row keeps its captions and clears it (env(safe-area-inset-bottom) reads
+     0 here: the page does not ask for viewport-fit=cover, so the margin is the measure).
+     While the reel is at rest under the header (hs-lid, not contact, no view open, the slide shut) the header's band
+     and its rule step aside, so nothing lies on the picture: B, D and the icon sit in the black beside it. */
+  html.mob.mobl body.site3 #black .film{ inset:0 0 var(--m-pad) !important; height:auto !important; place-items:center; }
+  html.mob.mobl:not(.m-live) body.site3.hs-lid:not(.ct-lid):not(.caseopen):not(.aboutopen):not(.blogopen) .hdr::before{
+    background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none;
+  }
+  html.mob.mobl #hdrName > i{ transition:opacity .5s ease; }
+  html.mob.mobl:not(.m-live) body.site3.hs-lid:not(.ct-lid):not(.caseopen):not(.aboutopen):not(.blogopen) #hdrName > i{ opacity:0; }
+  /* THE CASE / POST BODY. A picture margin to margin would be 796px square on an 844 x 390 screen. It is fit to the band
+     a reader sees it in: the window less the stuck stack's foot (B - D, the title row, the section row: the top margin,
+     three SUBTITLE caps, the two header-group gaps, the title's descent, the row's pad -- 116.7 at S 20, measured
+     116.8), its caption (the gap and a NOCAPS cap) and the bottom margin. It keeps the left margin; the caption takes
+     its width. A 16:9 picture (.natural) is as tall. */
+  html.mob.mobl #viewCase3{
+    --m-l-stk:calc(var(--m-pad) + 2.1 * var(--m-sub) + 2 * var(--c3-c4-head-gap) + .12 * var(--m-sub) + var(--c3-row-pad));
+    --m-l-mh:calc(100vh - var(--m-l-stk) - var(--c3-cap-gap) - .7 * var(--t-nocaps) - var(--m-pad));   /* vh, the LARGE viewport: a body picture is seen scrolled, with the browser's bars away */
+  }
+  html.mob.mobl #viewCase3 .c3-details.c3-stack .cell.media{ width:min(100%, var(--m-l-mh)); }
+  html.mob.mobl #viewCase3 .c3-details.c3-stack .cell.media.natural{ width:min(100%, var(--m-l-mh) * 16 / 9); }
+  html.mob.mobl #viewCase3 .c3-details.c3-stack .cell.media{ justify-self:start !important; }   /* the packer's inline justify-self (end on the desktop's margin column) gives way: the left margin */
+  /* THE START SLIDE: fit to the height, the film leaves room at its sides, where the desktop's doors (the neighbouring
+     cases' cards, off the screen on a portrait phone) would come into view across the margins. The phone has none. */
+  html.mob.mobl #viewCase3 #c3Cards > .c3-case:not(.film){ visibility:hidden; }
 
   /* ==== /512 MOBILE ==== */
 </style>
@@ -4594,7 +4643,8 @@
 
   /* ==== 512 MOBILE: THE MODE (SPEC-512 sec. A, B) ====================================================
      ONE flag. Portrait phones -- and any window up to 600px wide -- run the phone build: html.mob, MOB.on.
-     Landscape phones (html.mob.mobl, MOB.land) are step 512e: MOB_LAND stays false until then. The mode is
+     Landscape phones (512e) run it too, with html.mobl and MOB.land: a coarse pointer, landscape, at most 500px
+     tall (every phone turned on its side; a desktop window, a tablet and a mouse never). The mode is
      re-read by the FIRST resize listener in this file, so every solve after it in the same resize already
      sees the new mode (and the fresh SUBTITLE); a switch that arrives without a resize (the media change
      alone) re-runs every solve by dispatching one. MOB.hooks run on every switch (mobile-only components
@@ -4603,7 +4653,7 @@
      class, no inline token. */
   const MOB = { on:false, land:false, S:0, fit:0, tight:'', capBinds:false, hooks:[], rows:[], solve:null };
   const MOB_Q = '(max-width: 600px)', MOB_LQ = '(pointer: coarse) and (orientation: landscape) and (max-height: 500px)';
-  const MOB_LAND = false;   /* 512e switches the landscape phones on */
+  const MOB_LAND = true;   /* 512e: the landscape phones run the phone build (html.mob.mobl) */
   function mobEval(e){
     const mm = q => { try { return !!(window.matchMedia && matchMedia(q).matches); } catch (x) { return false; } };
     const land = MOB_LAND && mm(MOB_LQ), on = land || mm(MOB_Q), R = document.documentElement;
@@ -4620,6 +4670,7 @@
   window.__mob = MOB;   /* for the rigs: read it, never write it */
   addEventListener('resize', mobEval);   /* FIRST: registered before every other resize listener in this file */
   try { const mq = window.matchMedia && matchMedia(MOB_Q); if (mq && mq.addEventListener) mq.addEventListener('change', mobEval); } catch (x) {}
+  try { const mq = window.matchMedia && matchMedia(MOB_LQ); if (mq && mq.addEventListener) mq.addEventListener('change', mobEval); } catch (x) {}   /* 512e: the landscape query's own change */
   mobEval();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (MOB.solve) MOB.solve(true); });   /* first in line: S lands before any engine's own fonts pass reads it */
   /* ---- deck contents. The six case loops, one per case, and nothing else.
@@ -10793,10 +10844,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     return { what:'hero row: ' + r.key, w: W(r.title) + M_GAP * W.S + Math.max(W(y, 1), W(ty, 1)) }; }));
   MOB.rows.push(W => [].concat(...mRec.map(r => r.secs.map((x, i) => ({ what:'section row: ' + r.key + ' ' + x,   /* 02 ---- APPROACH */
     w: W(String(i + 1).padStart(2, '0')) + M_RULE * W.S + W(x) })))));
-  MOB.rows.push(W => [
-    { what:'menu row 01', w: W('01') + (M_GAP + M_TRI) * W.S + W('Selected Works') },   /* 01, the triangle, SELECTED WORKS */
-    { what:'menu row 05', w: W('Instagram') + M_GAP * W.S + W('05') },                    /* INSTAGRAM, 05 */
-    { what:'header bar', w: W('B') + M_RULE * W.S + W('D') + M_ICO * W.S } ]);           /* B - D and the icon */
+  /* 512e: on a landscape phone the menu's rows stand in half-width columns (M512:LAND: half the content less two margins
+     between them). mColK is the full width over the column, so a row scaled by it is measured in the solve's terms. */
+  const mColK = () => { if (!MOB.land) return 1; const c = document.documentElement.clientWidth - 2 * padPx(); return c / Math.max(1, (c - 2 * padPx()) / 2); };
+  MOB.rows.push(W => { const k = mColK(); return [
+    { what:'menu row 01', w: k * (W('01') + (M_GAP + M_TRI) * W.S + W('Selected Works')) },   /* 01, the triangle, SELECTED WORKS */
+    { what:'menu row 05', w: k * (W('Instagram') + M_GAP * W.S + W('05')) },                    /* INSTAGRAM, 05 */
+    { what:'header bar', w: W('B') + M_RULE * W.S + W('D') + M_ICO * W.S } ]; });           /* B - D and the icon */
   function mSolve(){
     if (!MOB.on) return false;
     const content = document.documentElement.clientWidth - 2 * padPx();   /* the phone's width: innerWidth is the layout viewport, which a page's overflow grows */
@@ -11521,6 +11575,24 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       big.style.position = 'absolute'; big.style.left = (-left).toFixed(1) + 'px'; big.style.top = (-cardTop).toFixed(1) + 'px';
     }
 
+    /* 512e: THE LANDSCAPE PHONE'S PARAGRAPH ROOM. From the card's foot to the LAST BASELINE of the longest deck paragraph
+       (#h4sum, always on under the card) set at width w: the box starts .7 S - .206 BODY under the foot (M512:HERO) and
+       the baseline is read off a zero-size inline-block at the text's end, in a hidden clone that wears the class. The
+       deck's height solve (layout) gives the card way until that baseline is on the bottom margin at worst. */
+    let mSumPr = null;
+    function mLandSum(w){
+      const sEl = document.getElementById('h4sum'); if (!sEl || !sEl.parentNode) return 0;
+      if (!mSumPr){ mSumPr = sEl.cloneNode(false); mSumPr.removeAttribute('id'); mSumPr.setAttribute('aria-hidden', 'true'); }
+      const pr = mSumPr, S = MOB.S || M_CAP; let deep = 0;
+      pr.style.cssText = 'visibility:hidden; transition:none; top:0; bottom:auto; width:' + w + 'px;';
+      sEl.parentNode.appendChild(pr);
+      L.forEach(r => { pr.textContent = HOV[r[KEY]] || ''; const mk = document.createElement('i');
+        mk.style.cssText = 'display:inline-block; width:0; height:0;'; pr.appendChild(mk);
+        deep = Math.max(deep, mk.getBoundingClientRect().top - pr.getBoundingClientRect().top); });
+      pr.remove();
+      return .7 * S - .206 * S / 2 + deep;
+    }
+
     function layout(){
       if (!on()) return;
       build();
@@ -11599,6 +11671,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           for (let p = 0; p < 3; p++){
             const chCap = Math.max(H * HH7F, H - 2 * (clearC + aboveOf(hh)));   /* never below what it was */
             if (chCap > 80 && hh > chCap) hh = chCap;
+          }
+          if (MOB.land){   /* 512e: a LANDSCAPE phone -- the card gives way until the longest paragraph under it ends on the bottom margin at worst (top0 as placed below: centred, pushed down by what the peeks cannot absorb) */
+            const top0Of = c => { const a = aboveOf(c), oR = Math.max(0, clearC - ((H - c) / 2 - a)); return Math.round((H - c) / 2 + oR - Math.min(oR, a * .6)) + Math.round(grow); };
+            const room = {};
+            for (let p = 0; p < 16; p++){
+              const c = Math.round(hh), w = Math.round(hh / 0.5625);
+              if (room[w] === undefined) room[w] = mLandSum(w);
+              const ex = top0Of(c) + c + room[w] - (H - PAD);
+              if (ex <= 0 || hh <= 80) break;
+              hh = Math.max(80, hh - Math.max(1, Math.ceil(ex)));
+            }
           }
           hw = hh / 0.5625;
         }
@@ -13872,6 +13955,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     console.assert(yc + vh / 2 - hingeK * vh / 2 >= roomT - 0.01 && yc + vh / 2 + hingeK * vh / 2 <= roomB + 0.01, 'the hinges leave the glasses\' room');
     if (MOB.on){   /* 512d: THE PHONE'S START SLIDE (SPEC-512 sec. G) -- the film margin to margin, centred in the window; the title row under it, its glass band's top on the film's foot (--m-c3-film-gap); so the head's rest box is seated from the film (the hint holds the bottom margin) */
       vw = W - 2 * PAD; vh = vw * 9 / 16; xc = PAD; yc = (H - vh) / 2;
+      if (MOB.land){   /* 512e: a LANDSCAPE phone -- the film fit to the height: a margin under the B - D bar's baseline, the title row under the film, a margin from the title's baseline to the hint's cap top (its baseline on the bottom margin); centred across */
+        const S = MOB.S || M_CAP, top = PAD + .7 * S + PAD, room = H - top - dial('--m-c3-film-gap') - .7 * S - PAD - .35 * S - PAD;
+        vh = Math.max(0, Math.min(vh, room)); vw = vh * 16 / 9; xc = (W - vw) / 2; yc = top + (room - vh) / 2;
+      }
       stageH = yc + vh + dial('--m-c3-film-gap') - headBox.pad - (1 - (hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2)) * brandFull;
     }
     $('#c3Stage').style.height = Math.max(0, stageH).toFixed(2) + 'px';   // to the sub-pixel: a rounded stage moved the head's foot by half a px
