@@ -120,6 +120,13 @@
     --t-sub-ws:.135em;
     --t-sub-lh:.8843;
     --t-large-k:2.27;
+    /* 511e: TITLE's spacing -- tracking and word gap, one definition each, worn by every TITLE and LARGE
+       member (was -.045em and the font's own space: the weight-1000 letters touched on DM Sans). The
+       word gap is added over the font's space where real spaces exist; placed gaps (the B - D rule,
+       FROM BRIEF TO DELIVERY, FLAGSHIP / WORK / FOR, GET IN TOUCH's spread) keep their solves, which
+       read the live tracking and word gap. */
+    --t-title-trk:-.035em;
+    --t-title-ws:.06em;
     --big:var(--t-title);      /* 511b: an alias -- the display size IS the TITLE (it was clamp(26px, 4.6vw, 74px)) */
     --ui-size:var(--t-body);   /* 511b: an alias -- the UI register IS BODY(CAPS) (it was a fixed 11px) */
     /* 504: RUNNING COPY has its own dial. --ui-size is the UI register (menu,
@@ -401,9 +408,9 @@
     /* .718 made the box hug the cap band exactly (DM Sans: cap 700,
        ascender 992, descender -310), so the rules land on the cap line and
        the rows can stack with nothing wasted between them. 511b: the TITLE's
-       own .78 and -.045em; the row's padding keeps the cap line where it was. */
+       own .78 and tracking (511e: its spacing tokens); the row's padding keeps the cap line where it was. */
     font-size:var(--big); font-weight:1000; line-height:.78;
-    letter-spacing:-.045em; text-transform:uppercase; color:var(--ink);
+    letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase; color:var(--ink);
     transition:color .22s ease; cursor:var(--x-cur), default;
   }
   .ent .big{ display:block; }
@@ -745,7 +752,7 @@
     margin:calc(var(--gap-names) - .031em) 0 calc(var(--gap-head) - .049em);
     padding:0;
     font-size:clamp(48px,9.6vw,168px); font-weight:1000; line-height:.78;
-    letter-spacing:-.045em; text-transform:uppercase;
+    letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase;   /* 511e: hidden; kept on TITLE's spacing so NAME_K still describes it */
   }
   .names .nrule{ display:none; }
   /* Hero V2. The frame goes, the menu loses its rules, and a hairline runs
@@ -908,7 +915,7 @@
     margin:0; opacity:0;
     font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     color:var(--ink); font-weight:1000; line-height:.78;
-    letter-spacing:-.045em; text-transform:uppercase;
+    letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase;   /* 511e: TITLE's spacing */
     font-size:var(--big) !important;   /* 440: the header's own size -- the ld init writes an inline giant, so the header's word must outrank it */
   }
   .ld-name.lit{ opacity:1; }
@@ -1074,7 +1081,7 @@
   body.ld-hold:not(.ld-out) .hdr .masthead{ visibility:hidden; }
   .hdr-name{
     display:flex; justify-content:space-between; align-items:baseline;
-    margin:0 0 6px; font-weight:1000; line-height:.78; letter-spacing:-.045em;
+    margin:0 0 6px; font-weight:1000; line-height:.78; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws);   /* 511e: TITLE's spacing */
     text-transform:uppercase; color:var(--ink); cursor:pointer;
     font-size:var(--big);
     transition:font-size .5s cubic-bezier(.76,0,.24,1), opacity 160ms ease, color .5s ease;
@@ -1438,7 +1445,7 @@
      completes on its own; scrolling back above the trigger re-arms it. */
   .a4-brk{ position:absolute; width:560px; height:70px; }
   .a4-brk .bw{ position:absolute; top:2px; color:#F5F5F5;
-    font-size:calc(var(--t-title) / var(--a4-k, 1)); font-weight:1000; letter-spacing:-.045em; line-height:.78;
+    font-size:calc(var(--t-title) / var(--a4-k, 1)); font-weight:1000; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); line-height:.78;   /* 511e: TITLE's spacing */
     font-variation-settings:'opsz' var(--a4-ot, 40);   /* 511d: T6, TITLE on screen (it was 74 unit px, riding the zoom) */
     text-transform:uppercase; white-space:nowrap; }
   .a4-brk .bwi{ display:inline-block; font-style:normal;
@@ -1540,7 +1547,7 @@
   .a4-cp{ width:max-content; max-width:calc(100vw - 2 * var(--pad)); text-wrap:balance; }
   .a4-cp .w{ display:inline-block; font-style:normal; opacity:0; filter:blur(4px); }
   .a4-cp .dots{ font-style:normal; }
-  .a4-big{ font-size:var(--big); font-weight:1000; letter-spacing:-.045em; line-height:.78;
+  .a4-big{ font-size:var(--big); font-weight:1000; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); line-height:.78;   /* 511e: TITLE's spacing */
     text-transform:uppercase; white-space:nowrap; margin-left:-.045em; }
   .a4-mid{ position:absolute; right:0; bottom:var(--a4-mids, 0px); text-align:right;
     font-size:var(--t-sub-row); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws);
@@ -1607,7 +1614,7 @@
   body.aboutopen.about4 .a4-foot{ color:#F5F5F5; mix-blend-mode:difference; }
   /* words still come in the case study's way -- opacity through blur --
      in reading order, once the card is up. */
-  .a4-lbig{ position:absolute; font-weight:1000; letter-spacing:-.045em;
+  .a4-lbig{ position:absolute; font-weight:1000; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws);   /* 511e: TITLE's spacing */
     line-height:.78; text-transform:uppercase; white-space:nowrap; }
   .a4-lbig .ln{ display:block; }
   .a4-lbig .w{ display:inline-block; font-style:normal; opacity:0; filter:blur(4px); }
@@ -2729,7 +2736,7 @@
   .c2-title{
     display:flex; justify-content:space-between; align-items:baseline;
     margin:0; font-weight:1000; line-height:.78;
-    letter-spacing:-.045em; text-transform:uppercase;
+    letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase;   /* 511e: TITLE's spacing (c2Large reads both) */
     font-size:clamp(48px, 9.6vw, 168px);
     transition:font-size .5s cubic-bezier(.76,0,.24,1);
   }
@@ -2772,7 +2779,7 @@
        height, so nothing moves whichever child is in flow. */
     min-height:.898em;
     font-size:var(--big); font-weight:1000; line-height:.78;
-    letter-spacing:-.045em; text-transform:uppercase;
+    letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase;   /* 511e: TITLE's spacing */
   }
   .c2-row::before{
     content:""; position:absolute; inset:0; z-index:1; background:var(--ink);
@@ -2796,7 +2803,9 @@
        Thin these labels were set in. At the row's -.062em the strokes of neighbouring
        letters met (FU, LL, NA, MA, AI, SS, BJ...), where Inter kept them 4-7px apart.
        -.015em is the tightest tracking at which no two neighbouring glyphs share even an
-       anti-aliased pixel at any window from 768 wide up (measured, 50% and 25% coverage). */
+       anti-aliased pixel at any window from 768 wide up (measured, 50% and 25% coverage).
+       511e: kept. At TITLE's -.035em the Thin strokes still meet (M|A at 1920; M|A, S|S, B|J at
+       1280 / 1440, 25% coverage); TITLE's word gap is the row's, inherited. */
     letter-spacing:-.015em;
     transition:color .22s ease;
   }
@@ -2898,7 +2907,7 @@
     padding:calc((.09 - .031) * var(--big)) 0;   /* 511b: as the rows */
     background:var(--paper); color:var(--ink);
     font-family:inherit; font-size:var(--big); font-weight:1000;
-    line-height:.78; letter-spacing:-.045em; text-transform:uppercase;   /* 511b: the TITLE's */
+    line-height:.78; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase;   /* 511b: the TITLE's (511e: its spacing tokens) */
     transition:color .22s ease;
   }
   .c2-send::before{
@@ -3327,7 +3336,7 @@
   }
   #viewCase3 .c3-brand{
     display:flex; justify-content:space-between; align-items:baseline;
-    font-weight:1000; line-height:.78; letter-spacing:-.045em; text-transform:uppercase;
+    font-weight:1000; line-height:.78; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase;   /* 511e: TITLE's spacing */
     white-space:nowrap; margin:0;
   }
   #viewCase3 .c3-brand span{ flex:0 0 auto; }
@@ -4517,7 +4526,7 @@
      optical trims, T's ink overruns its box by .021em, D's ink starts .065em
      in, and D's ink is .611em wide. Demanding a gap of 2 x D between them
      leaves the content width needing to be at least 7.414 x the font size. */
-  const NAME_K    = 7.414;  // content width per unit of name font-size
+  const NAME_K    = 7.414 + 9 * (titleTrk() + .045);  // content width per unit of name font-size (511e: 7.414 was at -.045em; the nine tracked gaps inside the two words follow the token)
   const MAST_K    = 0.72;   // px the masthead grows per px of name font-size
   const NAME_TOP  = 168;    // px, the size the names already reach today
 
@@ -4741,6 +4750,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      reads back as its own text, so parseFloat takes it; the fallback is for an engine with
      no custom properties. */
   function largeK(){ const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--t-large-k')); return v > 0 ? v : 2.27; }
+  /* 511e: TITLE's tracking (--t-title-trk), read rather than restated: the engines that add a box's trailing
+     track back (hdrSolve's collapse cut, the hidden masthead's NAME_K) follow the token. A length token reads
+     back as its own text ('-.035em'), so parseFloat takes the em; the fallback is for an engine without it. */
+  function titleTrk(){ const v = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--t-title-trk')); return isFinite(v) ? v : -.035; }
   let PAD = padPx();
   addEventListener('resize', () => { PAD = padPx(); });
 
@@ -9926,7 +9939,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      character: true advance (rect + tracking) minus that character's own
      right-side bearing, measured on canvas by ldInk -- the same source the
      trims already trust. Half a pixel of grace, no more. */
-  const HDR_TRK = .045;
+  let HDR_TRK = .035;   /* 511e: TITLE's tracking as a positive em -- set from the token (titleTrk) on every solve */
   const HDR_FADE = 180;  /* ms one letter's fade takes. The stagger gap is
                             DERIVED per word -- (clock - fade)/(letters - 1)
                             -- so the last letter always ends exactly with
@@ -9940,6 +9953,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const w1 = hdrName.querySelector('.w1'), w2 = hdrName.querySelector('.w2');
     const u1 = w1.querySelector('u'),        u2 = w2.querySelector('u');
     const TR = { left:.065, right:.065 };
+    HDR_TRK = -titleTrk();   /* 511e: the token's tracking, not a restated .045 */
     /* Collapse HARD first: a resize mid-hover must not strand the expanded
        state or its stale inline font. */
     hdrName.classList.add('snap');
