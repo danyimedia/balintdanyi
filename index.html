@@ -141,7 +141,7 @@
     --peek:56px;         /* black frame always showing at the foot of the hero */
     --film-pad:28px;     /* black margin around the film */
     --gap-head:14px;     /* between the names' baseline and the meta strip */
-    --ld-count-size:var(--t-body);/* loading counter: small and Light, unlike the old (511b: the BODY size) */
+    --ld-count-size:var(--t-body);/* loading counter: small (511b: the BODY size; 511g: the menu's weight, LD_WT) */
   }
 
   *{ box-sizing:border-box; }
@@ -2806,8 +2806,9 @@
        -.015em is the tightest tracking at which no two neighbouring glyphs share even an
        anti-aliased pixel at any window from 768 wide up (measured, 50% and 25% coverage).
        511e: kept. At TITLE's -.035em the Thin strokes still meet (M|A at 1920; M|A, S|S, B|J at
-       1280 / 1440, 25% coverage); TITLE's word gap is the row's, inherited. */
-    letter-spacing:-.015em;
+       1280 / 1440, 25% coverage); TITLE's word gap is the row's, inherited.
+       511g: HIS CALL -- exact TITLE spacing, touching Thin strokes accepted: one token for the class. */
+    letter-spacing:var(--t-title-trk);
     transition:color .22s ease;
   }
   .c2-row:hover .c2-name{ color:var(--paper); }
@@ -2832,13 +2833,12 @@
      inside the row's .78 x big box, so the rows still match the blog list.
      511b: the SIZE is left as it is -- at the TITLE size an accented capital (.906em) or a
      descender (.22em) overruns the .898em row, which clips; see the 511b report.
-     511f: the WEIGHT and SPACING are the spec's -- Thin (100), as the labels and his brief
-     (light apart from SEND), on TITLE's tracking and word-gap tokens. Neither changes the
-     row's height, so nothing clips. */
+     511g: HIS CALL -- the typed text keeps its look as it was: half TITLE, weight 1000, -.03em
+     (511f had made it Thin on TITLE's spacing tokens). */
   .c2-row input, .c2-row textarea{
     flex:1; min-width:0; border:0; background:transparent; color:var(--ink);
-    font-family:inherit; font-weight:100;
-    font-size:calc(var(--big) * .5); letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws);
+    font-family:inherit; font-weight:1000;
+    font-size:calc(var(--big) * .5); letter-spacing:-.03em;
     text-transform:none; line-height:1.3; height:1.3em;
     text-align:right; padding:0; resize:none;
     transition:color .22s ease;
@@ -6862,6 +6862,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     { count:[78, 82, 87, 93], to:null }   // null: the fourth fade is the words
   ];
   const LD_CTA = 'Scroll for case studies';
+  const LD_WT = 700;   /* 511g: HIS CALL -- the count and the call to action wear the menu's weight (BODY(CAPS)); they were Light 300 and 1000 */
 
   const ldSheet = document.getElementById('load');
   const ldName  = document.getElementById('ldName');
@@ -7134,7 +7135,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     ldCounting = false;
     ldName.classList.add('done');
     ldCopy.classList.add('done');
-    if (ldFrontEl){ ldPut(ldFrontEl, LD_CTA, 1000); ldFrontEl.style.opacity = 1; }
+    if (ldFrontEl){ ldPut(ldFrontEl, LD_CTA, LD_WT); ldFrontEl.style.opacity = 1; }
     if (ldBackEl) ldBackEl.style.opacity = 0;
   }
 
@@ -7157,7 +7158,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const t = front; front = ldFrontEl = back; back = ldBackEl = t;
     };
 
-    ldPut(front, '1%', 300);
+    ldPut(front, '1%', LD_WT);
     front.style.opacity = 1;
 
     (function step(now){
@@ -7170,11 +7171,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const j = Math.min(R.count.length - 1,
                            Math.floor(u / (rampMs / R.count.length)));
         const s = R.count[j] + '%';
-        if (s !== shown){ shown = s; ldPut(front, s, 300); }
+        if (s !== shown){ shown = s; ldPut(front, s, LD_WT); }
       } else if (faded < k){
         if (R.to !== null){
           faded = k; shown = R.to + '%';
-          flip(shown, 300, LD.FADE);
+          flip(shown, LD_WT, LD.FADE);
         } else {
           /* 509: THE COUNT WAITS FOR THE SIX. The call to action goes up
              only once the loops are in -- or at LD.GATE_MAX from navigation
@@ -7183,7 +7184,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
              real progress. */
           if (ldAssetsIn()){
             if (ldDone < ldItems) ldGateReport();
-            flip(LD_CTA, 1000, LD.FADE);
+            flip(LD_CTA, LD_WT, LD.FADE);
             ldCounting = false;
             ldArm();
             ldGateOpen();   /* 510 (review): a reload skip held for 'load' mid-count lands the moment the count hands over */
@@ -7199,7 +7200,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
             return;
           }
           const w = Math.min(99, 93 + Math.floor(6 * ldProg())) + '%';
-          if (w !== shown){ shown = w; ldPut(front, w, 300); }
+          if (w !== shown){ shown = w; ldPut(front, w, LD_WT); }
         }
       }
       requestAnimationFrame(step);
