@@ -3851,6 +3851,126 @@
   #viewCase3 .c3-details.c3-stack .cell{ grid-column:1 !important; grid-row:auto !important; }
   #viewCase3 .c3-details.c3-stack .cell.text, #viewCase3 .c3-details.c3-stack .cell.stat{ max-width:min(var(--c3-colw-max), 100%); }
   #viewCase3 .c3-details.c3-stack .cell.media{ width:min(var(--c3-media-max), 100%); height:min(var(--c3-media-max), 100vw - 2 * var(--pad)); }
+
+  /* ==== 512 MOBILE ====================================================================================
+     THE PHONE BUILD (SPEC-512). Portrait phones -- and any window up to 600px wide -- carry html.mob (set by
+     mobEval, the first resize listener in the script); landscape phones will add html.mobl (step 512e). EVERY
+     rule below is scoped under html.mob, so above 600px nothing here applies and the desktop is untouched.
+     Parallel steps insert ONLY in their own sub-section. */
+
+  /* M512:BASE */
+  /* THE TOKENS. --m-pad is the phone's side margin (a bit under the desktop's 36). --m-sub is THE SUBTITLE,
+     one size across the whole site on a given phone: JS solves it (MOB.solve -- the tightest row defines it,
+     capped at the desktop's 20px) and writes it inline on <html>; 20px is only the value before that solve.
+     BODY(CAPS) is half of it (the 2 : 1 ratio), NOCAPS BODY x --body-k as on the desktop. The desktop tokens are
+     re-pointed here, so every existing rule that reads --pad / --t-sub / --t-body / --t-nocaps follows. */
+  html.mob{
+    --m-pad:24px;
+    --m-sub:20px;
+    --m-body:calc(var(--m-sub) / 2);
+    --m-nocaps:calc(var(--m-body) * var(--body-k));
+    --pad:var(--m-pad);
+    --t-sub:var(--m-sub);
+    --t-body:var(--m-body);
+    --t-nocaps:var(--m-nocaps);
+  }
+  /* NO HOVER ON A PHONE (sec. E): taps do what clicks do. The OPEN CASE chip and the corner cursor never show
+     (their JS drivers stand down on MOB.on too), the system pointer comes back for a narrow desktop window, and a
+     tap's sticky :hover lifts no card and softens no link. The header's hover expansion is off in JS. */
+  html.mob .h4-cursor, html.mob .xcur{ display:none !important; }
+  html.mob body.cur-corner, html.mob body.cur-corner *{ cursor:auto !important; }
+  html.mob body.hero-v7:not(.hs-off):not(.vs-move) .vs-card:not(.hc):hover{ top:0; }
+  html.mob .vs-social:has(a:hover) a:not(:hover){ filter:none; opacity:1; }
+  /* the SUBTITLE solve's probe: SUBTITLE and BODY(CAPS) exactly as their members wear them, never seen */
+  html.mob .m-probe{ position:fixed; left:0; top:0; visibility:hidden; pointer-events:none; white-space:nowrap; }
+  html.mob .m-probe .m-ps{ font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); text-transform:uppercase; }
+  html.mob .m-probe .m-pb{ font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase; }
+  /* THE LOADER PARAGRAPH (#ldCopy) drops to BODY(CAPS); the rest of the loader is unchanged */
+  html.mob #ldCopy p{ font-size:var(--m-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh); }
+
+  /* M512:HEADER */
+  /* THE COLLAPSED BAR: B - D (the rule between them, as on the desktop) and the menu icon on the right margin.
+     B / D are SUBTITLE members; the row's room right of D (.52 S of air + the .8 S icon) is the icon's. B's
+     cap top sits on the top margin (at leading .78 Chrome seats DM Sans' cap top ON the line box top, measured). No menu
+     rows under the bar: the desktop's 4 + 4 rows live in the slide. */
+  html.mob{ --m-ico-hit:12px; }
+  html.mob .hdr{ padding:var(--pad) var(--pad) calc(var(--pad) / 2); touch-action:none; }
+  html.mob .hdr .masthead.flat{ display:none; }
+  html.mob .hdr-name{ font-size:var(--m-sub); margin:0 calc(1.32 * var(--m-sub)) 0 0; }
+  /* the icon: three bars, cap-tall, turning into the close cross as the slide opens (--m-p, the slide's
+     progress, written on .hdr by the menu engine). The button's box IS the icon -- its right edge on the right
+     margin, its top on B's cap top, cap-tall; a 12px invisible pad round it (::after) takes the thumb */
+  html.mob .m-ico{
+    display:block; position:absolute; right:var(--pad); top:var(--pad);
+    width:calc(.8 * var(--m-sub)); height:calc(.7 * var(--m-sub));
+    margin:0; padding:0; border:0; background:none; color:inherit; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  html.mob .m-ico::after{ content:''; position:absolute; inset:calc(-1 * var(--m-ico-hit)); }
+  html.mob .m-ico i{ position:absolute; left:0; width:100%; height:calc(.12 * var(--m-sub)); background:var(--ink); transition:background .5s ease; }
+  html.mob .m-ico i:nth-child(1){ top:0; transform:translateY(calc(var(--m-p, 0) * .29 * var(--m-sub))) rotate(calc(var(--m-p, 0) * 45deg)) scaleX(calc(1 + var(--m-p, 0) * .15)); }
+  html.mob .m-ico i:nth-child(2){ top:calc(.29 * var(--m-sub)); opacity:calc(1 - 2 * var(--m-p, 0)); }
+  html.mob .m-ico i:nth-child(3){ top:calc(.58 * var(--m-sub)); transform:translateY(calc(var(--m-p, 0) * -.29 * var(--m-sub))) rotate(calc(var(--m-p, 0) * -45deg)) scaleX(calc(1 + var(--m-p, 0) * .15)); }
+  html.mob body.ld-hold:not(.ld-out) .m-ico{ visibility:hidden; }
+  html.mob body.ld-out .m-ico{ animation:entIn var(--ld-menu-in) cubic-bezier(.76,0,.24,1) both; animation-delay:var(--ld-menu-at); }   /* it arrives with the name, as the desktop's first menu row does */
+  /* THE MENU SLIDE (sec. D). The bar IS the slide's bottom edge and travels with it (the engine translates
+     .hdr); the paper sheet reaches from the top of the screen to the bar's foot; the rows are a static layer
+     that fades + blurs in row by row as the bar passes each of them. While the slide is out the header wears
+     the paper scheme, whatever page is under it, and About's nav band stands down. */
+  html.mob.m-live #hdr{ --ink:#000; --paper:#F5F5F5; color:#000; }
+  html.mob.m-live #hdr::before{ background:rgba(245,245,245,.42); }
+  html.mob.m-live .a4-nav{ visibility:hidden; }
+  html.mob .m-sheet{
+    display:block; position:fixed; left:0; right:0; top:0; height:100%; z-index:1149;
+    background:#F5F5F5; visibility:hidden; opacity:0; pointer-events:none; touch-action:none; will-change:transform;
+  }
+  html.mob.m-live .m-sheet{ visibility:visible; pointer-events:auto; }   /* the paper takes every tap while it is out, moving or not: nothing under it is ever hit */
+  html.mob .m-menu{
+    display:block; position:fixed; inset:0; z-index:1151; visibility:hidden; pointer-events:none; touch-action:none;
+    color:#000; font-size:var(--m-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws);
+    line-height:1; text-transform:uppercase;
+  }
+  html.mob.m-live .m-menu{ visibility:visible; }
+  html.mob.m-open .m-menu .m-row, html.mob.m-open .m-menu .m-list button{ pointer-events:auto; }
+  /* the row system: one SUBTITLE line pitch (1em) per row; at leading 1 DM Sans' cap top is .141em under the
+     line box and its baseline .841em. MENU's cap top on the top margin; 01 three pitches under it; 08 three
+     pitches over the open bar's baseline, which sits on the bottom margin. */
+  html.mob .m-lbl{ position:absolute; left:var(--pad); top:calc(var(--pad) - .141em); }
+  html.mob .m-top{ position:absolute; left:var(--pad); right:var(--pad); top:calc(var(--pad) - .141em + 3em); }
+  html.mob .m-bot{ position:absolute; left:var(--pad); right:var(--pad); bottom:calc(var(--pad) + 3em - .159em); }
+  html.mob .m-row{
+    display:flex; justify-content:space-between; align-items:flex-start; height:1em; white-space:nowrap;
+    color:inherit; text-decoration:none; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  html.mob .m-row.m-off{ cursor:default; }   /* BLOG: inactive, as on the desktop -- yet a real target: a tap on it lands on it (its own listener swallows it), never on VIMEO next door */
+  html.mob .m-r{ opacity:0; filter:blur(8px); transition:opacity .55s ease, filter .55s ease; }   /* the site's standard fade through blur */
+  html.mob .m-r.on{ opacity:1; filter:blur(0); }
+  /* SELECTED WORKS: the left part of its row (the number and the triangle) opens the case titles; the words
+     go to the landing hero. The triangle points down closed and turns over open. */
+  html.mob .m-tog{ flex:1 1 auto; display:flex; justify-content:space-between; align-items:flex-start; height:1em; margin-right:.27em; }
+  html.mob .m-tri{ display:block; width:1.1em; height:.58em; margin-top:.201em; background:currentColor; clip-path:polygon(0 0, 100% 0, 50% 100%); transition:transform .45s cubic-bezier(.76,0,.24,1); }
+  html.mob .m-menu.m-works-on .m-tri{ transform:rotate(180deg); }
+  /* the case titles: BODY(CAPS), right-aligned under SELECTED WORKS, pushing SHOWREEL..ABOUT down */
+  html.mob .m-list{ height:0; overflow:hidden; transition:height .5s cubic-bezier(.76,0,.24,1); }
+  html.mob .m-list-in{ padding:.3em 0 .45em; text-align:right; }
+  html.mob .m-list button{
+    display:block; margin:0 -.0576em 0 auto; padding:0; border:0; background:none; color:inherit; font-family:inherit;
+    font-size:var(--m-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh);
+    text-transform:uppercase; white-space:nowrap; cursor:pointer; -webkit-tap-highlight-color:transparent;
+    opacity:0; filter:blur(8px); transition:opacity .55s ease var(--d, 0ms), filter .55s ease var(--d, 0ms);
+  }
+  html.mob .m-menu.m-works-on .m-list button{ opacity:1; filter:blur(0); }
+
+  /* M512:HERO */
+
+  /* M512:SHOWREEL */
+
+  /* M512:CONTACT */
+
+  /* M512:CASE */
+
+  /* M512:LAND */
+
+  /* ==== /512 MOBILE ==== */
 </style>
 </head>
 <!-- ld-on: the sheet is up. ld-hold: the masthead's own names stay hidden
@@ -4066,6 +4186,8 @@
   <div class="hdr-name" id="hdrName" title="Balint Danyi">
     <span class="w1" data-go="home">B<u><b>a</b><b>l</b><b>i</b><b>n</b><b>t</b></u></span><i aria-hidden="true"></i><span class="w2" data-go="home">D<u><b>a</b><b>n</b><b>y</b><b>i</b></u></span>
   </div>
+  <!-- 512 MOBILE: the menu icon (three bars; the close cross while the slide is out) -->
+  <button class="m-ico" id="mIco" type="button" aria-label="Open the menu" aria-expanded="false" aria-controls="mMenu" hidden><i></i><i></i><i></i></button>
   <div class="masthead flat">
     <div class="rule"></div>
     <nav class="menu">
@@ -4085,6 +4207,28 @@
     <div class="rule"></div>
   </div>
 </header>
+
+<!-- 512 MOBILE: THE MENU SLIDE (SPEC-512 sec. D). The sheet is the slide's paper, its foot on the header bar's
+     foot; the menu is a STATIC layer whose rows fade + blur in as the bar passes them. Items navigate exactly
+     like the desktop menu's: the document router reads [data-go] / [data-view]; the links are plain links;
+     BLOG is inactive. Hidden and inert above 600px. -->
+<div class="m-sheet" id="mSheet" aria-hidden="true" hidden></div>
+<nav class="m-menu" id="mMenu" aria-label="Menu" aria-hidden="true" hidden>
+  <div class="m-lbl m-r">Menu</div>
+  <div class="m-top">
+    <div class="m-row m-r m-works"><span class="m-tog" role="button" tabindex="0" aria-expanded="false" aria-controls="mList" aria-label="Show the case studies"><span class="m-no">01</span><i class="m-tri" aria-hidden="true"></i></span><span class="m-it" data-go="home">Selected Works</span></div>
+    <div class="m-list" id="mList"></div>
+    <div class="m-row m-r" data-go="showreel"><span class="m-no">02</span><span class="m-it">Showreel</span></div>
+    <div class="m-row m-r" data-go="contact"><span class="m-no">03</span><span class="m-it">Contact</span></div>
+    <div class="m-row m-r" data-view="about"><span class="m-no">04</span><span class="m-it">About</span></div>
+  </div>
+  <div class="m-bot">
+    <a class="m-row m-r" href="https://www.instagram.com/balintdanyifilm/" target="_blank" rel="noopener"><span class="m-it">Instagram</span><span class="m-no">05</span></a>
+    <a class="m-row m-r" href="https://www.linkedin.com/in/balintdanyi/" target="_blank" rel="noopener"><span class="m-it">LinkedIn</span><span class="m-no">06</span></a>
+    <a class="m-row m-r" href="https://vimeo.com/balintdanyi" target="_blank" rel="noopener"><span class="m-it">Vimeo</span><span class="m-no">07</span></a>
+    <span class="m-row m-r m-off" aria-disabled="true"><span class="m-it">Blog</span><span class="m-no">08</span></span><!-- INACTIVE until 3 real posts exist, as the desktop's BLOG -->
+  </div>
+</nav>
 
 <!-- HERO V6 / V7 -- ported whole from the standalones. Inert unless
      body.hero-v6 or body.hero-v7 is on. -->
@@ -4303,6 +4447,37 @@
      guarded is provably dead rather than silently reachable -- and .v4 and
      .st both default to hidden, so nothing of V2 can render. */
   const s3 = () => document.body.classList.contains('site3');
+
+  /* ==== 512 MOBILE: THE MODE (SPEC-512 sec. A, B) ====================================================
+     ONE flag. Portrait phones -- and any window up to 600px wide -- run the phone build: html.mob, MOB.on.
+     Landscape phones (html.mob.mobl, MOB.land) are step 512e: MOB_LAND stays false until then. The mode is
+     re-read by the FIRST resize listener in this file, so every solve after it in the same resize already
+     sees the new mode (and the fresh SUBTITLE); a switch that arrives without a resize (the media change
+     alone) re-runs every solve by dispatching one. MOB.hooks run on every switch (mobile-only components
+     reset there); MOB.rows are the SUBTITLE solve's tight rows (a view step may add its own); MOB.solve is
+     the solve itself, defined with the menu engine below. Above 600px nothing here touches the page: no
+     class, no inline token. */
+  const MOB = { on:false, land:false, S:0, fit:0, tight:'', capBinds:false, hooks:[], rows:[], solve:null };
+  const MOB_Q = '(max-width: 600px)', MOB_LQ = '(pointer: coarse) and (orientation: landscape) and (max-height: 500px)';
+  const MOB_LAND = false;   /* 512e switches the landscape phones on */
+  function mobEval(e){
+    const mm = q => { try { return !!(window.matchMedia && matchMedia(q).matches); } catch (x) { return false; } };
+    const land = MOB_LAND && mm(MOB_LQ), on = land || mm(MOB_Q), R = document.documentElement;
+    const flip = on !== MOB.on || land !== MOB.land;
+    MOB.on = on; MOB.land = land;
+    R.classList.toggle('mob', on); R.classList.toggle('mobl', land);
+    if (!on) R.style.removeProperty('--m-sub');
+    if (on && MOB.solve) MOB.solve(true);
+    if (flip){
+      MOB.hooks.forEach(f => { try { f(MOB); } catch (x) {} });
+      if (!(e && e.type === 'resize') && MOB.solve) dispatchEvent(new Event('resize'));
+    }
+  }
+  window.__mob = MOB;   /* for the rigs: read it, never write it */
+  addEventListener('resize', mobEval);   /* FIRST: registered before every other resize listener in this file */
+  try { const mq = window.matchMedia && matchMedia(MOB_Q); if (mq && mq.addEventListener) mq.addEventListener('change', mobEval); } catch (x) {}
+  mobEval();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (MOB.solve) MOB.solve(true); });   /* first in line: S lands before any engine's own fonts pass reads it */
   /* ---- deck contents. The six case loops, one per case, and nothing else.
      Paths are relative to the HTML and must match the files EXACTLY, including
      capitals -- a mismatch shows as a labelled card rather than failing
@@ -4876,7 +5051,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const el = document.getElementById('xcur');
     if (!el) return;
     const bc = document.body.classList;
-    if (!(bc.contains('cur-dot') || bc.contains('cur-corner'))){ el.classList.remove('on'); return; }
+    if (MOB.on || !(bc.contains('cur-dot') || bc.contains('cur-corner'))){ el.classList.remove('on'); return; }   /* 512a: MOB.on -- the system pointer on a phone-width window */
     el.style.left = x + 'px'; el.style.top = y + 'px';
     /* 410: the chip and the corner COMPOSE now -- the arrow sits on the
        chip's top-left exactly as his mock draws it. The circle-era stand-
@@ -10059,7 +10234,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* the upper half of the name row opens it; once open, only leaving the
      header's surface -- the expanded one, the menu included -- folds it */
   hdr.addEventListener('pointermove', e => {
-    if (!s3() || ldLock) return;
+    if (!s3() || ldLock || MOB.on) return;   /* 512a: no hover expansion on a phone */
     const r = hdrName.getBoundingClientRect();
     if (e.clientY <= r.top + r.height / 2) hdrSet(true);
   });
@@ -10190,6 +10365,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       void ldName.offsetWidth;              // so the change is a transition
       ldName.style.top = r.top.toFixed(1) + 'px';
       ldName.style.fontSize = fs;
+      if (MOB.on){   /* 512a: the phone's bar -- B / D at SUBTITLE, D left of the menu icon: the flight lands on both (the size outranks .ld-name's TITLE) */
+        ldName.style.transition += ', right ' + TFL + 'ms ' + K18;
+        ldName.style.setProperty('font-size', fs, 'important');
+        ldName.style.right = (innerWidth - r.right).toFixed(1) + 'px';
+      }
       if (s3() && ldFull){
         /* The fold, co-starting with the flight on its clock and curve:
            tails fade to nothing, footprints pull back to the initials' ink
@@ -10345,6 +10525,202 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   measure();
   paint();
   addEventListener('resize', () => { hdrSolve(); measure(); paint(); ldSolve(); abSolve(); if (AB2.active()) AB2.layout(); });
+
+  /* ================= 512 MOBILE: THE SUBTITLE SOLVE AND THE MENU SLIDE (SPEC-512 sec. C, D) =========
+     THE SUBTITLE IS ONE SIZE ACROSS THE WHOLE SITE on a given phone, as large as possible: the tightest row
+     defines it. Every tight row is measured at a reference size in a probe that wears the members' exact
+     type (SUBTITLE, and BODY(CAPS) at half its size), and S is the largest size at which ALL of them fit
+     between the margins with their air -- capped at the desktop SUBTITLE (M_CAP). Two passes, so DM Sans'
+     optical size (auto from the computed size) is the one S will actually render at. On load, on the fonts,
+     on every resize (mobEval, first in line) and on a mode switch. The air, in S: M_GAP between a title and
+     its subtitle (and an item and its number), M_RULE the least hairline, M_TRI the triangle and its air,
+     M_ICO the menu icon and its air. */
+  const M_CAP = 20;   /* the desktop SUBTITLE at <= 1600 wide (2 x the BODY floor) */
+  const M_GAP = 1, M_RULE = 2, M_TRI = 1.1 + .27, M_ICO = 1.32;
+  const mJSON = id => { try { return JSON.parse(document.getElementById(id).textContent); } catch (e) { return null; } };
+  const mOneRow = t => String(t || '').split('/').map(x => x.trim()).filter(Boolean).join(' ');
+  const mRec = (() => {   /* the pages' own titles, subtitles and section names: cases (c3Data) and posts (blogData) */
+    const out = [], c3 = mJSON('c3Data'), bl = mJSON('blogData');
+    const cs = (c3 && c3.cases) || {}, ps = (bl && bl.posts) || {};
+    for (const k in cs){ const c = cs[k]; if (!c || typeof c !== 'object' || !c.brand) continue;
+      out.push({ key:k, kind:'case', title:[].concat(c.brand).join(' '), sub:c.subtitle || '', secs:(c.details || []).map(d => (d && d.title) || '') }); }
+    for (const k in ps){ const p = ps[k]; if (!p || typeof p !== 'object') continue;
+      out.push({ key:k, kind:'post', title:p.title || '', sub:p.date ? fmtDate(p.date) : (p.subtitle || ''), secs:(p.details || []).map(d => (d && d.title) || '') }); }
+    return out;
+  })();
+  let mProbeEl = null;
+  function mMeasurer(S){
+    if (!mProbeEl){
+      mProbeEl = document.createElement('div'); mProbeEl.className = 'm-probe'; mProbeEl.setAttribute('aria-hidden', 'true');
+      mProbeEl.style.cssText = 'position:fixed; left:0; top:0; visibility:hidden; pointer-events:none; white-space:nowrap;';   /* inert in any mode */
+      mProbeEl.innerHTML = '<span class="m-ps"></span><span class="m-pb"></span>';
+    }
+    if (!mProbeEl.isConnected) document.body.appendChild(mProbeEl);   /* in the DOM only while a solve measures (mSolve removes it) */
+    const a = mProbeEl.children[0], b = mProbeEl.children[1];
+    a.style.fontSize = S + 'px'; b.style.fontSize = (S / 2) + 'px';
+    /* the box less its trailing tracking: the ink's run, to within a side bearing */
+    const W = (t, body) => { if (!t) return 0; const e = body ? b : a; e.textContent = t;
+      return e.getBoundingClientRect().width - (parseFloat(getComputedStyle(e).letterSpacing) || 0); };
+    W.S = S;
+    return W;
+  }
+  /* THE TIGHT ROWS (SPEC-512 sec. C). Each returns [{ what, w }], w the row's run in px at the probe's S. */
+  MOB.rows.push(W => mRec.map(r => ({ what:'start row: ' + r.key,   /* a case / post START slide: title SUBTITLE + subtitle BODY on ONE row */
+    w: W(r.title) + M_GAP * W.S + W(mOneRow(r.sub), 1) })));
+  MOB.rows.push(W => mRec.filter(r => r.kind === 'case').map(r => {   /* the hero's bottom row: title SUBTITLE + year over type in BODY */
+    const t = mOneRow(r.sub), y = (t.match(/\b\d{4}\b/) || [''])[0], ty = t.replace(y, '').replace(/\s+/g, ' ').trim();
+    return { what:'hero row: ' + r.key, w: W(r.title) + M_GAP * W.S + Math.max(W(y, 1), W(ty, 1)) }; }));
+  MOB.rows.push(W => [].concat(...mRec.map(r => r.secs.map((x, i) => ({ what:'section row: ' + r.key + ' ' + x,   /* 02 ---- APPROACH */
+    w: W(String(i + 1).padStart(2, '0')) + M_RULE * W.S + W(x) })))));
+  MOB.rows.push(W => [
+    { what:'menu row 01', w: W('01') + (M_GAP + M_TRI) * W.S + W('Selected Works') },   /* 01, the triangle, SELECTED WORKS */
+    { what:'menu row 05', w: W('Instagram') + M_GAP * W.S + W('05') },                    /* INSTAGRAM, 05 */
+    { what:'header bar', w: W('B') + M_RULE * W.S + W('D') + M_ICO * W.S } ]);           /* B - D and the icon */
+  function mSolve(){
+    if (!MOB.on) return false;
+    const content = document.documentElement.clientWidth - 2 * padPx();   /* the phone's width: innerWidth is the layout viewport, which a page's overflow grows */
+    let S = MOB.S || M_CAP, fit = S, tight = '';
+    for (let pass = 0; pass < 2; pass++){
+      const W = mMeasurer(S); let best = Infinity, who = '';
+      MOB.rows.forEach(f => { let rs = []; try { rs = f(W) || []; } catch (x) {}
+        rs.forEach(r => { if (!(r.w > 0)) return; const k = S * content / r.w; if (k < best){ best = k; who = r.what; } }); });
+      if (!isFinite(best)){ best = M_CAP; who = ''; }
+      fit = best; tight = who; S = Math.min(M_CAP, best);
+    }
+    if (mProbeEl) mProbeEl.remove();   /* a desktop after a phone round trip is a fresh desktop */
+    S = Math.round(S * 100) / 100;
+    MOB.fit = Math.round(fit * 100) / 100; MOB.tight = tight; MOB.capBinds = fit > M_CAP;
+    const was = MOB.S; MOB.S = S;
+    document.documentElement.style.setProperty('--m-sub', S + 'px');
+    return Math.abs(S - was) > .004;
+  }
+  MOB.solve = silent => { const ch = mSolve(); if (ch && !silent) dispatchEvent(new Event('resize')); return ch; };
+  MOB.solve(true);
+
+  /* THE MENU SLIDE (SPEC-512 sec. D). One number, MNU.p (0 collapsed .. 1 open), drives it all: the header
+     bar travels by p x the travel (its baseline from under the top margin down to the bottom margin), the
+     paper sheet's foot rides the bar's foot, the icon turns into the cross, and each static row comes in
+     (fade + blur) once the bar has passed below it -- leaving in reverse as it comes back up. A tap on the
+     icon runs p on the house curve; a drag moves p with the finger (down on the bar opens; up anywhere on the
+     open slide closes) and the release goes on past a third, or with a flick. Choosing an item closes it, as
+     do the cross and Escape. */
+  const mSheet = document.getElementById('mSheet'), mMenu = document.getElementById('mMenu');
+  const mIco = document.getElementById('mIco'), mList = document.getElementById('mList');
+  const MNU = { p:0, to:0, anim:0, drag:null, open:false, swallow:0, rows:[], h:0 };   /* to: where the slide is headed */
+  const mVH = () => (window.visualViewport && visualViewport.height) || document.documentElement.clientHeight || innerHeight;   /* the height the phone shows: innerHeight is the layout viewport, which a page's overflow grows */
+  const mTravel = () => Math.max(1, mVH() - 2 * PAD - .7 * (MOB.S || M_CAP));
+  const mEaseIO = u => u < .5 ? 8 * u * u * u * u : 1 - Math.pow(-2 * u + 2, 4) / 2;   /* the house curve, cubic-bezier(.76,0,.24,1) */
+  const mEaseOut = u => 1 - Math.pow(1 - u, 3);                                          /* a release keeps the finger's speed */
+  function mnuMeasure(){
+    MNU.h = hdr.offsetHeight;
+    MNU.rows = [...mMenu.querySelectorAll('.m-r')].map(el => ({ el, bot: el.getBoundingClientRect().bottom }));
+  }
+  function mnuSet(p){
+    MNU.p = Math.max(0, Math.min(1, p));
+    const live = MNU.p > 0, y = MNU.p * mTravel();
+    document.documentElement.classList.toggle('m-live', live);
+    hdr.style.transform = live ? 'translate3d(0,' + y.toFixed(2) + 'px,0)' : '';
+    if (live) hdr.style.setProperty('--m-p', MNU.p.toFixed(4)); else hdr.style.removeProperty('--m-p');
+    mSheet.style.transform = live ? 'translate3d(0,' + (y + MNU.h + 10 - innerHeight).toFixed(2) + 'px,0)' : '';
+    mSheet.style.opacity = live ? Math.min(1, MNU.p * 8).toFixed(3) : '';
+    const edge = PAD + y;   /* the bar's cap top */
+    MNU.rows.forEach(r => r.el.classList.toggle('on', live && edge > r.bot));
+  }
+  function mnuState(open){
+    MNU.open = open;
+    document.documentElement.classList.toggle('m-open', open);
+    mIco.setAttribute('aria-expanded', open ? 'true' : 'false');
+    mIco.setAttribute('aria-label', open ? 'Close the menu' : 'Open the menu');
+    mMenu.setAttribute('aria-hidden', open ? 'false' : 'true');
+  }
+  function mnuGo(to, flick){
+    cancelAnimationFrame(MNU.anim);
+    MNU.to = to;
+    if (MNU.p === 0) mnuMeasure();
+    if (to === 0) mnuState(false);   /* closing: inert at once */
+    const from = MNU.p, d = Math.abs(to - from);
+    if (d < .001){ mnuDone(to); return; }
+    const dur = flick ? Math.max(180, 420 * d) : Math.max(250, 700 * d), ease = flick ? mEaseOut : mEaseIO, t0 = performance.now();
+    const step = now => { const u = Math.min(1, (now - t0) / dur); mnuSet(from + (to - from) * ease(u));
+      if (u < 1) MNU.anim = requestAnimationFrame(step); else mnuDone(to); };
+    MNU.anim = requestAnimationFrame(step);
+  }
+  function mnuDone(to){ mnuSet(to); mnuState(to === 1); if (to === 0) mnuWorks(false, true); }
+  function mnuReset(){ cancelAnimationFrame(MNU.anim); MNU.drag = null; MNU.to = 0; mnuWorks(false, true); mnuSet(0); mnuState(false); }
+  MOB.hooks.push(mnuReset);   /* a mode switch lands on a closed slide */
+  /* SELECTED WORKS: the case titles, from the site's own case picker (its order, its names, its opener) */
+  function mnuList(){
+    const pk = document.getElementById('csPick'); if (!pk) return;
+    const inn = document.createElement('div'); inn.className = 'm-list-in';
+    [...pk.querySelectorAll('button')].forEach((b, i) => { const x = document.createElement('button');
+      x.type = 'button'; x.textContent = b.textContent; x.dataset.key = b.dataset.key; x.style.setProperty('--d', (i * 60) + 'ms'); inn.appendChild(x); });
+    mList.innerHTML = ''; mList.appendChild(inn);
+  }
+  function mnuWorks(on, instant){
+    if (on && !mList.children.length) mnuList();
+    mMenu.classList.toggle('m-works-on', on);
+    const tg = mMenu.querySelector('.m-tog'); if (tg) tg.setAttribute('aria-expanded', on ? 'true' : 'false');
+    if (instant) mList.style.transition = 'none';
+    mList.style.height = on ? mList.scrollHeight + 'px' : '0px';
+    if (instant){ void mList.offsetHeight; mList.style.transition = ''; }
+    else setTimeout(() => { if (MNU.p > 0){ mnuMeasure(); mnuSet(MNU.p); } }, 540);   /* the rows under it moved */
+  }
+  mIco.addEventListener('click', e => { e.stopPropagation(); if (MOB.on) mnuGo(MNU.to === 1 ? 0 : 1); });   /* on the target: a second tap mid-opening reverses it */
+  mMenu.addEventListener('click', e => {
+    if (!MOB.on) return;
+    if (e.target.closest('.m-tog')){ e.stopPropagation(); mnuWorks(!mMenu.classList.contains('m-works-on')); return; }
+    const cb = e.target.closest('.m-list button');
+    if (cb){ e.stopPropagation(); const b = document.querySelector('#csPick button[data-key="' + cb.dataset.key + '"]'); mnuGo(0); if (b) b.click(); return; }   /* the desktop picker's own open, view swap included */
+    if (e.target.closest('[data-go], [data-view], a[href]')) mnuGo(0);   /* the document router does the rest, as for the desktop menu */
+  });
+  hdr.addEventListener('click', e => { if (MOB.on && MNU.p > 0 && e.target.closest('[data-go], [data-view]')) mnuGo(0); });   /* B / D on the open bar go home: that is a choice too */
+  /* BLOG is inactive but a REAL target. A row with no listener of its own is skipped by Chrome's touch adjustment in
+     favour of the nearest link (VIMEO, 10px above) -- so a tap on BLOG opened Vimeo. Its own listener keeps the tap on
+     it and swallows the activation: a tap on BLOG does nothing, and the slide stays open. */
+  mMenu.querySelectorAll('.m-off').forEach(el => el.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); }));
+  mMenu.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.m-tog')){ e.preventDefault(); e.target.click(); } });
+  /* the drag: down on the bar opens, up anywhere on the open slide closes; 8px before it counts */
+  function mnuDown(e){
+    if (!MOB.on || MNU.drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    MNU.drag = { id:e.pointerId, el:e.currentTarget, y0:e.clientY, p0:MNU.p, on:false, pts:[[e.timeStamp, e.clientY]] };
+  }
+  function mnuMove(e){
+    const d = MNU.drag; if (!d || e.pointerId !== d.id) return;
+    const dy = e.clientY - d.y0;
+    if (!d.on){
+      if (Math.abs(dy) < 8) return;
+      if (d.p0 < .5 ? dy < 0 : dy > 0){ MNU.drag = null; return; }
+      d.on = true; cancelAnimationFrame(MNU.anim);
+      if (MNU.p === 0) mnuMeasure();
+      try { d.el.setPointerCapture(d.id); } catch (x) {}
+    }
+    d.pts.push([e.timeStamp, e.clientY]); if (d.pts.length > 5) d.pts.shift();
+    mnuSet(d.p0 + dy / mTravel());
+  }
+  function mnuUp(e){
+    const d = MNU.drag; if (!d || e.pointerId !== d.id) return;
+    MNU.drag = null; if (!d.on) return;
+    MNU.swallow = performance.now();   /* a click this release may still fire lands on nothing */
+    const a = d.pts[0], b = d.pts[d.pts.length - 1], v = b[0] > a[0] ? (b[1] - a[1]) / (b[0] - a[0]) : 0;   /* px per ms */
+    const to = v > .45 ? 1 : v < -.45 ? 0 : d.p0 < .5 ? (MNU.p > 1 / 3 ? 1 : 0) : (MNU.p < 2 / 3 ? 0 : 1);
+    mnuGo(to, true);
+  }
+  [hdr, mSheet, mMenu].forEach(el => {
+    el.addEventListener('pointerdown', mnuDown);
+    /* the landing drives its deck from window touch listeners: a touch on the bar or the slide is the menu's alone */
+    ['touchstart', 'touchmove'].forEach(t => el.addEventListener(t, e => { if (MOB.on) e.stopPropagation(); }, { passive:true }));
+  });
+  [mSheet, mMenu].forEach(el => el.addEventListener('wheel', e => { if (MOB.on){ e.preventDefault(); e.stopPropagation(); } }, { passive:false }));
+  addEventListener('pointermove', mnuMove, { passive:true });
+  addEventListener('pointerup', mnuUp);
+  addEventListener('pointercancel', mnuUp);
+  addEventListener('click', e => { if (MNU.swallow && performance.now() - MNU.swallow < 500){ MNU.swallow = 0; e.stopPropagation(); e.preventDefault(); } }, { capture:true });
+  addEventListener('keydown', e => {
+    if (!MOB.on || MNU.p <= 0) return;
+    if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); mnuGo(0); return; }
+    if (/^(Arrow|Page)/.test(e.key) || e.key === ' ' || e.key === 'Home' || e.key === 'End') e.stopPropagation();   /* nothing moves under the slide */
+  }, { capture:true });
+  addEventListener('resize', () => { if (MNU.p > 0){ mnuMeasure(); mnuSet(MNU.p); } });
   /* ================= CASE REGISTRY + TEMPORARY PICKER ==================
      Every case study lives in one JSON block and is written into the single
      case view on demand. The picker is a stopgap so all seven are reachable
@@ -12174,7 +12550,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const bc = document.body.classList;
       /* The circle is no longer tied to V4 -- only to a hero actually being
          on screen with a card to point at. */
-      if (introOn || !on() || viewOpen() || bc.contains('hs-off') || curHero < 0 || turning()){   /* 451c: the chip sits out the intro -- its rect hit-test never saw the pointer gate */
+      if (MOB.on || introOn || !on() || viewOpen() || bc.contains('hs-off') || curHero < 0 || turning()){   /* 512a: MOB.on -- no OPEN CASE chip on a phone */   /* 451c: the chip sits out the intro -- its rect hit-test never saw the pointer gate */
         bc.remove('h4-hover'); return;
       }
       const r = cards[curHero].getBoundingClientRect();
@@ -12796,7 +13172,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      the film). */
   const c3CurEl = document.getElementById('h4cur');
   function c3Cur(e, on){
-    document.body.classList.toggle('c3-hover', !!on);
+    document.body.classList.toggle('c3-hover', !!on && !MOB.on);   /* 512a: nor on the case flanks */
     if (on && c3CurEl){ c3CurEl.style.left = e.clientX + 'px'; c3CurEl.style.top = e.clientY + 'px'; }
   }
   let cards = [];                     // { q, key, el, still, iframe, player, playing, pose }
@@ -13201,6 +13577,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       try {
         const spans = [...hdr.querySelectorAll('.menu span')];
         const low = spans.sort((a, b) => b.getBoundingClientRect().bottom - a.getBoundingClientRect().bottom)[0];
+        if (!low || !low.getClientRects().length) throw 0;   /* 512a: on a phone the rows are not laid out (they live in the slide): the header's foot, the fallback above, is the seat */
         const lr = low.getBoundingClientRect(), ls = getComputedStyle(low);
         const cx = (headTopCanvas || (headTopCanvas = document.createElement('canvas'))).getContext('2d');
         cx.font = ls.fontWeight + ' ' + ls.fontSize + ' ' + ls.fontFamily;
