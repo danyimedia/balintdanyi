@@ -3961,6 +3961,44 @@
   html.mob .m-menu.m-works-on .m-list button{ opacity:1; filter:blur(0); }
 
   /* M512:HERO */
+  /* THE HERO ON A PHONE (SPEC-512 sec. E, the mockup). The deck, SELECTED / WORKS and their seats are the desktop's own.
+     NO BLACK CARDS: the gate waits for every still, decoded (ldStillsIn); and the hero card's loop is LAID OUT under its
+     still from the moment it is borrowed -- the still, absolutely placed, paints over it until the loop is .live -- so
+     the phone never has to start a video that is not rendered (an iPhone will not play a muted video that is
+     display:none) and nothing black ever shows between the still and the playing loop. */
+  html.mob body.hero-v7 .vs-card video{ display:block; }
+  /* THE PARAGRAPH (#h4sum) IS ALWAYS ON: directly under the deck, its sides on the front card's sides (--rail4 /
+     --hero4, the card box layout() publishes), its cap top one SUBTITLE cap height (.7 S) under the card's foot --
+     at leading --sm-lh (1.13) BODY's cap top sits .206em under its line box. BODY(CAPS), as on the desktop. It still
+     blurs through a case swap (cap-swap) and arrives with the caption in the intro (vsi-cap). */
+  html.mob .h4-sum{
+    opacity:1; top:calc(var(--h4-top) + var(--h4-h) + .7 * var(--m-sub) - .206 * var(--m-body)); bottom:auto;
+    left:var(--rail4); width:var(--hero4); text-align:left;
+  }
+  html.mob body.cap-swap .h4-sum{ opacity:.35; }
+  html.mob body.vsi.vsi-cap #h4sum{ opacity:1; filter:blur(0); transition:opacity .7s ease, filter .7s ease; }
+  /* THE BOTTOM ROW: the case title as TEXT in SUBTITLE on the left margin (the logo stands down), the subtitle on the
+     right margin as two BODY(CAPS) lines, the year over the type, stacked as tight as the desktop's corner stack
+     (.8843). Both BASELINES on the bottom margin: a line box of leading L carries its baseline L/2 - .341em over its
+     foot (DM Sans: ascent .992, content 1.302) -- .159em at 1, .1011em at .8843 -- and markSub trims what Chrome's
+     whole-pixel half-leading leaves (--m-dy, measured on the baseline itself). The title leaves and comes back with
+     the corners (the 509 sequence: cm-swap), and arrives with them in the intro. */
+  html.mob .h4-cmark{ display:none; }
+  html.mob .h4-mtitle{
+    display:block; position:absolute; left:0; bottom:calc(var(--pad) - .159em + var(--m-dy, 0px)); color:var(--ink);
+    font-size:var(--m-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:1;
+    text-transform:uppercase; white-space:nowrap; transition:filter .3s ease, opacity .3s ease;
+  }
+  html.mob .h4-sub{
+    bottom:calc(var(--pad) - .1011em + var(--m-dy, 0px)); white-space:nowrap;
+    font-size:var(--m-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--t-sub-lh);
+  }
+  html.mob body.vsi .h4-mtitle{ opacity:0; filter:blur(9px); }
+  html.mob body.vsi:not(.vsi-cap) .h4-mtitle{ transition:none; }
+  html.mob body.vsi.vsi-cap .h4-mtitle{ opacity:1; filter:blur(0); transition:opacity .7s ease, filter .7s ease; }
+  html.mob body.cm-swap .h4-mtitle, html.mob body.vsi.vsi-cap.cm-swap .h4-mtitle{
+    filter:blur(6px); opacity:0; transition:filter .22s ease, opacity .16s ease .12s;
+  }
 
   /* M512:SHOWREEL */
 
@@ -4046,6 +4084,9 @@
        margin, its subtitle at the right. Both follow the scroll-UI. -->
   <div class="h4-cmark" id="h4cmark" aria-hidden="true"><img alt=""></div>
   <div class="h4-sub" id="h4sub" aria-hidden="true"></div>
+  <!-- 512b: the PHONE's bottom-left corner -- the case title as TEXT, in SUBTITLE, where the desktop has the logo.
+       Hidden off the phone (the M512:HERO CSS shows it); written by markSub with the corners. -->
+  <div class="h4-mtitle" id="h4mTitle" aria-hidden="true" hidden></div>
 </div>
   <!-- the hero's caption chrome (z 1050) came along in 348: at body level it painted over a deck now inside #home; here it is under the deck (1100) as before, and recedes with the page -->
 
@@ -4615,7 +4656,20 @@
     }, 400);
     setTimeout(() => { ldBail = true; ldGateOpen(); }, Math.max(0, LD.GATE_MAX - performance.now()));   /* 509: the one timeout, from navigation start; 510: the poll keeps watching past it (it stops itself once all are in) -- the extras wait for the six themselves */
   }
-  const ldAssetsIn = () => ldBail || !ldItems || ldDone >= ldItems;
+  /* 512b NO BLACK CARDS (SPEC-512 sec. E; his bug: on his phone the hero opened with only the first two deck cards
+     showing, the rest black). On a phone the gate ALSO waits for the deck's stills -- every card's <Key>First.jpg, loaded
+     AND decoded (img.decode()), so no card can paint as its black ground when the hero appears. They are the one content
+     an iPhone is sure to have: it never preloads a paused video. The 8s bail does not release them (it is the six
+     loops' timeout; the stills are ~375KB); the loader's safety valve (GATE_MAX + 10s visible) still bounds the wait.
+     Polled like the rest of the gate: every call asks any still not yet asked (a rebuilt deck's too), and a decode
+     that lands re-tries the gate. Off the phone, and on a routed load (no sheet), this is always true. */
+  const ldStillOk = im => { if (im.__mDec) return true;
+    if (!im.__mAsk && im.complete){ im.__mAsk = true; const ok = () => { im.__mDec = true; ldGateOpen(); };
+      (im.decode ? im.decode() : Promise.resolve()).then(ok, ok); }   /* a broken file settles too (its canvas fallback takes over) */
+    return false; };
+  const ldStillsIn = () => { if (!MOB.on || ldSkip) return true; let all = true;
+    document.querySelectorAll('.vs-deck img.still').forEach(im => { if (!ldStillOk(im)) all = false; }); return all; };
+  const ldAssetsIn = () => (ldBail || !ldItems || ldDone >= ldItems) && ldStillsIn();
   /* Read this in the console if the count ever pauses again: it names the
      exact files and their readyState, which is the measurement needed to fix
      the real cause rather than guessing at it. */
@@ -12439,6 +12493,28 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        is read once per mark from the alpha channel and cached. */
     const SUBS = (() => { try { const c = JSON.parse(document.getElementById('c3Data').textContent).cases, m = {};
       for (const k in c) m[k] = c[k].subtitle || ''; return m; } catch (e) { return {}; } })();
+    /* 512b THE PHONE'S BOTTOM ROW (SPEC-512 sec. E, the mockup): the title is the registry's BRAND in text ("Cannes
+       Lions" -- the year moves right), the subtitle two BODY lines, the YEAR over the TYPE. The same split the SUBTITLE
+       solve measures for its hero rows (512a), so the row it sizes S by is the row shown. No year (LIMITS): the type
+       alone, on the bottom line. */
+    const M_HERO = (() => { try { const c = JSON.parse(document.getElementById('c3Data').textContent).cases, m = {};
+      for (const k in c){ const t = String(c[k].subtitle || '').split('/').map(x => x.trim()).filter(Boolean).join(' '), y = (t.match(/\b\d{4}\b/) || [''])[0];
+        m[k] = { title:[].concat(c[k].brand || c[k].title || '').join(' '), year:y, type:t.replace(y, '').replace(/\s+/g, ' ').trim() }; }
+      return m; } catch (e) { return {}; } })();
+    /* 512b: THE BASELINES ARE MEASURED, NOT MODELLED. Chrome snaps a line's half-leading to whole pixels, so the
+       L/2 - .341em model left the 10px two-line stack's last baseline ~.8px over the margin. A zero-size inline-block
+       at the end of the last line sits ON its baseline; each corner moves (--m-dy, read only by the phone CSS) by what
+       is left between that and the bottom margin. Idempotent: a seated corner measures 0 and stays. */
+    function mSeatBase(els){
+      const hc = byId('h4c'); if (!hc) return;
+      const foot = hc.getBoundingClientRect().bottom - padPx();
+      els.forEach(el => { if (!el || !el.getClientRects().length) return;
+        const ln = el.lastElementChild || el, p = document.createElement('span');
+        p.style.cssText = 'display:inline-block; width:0; height:0;'; ln.appendChild(p);
+        const y = p.getBoundingClientRect().bottom; p.remove();
+        const d = (parseFloat(el.style.getPropertyValue('--m-dy')) || 0) + (y - foot);
+        if (Math.abs(y - foot) > .01) el.style.setProperty('--m-dy', d.toFixed(2) + 'px'); });
+    }
     const inkBox = {};
     function logoInk(src, cb){
       if (inkBox[src]){ cb(inkBox[src]); return; }
@@ -12484,8 +12560,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (!sub || !mk) return;
       mk._i = i;   /* 509: the case the corners are showing */
       const txt = SUBS[L[i][KEY]] || '';
-      sub.innerHTML = (txt.indexOf('/') >= 0 ? txt.split('/') : txt.split(' '))
+      const mh = MOB.on && M_HERO[L[i][KEY]];   /* 512b: on a phone the year over the type, and the title in text */
+      sub.innerHTML = (mh ? [mh.year, mh.type].filter(Boolean) : txt.indexOf('/') >= 0 ? txt.split('/') : txt.split(' '))
         .map(w => '<i>' + w.trim() + '</i>').join('');
+      const mt = byId('h4mTitle');
+      if (mt){ mt.textContent = mh ? mh.title : ''; if (mh) try { seatEdge(mt, 'left'); mSeatBase([mt, sub]); } catch (e) {} }   /* the title's first ink on the left margin; both baselines on the bottom one */
       /* 507: re-seat on the swap -- the last glyph changes with the case, so
          a seat taken once at boot is the wrong bearing for every case after
          the first. */
@@ -12499,6 +12578,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       img.src = src;
       logoInk(src, box => { if (mk._src === src) markFit(mk, img, sub, box); });
     }
+    MOB.hooks.push(() => { const mk = byId('h4cmark'); if (mk && mk._i !== undefined) markSub(mk._i); });   /* 512b: a mode switch re-writes the corners (phone: text title, year over type; desktop: logo + rows) */
     /* warm every mark's ink at idle, so the first swap is already synchronous */
     addEventListener('load', () => setTimeout(() => L.forEach(r => logoInk(encodeURI(ROOT + r[2]), () => {})), 1200));
     function chrome(i){
