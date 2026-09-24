@@ -10996,6 +10996,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (/^(Arrow|Page)/.test(e.key) || e.key === ' ' || e.key === 'Home' || e.key === 'End') e.stopPropagation();   /* nothing moves under the slide */
   }, { capture:true });
   addEventListener('resize', () => { if (MNU.p > 0){ mnuMeasure(); mnuSet(MNU.p); } });
+  /* 512f: THE KEYBOARD. On an iPhone the on-screen keyboard shrinks only the VISUAL viewport and fires no window resize,
+     and a tap on the icon leaves the field being typed into focused: a slide opened with the keyboard up travels to the
+     band above it (mTravel reads visualViewport), and when the keyboard goes down only visualViewport's resize says so.
+     The slide re-solves on it too, so the bar lands on the bottom margin and rows 05-08 come in. */
+  if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (MNU.p > 0){ mnuMeasure(); mnuSet(MNU.p); } });
   /* ================= CASE REGISTRY + TEMPORARY PICKER ==================
      Every case study lives in one JSON block and is written into the single
      case view on demand. The picker is a stopgap so all seven are reachable
