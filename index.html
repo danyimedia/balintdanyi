@@ -4119,19 +4119,26 @@
      (AB4: m4Enter / m4Leave) puts .a4m on <html> on a PORTRAIT phone once About is built; a landscape phone keeps the desktop
      journey under the phone header, as 512f left it. The same DOM, restyled: the view's own (native) scroll carries the four
      sheets in the desktop's order and colours -- INTRO, ROLE and APPROACH pinned stages (sticky, one MEASURED screen tall,
-     --a4m-h, never 100vh), BACKGROUND flowing -- every line placed by ink in JS; the About nav is the section row under B - D.
+     --a4m-h, never 100vh), BACKGROUND flowing -- every line placed by ink in JS.
      THE TYPE: a TITLE tier on About only, --m-title = --m-title-k x SUBTITLE (his question 1; 2 is the doc's answer, 1 gives
      the two classes; 513a: the dial lives with the phone's tokens in M512:BASE), following the site's SUBTITLE solve,
      which About's tight rows now join (513a). His question 4 is --a4m-cp-align (the
-     INTRO statement: left, the phone's text rule; center is the desktop's). */
+     INTRO statement: left, the phone's text rule; center is the desktop's).
+     513b (his notes, SPEC-513): each slide carries its OWN title row at its top edge (0n  NAME, no rule between) and moves
+     with it -- the page-level section row is gone; the #a4Nav spans are only the tap-to-index. THE SLIDE TRANSITION: the
+     outgoing slide recedes on a SLOW parallax and its content fades as the desktop's does, the incoming one rises a little
+     FASTER than the finger, led by its title row, its items coming in one by one -- JS (m4Frame) writes each sheet's
+     transform and each pin's opacity inline with priority (the rules here stay !important against the desktop journey's
+     inline leftovers). The chrome's foot is the bar's alone. */
   html.mob.a4m{
     --m-title:calc(var(--m-title-k) * var(--m-sub));
     --a4m-cp-align:left;
-    --a4m-ch:calc(1.5 * var(--m-pad) + 2.7 * var(--m-sub));   /* the chrome's foot: the bar, the section row (cap top M + 2 S), half a margin */
+    --a4m-ch:calc(1.5 * var(--m-pad) + .7 * var(--m-sub));   /* 513b: the chrome's foot, the bar's alone -- B's cap (on M) and half a margin; the title rows ride their slides */
   }
   html.mob.a4m #viewAbout4{ padding-top:0; overflow-x:hidden; --a4-k:1 !important; }
   html.mob.a4m #viewAbout4 > .a4-page, html.mob.a4m #viewAbout4 > .a4-foot, html.mob.a4m #a4GalSlot, html.mob.a4m #a4Belt2{ display:none; }
-  /* THE SHEETS: stages in the view's scroll, each rising over the one before (JS writes their heights: hold + 2 screens) */
+  /* THE SHEETS: stages in the view's scroll, each rising over the one before (JS writes their heights: hold + 1 screen + the
+     transition's scroll; and their parallax, inline important) */
   html.mob.a4m #viewAbout4 > .a4-sl1, html.mob.a4m #viewAbout4 > .a4-sl2, html.mob.a4m #viewAbout4 > .a4-sl3, html.mob.a4m #viewAbout4 > .a4-sl4{
     position:relative; inset:auto; flex:none; width:100%; transform:none !important; will-change:auto;
   }
@@ -4139,7 +4146,7 @@
   html.mob.a4m #viewAbout4 > .a4-sl2{ order:2; z-index:2; margin-top:calc(-1 * var(--a4m-h)); }
   html.mob.a4m #viewAbout4 > .a4-sl3{ order:3; z-index:3; margin-top:calc(-1 * var(--a4m-h)); }
   html.mob.a4m #viewAbout4 > .a4-sl4{ order:4; z-index:4; margin-top:calc(-1 * var(--a4m-h)); }
-  /* the pins: one screen, sticky; BACKGROUND's content box flows */
+  /* the pins: one screen, sticky (an outgoing pin's content fades: JS, inline important); BACKGROUND's content box flows */
   html.mob.a4m #a4Sl1 .a4-s1, html.mob.a4m #a4Unit, html.mob.a4m #a4Unit3{
     position:sticky; top:0; left:auto; right:auto; width:100%; height:var(--a4m-h); overflow:hidden; display:block; padding:0;
     transform:none !important; opacity:1 !important; will-change:auto;
@@ -4178,38 +4185,42 @@
   html.mob.a4m #viewAbout4 .a4-bgc .t{ font-size:var(--m-body); font-variation-settings:normal; font-optical-sizing:auto; }
   html.mob.a4m #viewAbout4 .a4-ap p, html.mob.a4m #viewAbout4 .a4-bgp p{ font-size:var(--m-nocaps); font-variation-settings:normal; font-optical-sizing:auto; }
   /* THE CORRIDORS (INTRO, BACKGROUND), moved into their sheets: margin to margin, .7 W tall; JS writes the lens (perspective
-     1.5 W, card depth .2 W, pitch W / 20). THE SLIT (#a4GalV, its cards stood down): 31 slivers, one per frame, a cap tall */
+     1.5 W, card depth .2 W, pitch W / 20). 513b THE SLIT (#a4GalV) is the DESKTOP'S: its own cards through its own lens
+     (JS m4Slit: the design card, pitch and perspective scaled down as one), the thin band its box */
   html.mob.a4m #viewAbout4 .a4-gal{ position:absolute; right:auto; z-index:auto; visibility:inherit; }
-  html.mob.a4m #a4GalV .a4-card{ display:none; }
-  html.mob.a4m .a4m-slit{ position:absolute; inset:0; display:flex; overflow:hidden; }
-  html.mob.a4m .a4m-slit i{ flex:1 1 0; background-size:cover; background-position:50% 50%; }
-  /* THE NINE LOGOS (from a2Data): ink-cropped white alphas, painted black on paper */
+  /* THE NINE LOGOS (from a2Data): ink-cropped white alphas, painted black on paper -- 513b: the desktop's belt, margin to margin */
   html.mob.a4m .a4m-lg{ position:absolute; left:0; top:0; width:100%; height:0; }
   html.mob.a4m .a4m-lg.a4m-belt{ left:var(--m-pad); width:calc(100% - 2 * var(--m-pad)); overflow:hidden; }
   html.mob.a4m .a4m-mk{ position:absolute; overflow:hidden; }
   html.mob.a4m .a4m-mk img{ position:absolute; display:block; max-width:none; filter:brightness(0); }
-  /* THE END ROW: 05 ---- CONTACT in the section row's form; a tap is the router's contact go (data-go) */
-  html.mob.a4m .a4m-end{ position:absolute; left:0; width:100%; pointer-events:auto; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  /* 513b THE TITLE ROWS (each slide's own, at its top edge) and THE END ROW (05  CONTACT): 0n  NAME, number left, name right,
+     SUBTITLE, no rule between (the end row's rule is the dial A4M_END_RULE). A title row's tap opens the index; the end
+     row's is the router's contact go (data-go). The INTRO row takes the boot's fade */
+  html.mob.a4m .a4m-end, html.mob.a4m .a4m-tr{ position:absolute; left:0; width:100%; pointer-events:auto; cursor:pointer; -webkit-tap-highlight-color:transparent;
     font-size:var(--m-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
     text-transform:uppercase; white-space:nowrap; }
-  html.mob.a4m .a4m-end span{ position:absolute; }
+  html.mob.a4m .a4m-end span, html.mob.a4m .a4m-tr span{ position:absolute; }
   html.mob.a4m .a4m-end > i{ position:absolute; height:1px; background:currentColor; }
+  html.mob.a4m #a4Unit3 .a4m-tr{ color:#F5F5F5; }   /* APPROACH's pin is .a4-unit (#000, declared after .u3): the row takes its sheet's ink */
+  html.mob.a4m body.a4boot #a4Sl1 .a4m-tr{ opacity:0; transition:opacity .3s ease; }
+  html.mob.a4m body.a4boot #a4Sl1 .a4m-tr.on{ opacity:1; }
   /* BACKGROUND FLOWS: each line comes in (the site's fade + blur, .55s) as it enters -- the case pages' law */
   html.mob.a4m #viewAbout4 .a4m-rv{ opacity:0; filter:blur(8px); transition:opacity .55s ease var(--d, 0ms), filter .55s ease var(--d, 0ms); }
   html.mob.a4m #viewAbout4 .a4m-rv.a4m-on{ opacity:1; filter:none; }
-  /* THE CHROME: the 512a bar unchanged; the section row under it; the band behind both is the sheet's colour at .72 with an
-     8px blur, from the top to the chrome's foot (solid while the index is open) */
+  /* THE CHROME: the 512a bar unchanged; the band behind it is the sheet's colour at .72 with an 8px blur, from the top to the
+     chrome's foot (513b: the bar's; solid, and deeper, while the index is open) */
   html.mob.a4m body.aboutopen.about4 .hdr::before{ bottom:auto; height:var(--a4m-bh, var(--a4m-ch)); background:rgba(0,0,0,var(--a4m-ba, .72));
     -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
   html.mob.a4m body.a4r.aboutopen.about4 .hdr::before{ background:rgba(245,245,245,var(--a4m-ba, .72)); }
-  /* THE SECTION ROW (#a4Nav restyled): number LEFT (a counter), name RIGHT, both SUBTITLE; the rule between them is the
-     sheet's progress (i.n0 the track at 22%, i.n1 the fill). JS writes the places. Open, it is the index over a veil */
+  /* THE INDEX (#a4Nav restyled): 513b -- only while open (a title row's tap): five rows, number LEFT (a counter), name RIGHT,
+     both SUBTITLE, no rules, over a veil. JS writes the places */
   html.mob.a4m body.aboutopen.about4 #a4Nav{ top:0; height:var(--a4m-ch); counter-reset:a4m; }
+  html.mob.a4m body.aboutopen.about4 #a4Nav:not(.a4m-open) span{ visibility:hidden; }
   html.mob.a4m body.aboutopen.about4 #a4Nav.a4m-open{ height:100vh; pointer-events:auto; background:linear-gradient(transparent var(--a4m-bh), rgba(0,0,0,.93) var(--a4m-bh)); }
   html.mob.a4m body.a4r.aboutopen.about4 #a4Nav.a4m-open{ background:linear-gradient(transparent var(--a4m-bh), rgba(245,245,245,.93) var(--a4m-bh)); }   /* the veil under the band: the bar's words stay clear */
   html.mob.a4m #a4Nav span{ top:0; transform:none; text-align:right; counter-increment:a4m; -webkit-tap-highlight-color:transparent; }
   html.mob.a4m #a4Nav span::before{ content:counter(a4m, decimal-leading-zero); position:absolute; left:var(--a4m-nl, 0px); top:0; }
-  html.mob.a4m #a4Nav i{ transform-origin:0 50%; }
+  html.mob.a4m #a4Nav i{ display:none; }
 
   /* M512:LAND */
   /* THE LANDSCAPE PHONE (SPEC-512 sec. A, H): a coarse pointer, landscape, at most 500px tall -- html.mob.mobl, on top
@@ -10436,10 +10447,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       on('#a4Nav span[data-k="2"]', 550);
       on('#a4Nav span[data-k="3"]', 650);
       on('#a4Nav span.ct', 750);
+      on('#a4Sl1 .a4m-tr', 60);   /* 513b: a portrait phone's INTRO title row (none on the desktop) */
       on('.a4-row3 .a4-big', 600);
       on('.a4-row3 .a4-mid', 1200);
       setTimeout(() => { B.classList.remove('a4boot');
-        document.querySelectorAll('#a4Nav .on, .a4-row3 .on').forEach(el => el.classList.remove('on')); }, 1750);
+        document.querySelectorAll('#a4Nav .on, .a4-row3 .on, .a4m-tr.on').forEach(el => el.classList.remove('on')); }, 1750);
     }
     function open(){
       build(); beltBuild(); layout(); bootIn();
@@ -10479,15 +10491,23 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        its chain, then the next rises over it for one screen (the desktop's card-over-card law, no hijack); BACKGROUND flows
        and ends on 05 ---- CONTACT. ONE motion primitive, the site's fade + blur: scrubbed on the pinned sheets (a link owns
        a window of 1.6 x its weight; the filter only inside it), triggered on the flowing one (.a4m-rv as it passes 88%).
-       THE NAV (#a4Nav) is the section row under B - D: number LEFT, name RIGHT, its rule the sheet's progress; the swap is
-       sequential; a tap opens it in place into the index.
+       THE NAV (#a4Nav) was the section row under B - D; 513b (his notes): each slide carries its own title row, and #a4Nav
+       is only the index a title row's tap opens.
        HIS OPEN QUESTIONS (the doc's sec. 8), each ONE dial, set to the doc's recommendation: (1) the TITLE tier -- CSS
        --m-title-k; (2) A4M_ROLE; (3) A4M_LOGOS; (4) the statement's alignment -- CSS --a4m-cp-align; (5) A4M_CORRIDORS;
        (6) ABOUT expanding in the menu slide -- not built (it would touch 512a's menu). */
     const A4M_HOLD = [2, 1, .8];   /* INTRO, ROLE, APPROACH: the holds, in screens (the motion map: 7.9 screens at 390 x 844) */
     const A4M_ROLE = 'split';      /* Q2: 'split' = the menu composition -- LEADING .. SOCIALS hung from the zone top, FLAGSHIP WORK FOR + the logos stood on the bottom margin, the void between; 'centre' = one block centred in the zone */
-    const A4M_LOGOS = 'grid';      /* Q3: 'grid' = the nine, still, 3 x 3 on the three anchors; 'belt' = one row drifting margin to margin */
+    const A4M_LOGOS = 'belt';      /* Q3 -- 513b, his answer: 'belt' = the desktop's belt, one row running margin to margin, all nine, looping seamlessly; 'grid' = 512g's still 3 x 3 on the three anchors */
     const A4M_CORRIDORS = 2;       /* Q5: 2 = INTRO and BACKGROUND, as on the desktop; 1 = INTRO only */
+    /* 513b: HIS NOTES (SPEC-513 "About on phones"), as dials. THE SLIDE TRANSITION, at every boundary: the incoming slide
+       rises A4M_IN x as fast as the finger (only a little faster: it overtakes, led by its title row), the outgoing one
+       recedes A4M_OUT x (a slow parallax) while its content fades as the desktop's outgoing card does; the incoming items
+       come in one by one from the moment it is A4M_LEAD risen. THE BELT: logos A4M_BELT_H S tall (x their registry scale),
+       A4M_BELT_GAP S apart (the desktop's air is 192px). The end row's rule: A4M_END_RULE (0 = none, as the title rows) */
+    const A4M_IN = 1.2, A4M_OUT = .4, A4M_LEAD = .4;
+    const A4M_BELT_H = 1.4, A4M_BELT_GAP = 1.6;
+    const A4M_END_RULE = 0;
     const A4M_LG4 = { 'METUlogo.png':[13,24,421,412,48], 'UoGlogo.png':[68,11,317,409,48], 'cMBAlogo.png':[6,7,317,149,26] };   /* build()'s school-mark ink boxes: x, y, w, h, the desktop ink height */
     const m4Clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
     const m4OnPhone = () => MOB.on && !MOB.land;
@@ -10527,7 +10547,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       return R;
     });
     let m4On = false, m4G = null, m4Pin = null, m4T = 0, m4Drift = 0, m4Ch = null, m4BgU = [];
-    const m4Nav = { k:0, sw:null, open:false, o0:0, sc0:0, top0:0, capY:0, numW:[], nameL:[] };
+    const m4Nav = { open:false, o0:0, sc0:0, top0:0, capY:0 };   /* 513b: the index (a title row's tap) */
     const m4Wrote = new Set();
     /* an inline style this branch owns: written only on a change (el._m4, the values -- dropped at every layout), recorded
        (el._m4p, the properties), lifted in m4Leave */
@@ -10536,10 +10556,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const c = el._m4 || (el._m4 = {});
       if (c[p] === v) return;
       c[p] = v; (el._m4p || (el._m4p = new Set())).add(p); m4Wrote.add(el);
-      if (p.charAt(0) === '-') el.style.setProperty(p, v); else el.style[p] = v;
+      if (p.charAt(0) === '-') el.style.setProperty(p, v); else if (p.charAt(0) === '!') el.style.setProperty(p.slice(1), v, 'important'); else el.style[p] = v;   /* 513b: '!prop' = inline important */
     }
     function m4Unset(){
-      m4Wrote.forEach(el => { (el._m4p || []).forEach(p => { if (p.charAt(0) === '-') el.style.removeProperty(p); else el.style[p] = ''; }); el._m4 = null; el._m4p = null; });
+      m4Wrote.forEach(el => { (el._m4p || []).forEach(p => { if (p.charAt(0) === '-') el.style.removeProperty(p); else if (p.charAt(0) === '!') el.style.removeProperty(p.slice(1)); else el.style[p] = ''; }); el._m4 = null; el._m4p = null; });
       m4Wrote.clear();
     }
     const m4O = el => { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top }; };
@@ -10549,14 +10569,6 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       q.style.cssText = 'display:inline-block;position:static;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;';
       if (last) el.appendChild(q); else el.insertBefore(q, el.firstChild);
       const y = q.getBoundingClientRect().bottom; q.remove(); return y;
-    }
-    /* a text's ink width at an element's own type (canvas: the phone rows' number and name) */
-    function m4W(ref, txt){
-      const cs = getComputedStyle(ref), cx = m4W.cx || (m4W.cx = document.createElement('canvas').getContext('2d'));
-      cx.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
-      try { cx.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : cs.letterSpacing; } catch (e) {}
-      const m = cx.measureText(cs.textTransform === 'uppercase' ? txt.toUpperCase() : txt);
-      return m.actualBoundingBoxRight + m.actualBoundingBoxLeft;
     }
     /* an element's INK in window px: left / right x (the side bearings of its edge letters), its box left, the first cap
        top, the first and last baselines (live, a4Base). o.ref: the element that carries the type, if not el itself; o.ink:
@@ -10620,11 +10632,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (on){
         const pins = [m4Q('#a4Sl1 .a4-s1'), document.getElementById('a4Unit3'), document.getElementById('a4Unit4')];
         gals.forEach((g, i) => { if (g && pins[i] && g.parentNode !== pins[i]) pins[i].appendChild(g); });
-        if (gals[1] && !gals[1].querySelector('.a4m-slit')){
-          const sl = document.createElement('div'); sl.className = 'a4m-slit';
-          for (let n = 1; n <= A4_IMGS; n++){ const i = document.createElement('i'); i.style.backgroundImage = 'url("' + encodeURI(A4_GAL + 'G' + String(n).padStart(2, '0') + '.jpeg') + '")'; sl.appendChild(i); }
-          gals[1].appendChild(sl);
-        }
+        /* 513b: each slide's own title row (0n  NAME, the nav's words), first in its pin (INTRO, ROLE, APPROACH, BACKGROUND) */
+        const names = [...document.querySelectorAll('#a4Nav span')].map(e => e.textContent);
+        [pins[0], document.getElementById('a4Unit'), pins[1], pins[2]].forEach((p, k) => {
+          if (!p || p.querySelector(':scope > .a4m-tr')) return;
+          const r = document.createElement('div'); r.className = 'a4m-tr';
+          const n = document.createElement('span'), w = document.createElement('span');
+          n.textContent = String(k + 1).padStart(2, '0'); w.textContent = names[k] || '';
+          r.appendChild(n); r.appendChild(w); p.insertBefore(r, p.firstChild);
+        });
         const unit = document.getElementById('a4Unit');
         if (unit && !unit.querySelector('.a4m-lg')){
           const box = document.createElement('div'); box.className = 'a4m-lg';
@@ -10645,7 +10661,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const br = mid && mid.querySelectorAll('br')[1];   /* FOR / BRAND FILM: the second break is hidden, a space stands in */
         if (br && !mid._m4sp){ mid._m4sp = document.createTextNode(' '); br.after(mid._m4sp); }
       } else {
-        view.querySelectorAll('.a4m-slit, .a4m-lg, .a4m-end').forEach(e => e.remove());
+        view.querySelectorAll('.a4m-lg, .a4m-end, .a4m-tr').forEach(e => e.remove());
         const foot = m4Q('.a4-foot');
         gals.forEach(g => { if (g && g.parentNode !== view){ if (foot) view.insertBefore(g, foot); else view.appendChild(g); } });
         if (mid && mid._m4sp){ mid._m4sp.remove(); mid._m4sp = null; }
@@ -10663,8 +10679,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         m4On = true; document.documentElement.classList.add('a4m');
         document.body.classList.remove('a4nl'); swOn = false; view.classList.remove('a4-floor', 'v4c');
         m4Nodes(true); m4Quiet();
-        cards.forEach(c => { c.style.zIndex = ''; c._m4t = c._m4v = undefined; });
-        m4Nav.k = 0; m4Nav.sw = null;
+        cards.forEach(c => { c.style.zIndex = ''; c._m4t = c._m4v = c._m4z = undefined; });
       }
       m4Nav.open = false;
       m4Layout();
@@ -10680,9 +10695,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       bwi.forEach(e => { getComputedStyle(e).transform; e.style.transition = ''; });
       view.style.removeProperty('--a4-mids');   /* FOR BRAND FILM's desktop seat starts from nothing, as on a fresh load (a pass on the phone left its own) */
       m4Quiet();
-      ['a4Gal', 'a4GalV', 'a4GalB'].forEach(id => { const h = document.getElementById(id); if (h){ h.style.clipPath = ''; h._m4g = null; } });
+      ['a4Gal', 'a4GalV', 'a4GalB'].forEach(id => { const h = document.getElementById(id); if (h){ h.style.clipPath = ''; h._m4g = null; h._m4s = null; } });
       /* the desktop's books, reset as open() resets them: its next frame writes every card afresh */
-      cards.forEach(c => { c.style.transform = ''; c.style.visibility = ''; c._tf = c._v = c._zi = undefined; c._m4t = c._m4v = undefined;
+      cards.forEach(c => { c.style.transform = ''; c.style.visibility = ''; c._tf = c._v = c._zi = undefined; c._m4t = c._m4v = c._m4z = undefined;
         c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false; const u = a4U(c); if (u !== c._vi){ a4Img(c, u); c._dirty = false; } });
       swSnap = false; navW = null; m4G = null;
     }
@@ -10702,9 +10717,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
               pT: parseFloat(csT.lineHeight) || .78 * T, g: parseFloat(getComputedStyle(k1).lineHeight) || .8843 * S,
               pN: parseFloat(csN.lineHeight) || 1.13 * N, pB: 1.13 * B };
       m4G.CH = M + 2 * S + m4G.capS + M / 2; m4G.Z0 = m4G.CH + M; m4G.Z1 = H - M;
+      m4G.CF = M + m4G.capS + M / 2; m4G.capY = M + 2 * S; m4G.L = H / A4M_IN;   /* 513b: the chrome's foot (the bar's), the title rows' cap top, a transition's scroll */
       const sl = ['.a4-sl1', '.a4-sl2', '.a4-sl3', '.a4-sl4'].map(m4Q);
-      A4M_HOLD.forEach((h, i) => m4St(sl[i], 'height', ((h + 2) * H).toFixed(2) + 'px'));
-      m4Intro(); m4Role(); m4Approach(); m4Bg(sl[3]);
+      m4G.sl = sl; m4G.pins = [m4Q('#a4Sl1 .a4-s1'), document.getElementById('a4Unit'), document.getElementById('a4Unit3'), document.getElementById('a4Unit4')];
+      A4M_HOLD.forEach((h, i) => m4St(sl[i], 'height', ((h + 1) * H + m4G.L).toFixed(2) + 'px'));   /* 513b: held for its hold, then pinned through the next one's rise (L) */
+      m4Intro(); m4Role(); m4Approach(); m4Bg(sl[3]); m4Titles();
       m4G.tops = sl.map(e => e.offsetTop);
       m4NavLayout(); m4Chains(); m4BgUnits();
       m4Frame(performance.now());
@@ -10739,7 +10756,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         m4Put(mm[0], 'L', M, s1); m4Put(mm[1], 'C', vw / 2, s1 + g);
         return m4Put(mm[2], 'R', vw - M, s1 + 2 * g).b0;
       };
-      const LH = 1.2 * S, rg = S, lgH = A4M_LOGOS === 'belt' ? LH : 3 * LH + 2 * rg, sH = 2 * pT + capT + G + lgH;
+      const LH = (A4M_LOGOS === 'belt' ? A4M_BELT_H : 1.2) * S, rg = S, lgH = A4M_LOGOS === 'belt' ? LH : 3 * LH + 2 * rg, sH = 2 * pT + capT + G + lgH;
       const stood = lTop => {
         const fc = lTop - G - capT;
         const fl = m4Put(p2[0], 'L', M, fc - 2 * pT, { ink:p2[0].querySelector('.w') }); m4Put(p2[1], 'C', vw / 2, fc - pT); m4Put(p2[2], 'R', vw - M, fc, { ink:p2[2].querySelector('.w') });
@@ -10754,25 +10771,28 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const e = hung(Z0); m4G.roleVoid = stood(Z1 - lgH) - e;
       }
     }
-    /* the nine: each cropped to its registry ink box, ink height 1.2 S x the registry scale, never wider than W / 4; rows
-       1.2 S tall and S apart, on the left margin / centred / the right margin, a2Data's order */
+    /* the nine: each cropped to its registry ink box, ink height LH x the registry scale (the desktop belt's law). 513b THE
+       BELT (his answer: the desktop's): one row in the registry's order reversed, as the desktop lays it, A4M_BELT_GAP S
+       apart, looping seamlessly margin to margin (the frame runs it). 'grid' (512g): 3 x 3 on the three anchors, a logo
+       never wider than W / 4, rows 1.2 S tall and S apart */
     function m4Logos(top, LH, rg){
       const box = document.querySelector('#a4Unit .a4m-lg'); if (!box || !m4G) return;
-      const { vw, M, W, S } = m4G, belt = A4M_LOGOS === 'belt';
+      const { vw, M, W, S } = m4G, belt = A4M_LOGOS === 'belt', gap = A4M_BELT_GAP * S, ds = [...box.children];
       let x = 0;
-      [...box.children].forEach((d, i) => {
-        const lg = d._lg, k = lg.ink, im = d.firstChild, nw = im.naturalWidth || 1000, nh = im.naturalHeight || 1000;
+      (belt ? ds.slice().reverse() : ds).forEach(d => {
+        const i = ds.indexOf(d), lg = d._lg, k = lg.ink, im = d.firstChild, nw = im.naturalWidth || 1000, nh = im.naturalHeight || 1000;
         const kw = k.w * nw, kh = k.h * nh;
-        let h = LH * (lg.scale || 1); if (kw / kh * h > W / 4) h = W / 4 * kh / kw;
+        let h = LH * (lg.scale || 1); if (!belt && kw / kh * h > W / 4) h = W / 4 * kh / kw;
         const wd = kw / kh * h, s = h / kh, a = i % 3, row = Math.floor(i / 3);
         const xx = belt ? x : a === 0 ? M : a === 2 ? vw - M - wd : vw / 2 - wd / 2;
         const yy = belt ? (LH - h) / 2 : top + row * (LH + rg) + (LH - h) / 2;
-        d._m4x = xx; d._m4w = wd; x += wd + 2 * S;
+        d._m4x = d._m4bx = xx; d._m4w = wd; d._m4tf = undefined; x += wd + gap;
+        if (!belt) d.style.transform = '';
         m4St(d, 'left', xx.toFixed(2) + 'px'); m4St(d, 'top', yy.toFixed(2) + 'px'); m4St(d, 'width', wd.toFixed(2) + 'px'); m4St(d, 'height', h.toFixed(2) + 'px');
         m4St(im, 'width', (nw * s).toFixed(2) + 'px'); m4St(im, 'height', (nh * s).toFixed(2) + 'px');
         m4St(im, 'left', (-k.x * nw * s).toFixed(2) + 'px'); m4St(im, 'top', (-k.y * nh * s).toFixed(2) + 'px');
       });
-      box._m4ring = x;
+      box._m4ring = x; box._m4gap = gap;
       box.classList.toggle('a4m-belt', belt);
       if (belt){ m4St(box, 'top', top.toFixed(2) + 'px'); m4St(box, 'height', LH.toFixed(2) + 'px'); }
     }
@@ -10780,21 +10800,26 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        SUBTITLE line, CULTURE / TO EFFECTIVENESS in a column ending on the right margin (the diagonal is the connection);
        G, the slit; G, the two NOCAPS paragraphs, one blank line apart */
     function m4Approach(){
-      const { vw, M, W, G, g, capS, pN, N, cB, Z0, Z1 } = m4G, pin = document.getElementById('a4Unit3'); m4Pin = m4O(pin);
+      const { vw, M, S, W, G, g, pN, N, cB, Z0, Z1 } = m4G, pin = document.getElementById('a4Unit3'); m4Pin = m4O(pin);
       const q = s => pin.querySelector(s), bw = q('.a4-brk.b1 .bw'), ml = q('.a4-mids.ml2'), mr = q('.a4-mids.mr2');
       m4St(q('.a4-brk.b1'), 'left', '0px'); m4St(q('.a4-brk.b1'), 'top', '0px'); m4St(q('.a4-ap'), 'top', '0px');
       const ps = [q('.a4-ap p.ap1'), q('.a4-ap p.ap2')];
       const con = m4Put(bw, 'L', M, 0);
       const pe = m4Put(ml, 'L', M, con.b0 + G);
       const cu = m4Put(mr, 'R', vw - M, pe.cap + 3 * g, { lc:['S'] });
-      const slitY = cu.b1 + G, slitH = capS;
+      const slitY = cu.b1 + G, slitH = (A4_V.slitB - A4_V.slitT) / 20 * S;   /* 513b: the desktop's thin band -- the design's slit (11.7) on the design's 20px SUBTITLE */
       const a1 = m4Put(ps[0], 'B', M, slitY + slitH + G);
       const a2 = m4Put(ps[1], 'B', M, a1.b1 + pN + (pN - cB * N));
       const dy = (Z0 + Z1) / 2 - (con.cap + a2.b1) / 2;
       m4Shift([bw, ml, mr, ps[0], ps[1]], dy);
-      const gv = document.getElementById('a4GalV');
+      /* 513b THE SLIT, the desktop's (bandScale's VISION band, place()): the design card (A4_CW x A4_CH), its pitch (A4_SP)
+         and its lens (A4_P) scaled down as ONE by the unit law -- the phone's measure over the design sheet's -- and seen
+         through the band, its box (the cards centre on the band's middle, as the desktop's clip does) */
+      const gv = document.getElementById('a4GalV'), kV = W / (A4_UD.w - 2 * A4_UM);
       m4St(gv, 'left', M + 'px'); m4St(gv, 'top', (slitY + dy).toFixed(2) + 'px'); m4St(gv, 'width', W.toFixed(2) + 'px');
-      m4St(gv, 'height', slitH.toFixed(2) + 'px'); m4St(gv, 'zIndex', 'auto'); m4St(gv, 'perspective', 'none'); m4St(gv, 'visibility', '');
+      m4St(gv, 'height', slitH.toFixed(2) + 'px'); m4St(gv, 'zIndex', 'auto');
+      m4St(gv, '--a4-p', (A4_P * kV).toFixed(2) + 'px'); m4St(gv, '--a4-cw', (A4_CW * kV).toFixed(2) + 'px'); m4St(gv, '--a4-ch', (A4_CH * kV).toFixed(2) + 'px');
+      gv._m4s = { w: W, h: slitH, k: kV, sp: A4_SP * kV }; gv._m4ok = false;
     }
     /* 04 BACKGROUND flows: the kicker hung from Z0; WHY ARE THEY / WATCHING (TITLE) on the right margin, .5 S under it; G,
        the three paragraphs; G, the corridor; G, the schools as one column; the end row on the sheet's bottom margin */
@@ -10828,43 +10853,60 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         m4St(end, 'top', (ey - .75 * S).toFixed(2) + 'px'); m4St(end, 'height', (2 * S).toFixed(2) + 'px');
         const [en, er, ew] = end.children, n = m4Put(en, 'L', M, ey), w = m4Put(ew, 'R', vw - M, ey), x0 = n.r + .8 * S, x1 = w.l - .8 * S;
         m4St(er, 'left', x0.toFixed(2) + 'px'); m4St(er, 'width', Math.max(0, x1 - x0).toFixed(2) + 'px'); m4St(er, 'top', (.75 * S + capS / 2 - .5).toFixed(2) + 'px');
+        m4St(er, 'visibility', A4M_END_RULE ? '' : 'hidden');   /* 513b: no rule, as the title rows (the dial brings it back) */
       }
       m4St(pin, 'height', Hb.toFixed(2) + 'px'); m4St(sl4, 'height', Hb.toFixed(2) + 'px');
       m4G.bgH = Hb;
     }
-    /* the section row's places: every name's right ink on the right margin (a right-aligned box, its trailing bearing
-       taken back), the number's left ink on the left margin, the row's cap top at M + 2 S */
+    /* 513b THE TITLE ROWS: each slide's own, 0n  NAME -- the number's left ink on the left margin, the name's right ink on
+       the right margin, the cap top at M + 2 S under the bar (the line 512g's section row stood on), no rule; each rides its
+       slide (INTRO, ROLE and APPROACH on their pins, BACKGROUND's scrolls away with it) */
+    function m4Titles(){
+      const { vw, M, S, capY } = m4G;
+      m4G.pins.forEach(pin => {
+        const tr = pin && pin.querySelector(':scope > .a4m-tr'); if (!tr) return;
+        m4Pin = m4O(pin);
+        m4St(tr, 'top', (capY - .75 * S).toFixed(2) + 'px'); m4St(tr, 'height', (2 * S).toFixed(2) + 'px');
+        m4Put(tr.children[0], 'L', M, capY); m4Put(tr.children[1], 'R', vw - M, capY);
+      });
+    }
+    /* the index's places (513b: #a4Nav shows only as the index): every name's right ink on the right margin (a right-aligned
+       box, its trailing bearing taken back), the number's left ink on the left margin, row 01's cap top on the title rows'
+       line (M + 2 S), the rest at the menu's pitch under it */
     function m4NavLayout(){
       const nav = document.getElementById('a4Nav'); if (!nav) return;
-      const { vw, M, S } = m4G, sp = [...nav.querySelectorAll('span')];
+      const { M, S } = m4G, sp = [...nav.querySelectorAll('span')];
       sp.forEach(s => { m4St(s, 'left', M + 'px'); m4St(s, 'right', M + 'px'); m4St(s, 'top', '0px');
         const t = s.textContent.trim(), pr = inkPx(s, t.charAt(t.length - 1)); m4St(s, 'marginRight', (pr ? -pr.r : 0).toFixed(2) + 'px'); });
       const p0 = sp[0] && inkPx(sp[0], '0'); m4St(nav, '--a4m-nl', (p0 ? -p0.l : 0).toFixed(2) + 'px');
       const nt = nav.getBoundingClientRect().top, cap0 = m4Base(sp[0]) - nt - a4Cap(1000) * S;
       m4Nav.capY = M + 2 * S; m4Nav.top0 = m4Nav.capY - cap0;
-      m4Nav.numW = sp.map((s, k) => m4W(s, String(k + 1).padStart(2, '0')));
-      m4Nav.nameL = sp.map(s => vw - M - m4W(s, s.textContent.trim()));
     }
     /* THE CHAINS (the desktop's weights): INTRO the statement's l2 / l3 words, 3 each; ROLE FROM BRIEF TO DELIVERY 13.5,
-       BRAND .. SOCIALS 4.5, FLAGSHIP WORK FOR 13.5, each logo 4.5; APPROACH the stack words 3, the slit's wipe 6, the
+       BRAND .. SOCIALS 4.5, FLAGSHIP WORK FOR 13.5, each logo 4.5 (513b: nine links, their logos assigned by the frame in
+       the belt's on-screen order); APPROACH the stack words 3, the slit's opening 6 (513b: read by the frame), the
        paragraph words 1 */
     function m4Chains(){
       const q = s => [...view.querySelectorAll(s)], L = (els, w, kind) => ({ els, w, kind, k:-1 });
       const mk = items => ({ items, span: items.reduce((a, it) => a + it.w, 0) + .6 * (items.length ? items[items.length - 1].w : 0) });
+      const lg = q('#a4Unit .a4m-mk').map(d => L([d], 4.5, 'logo'));
       m4Ch = {
         intro: mk([...q('#a4Cp .l2 .w'), ...q('#a4Cp .l3 .w')].map(w => L([w], 3))),
         role: mk([...q('#a4Unit .a4-rw2 .w').map(w => L([w], 13.5)), ...q('#a4Unit .a4-mids .w').map(w => L([w], 4.5)),
-                  ...q('#a4Unit .a4-lbig .w.g3').map(w => L([w], 13.5)), ...q('#a4Unit .a4m-mk').map(d => L([d], 4.5))]),
-        approach: mk([...q('#a4Unit3 .a4-mids .w').map(w => L([w], 3)), L([document.getElementById('a4GalV')], 6, 'wipe'),
+                  ...q('#a4Unit .a4-lbig .w.g3').map(w => L([w], 13.5)), ...lg]),
+        approach: mk([...q('#a4Unit3 .a4-mids .w').map(w => L([w], 3)), L([document.getElementById('a4GalV')], 6, 'open'),
                       ...q('#a4Unit3 .a4-ap p .w').map(w => L([w], 1))])
       };
+      m4Ch.role.logos = lg; m4Ch.role.ord = null;
+      m4Ch.role.lg0 = m4Ch.role.items.reduce((a, it) => a + (it.kind === 'logo' ? 0 : it.w), 0);   /* the logos close the chain */
+      m4Ch.approach.slit = m4Ch.approach.items.find(it => it.kind === 'open');
     }
     function m4Chain(ch, c){
       let acc = 0;
       for (const it of ch.items){
         const k = m4Clamp((c * ch.span - acc) / (it.w * 1.6)); acc += it.w;
         if (k === it.k) continue; it.k = k;
-        if (it.kind === 'wipe'){ it.els[0].style.clipPath = k >= 1 ? 'none' : 'inset(0 ' + ((1 - k) * 100).toFixed(2) + '% 0 0)'; continue; }
+        if (it.kind === 'open') continue;   /* 513b: the slit's link opens the band's clip -- the frame reads it */
         const o = k.toFixed(3), f = k > 0 && k < 1 ? 'blur(' + (8 * (1 - k)).toFixed(2) + 'px)' : 'none';   /* the filter only inside the link's window */
         it.els.forEach(e => { e.style.opacity = o; e.style.filter = f; });
       }
@@ -10891,14 +10933,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       pin.querySelectorAll('.a4-bgc').forEach(c => { const lg = c.querySelector('.lg'), t = c.querySelector('.t');
         U.push({ el:lg, y:parseFloat(lg.style.top), rv:true, ex:true, d:0 });
         if (t) U.push({ el:t, y:t.getBoundingClientRect().top - top, rv:true, ex:true, d:60 }); });
+      const tr = pin.querySelector(':scope > .a4m-tr'); if (tr) U.push({ el:tr, y:m4G.capY, rv:false, ex:true, d:0 });   /* 513b: its title row, printed */
       const end = pin.querySelector('.a4m-end'); if (end) U.push({ el:end, y:parseFloat(end.style.top) + .75 * m4G.S, rv:true, ex:true, d:0 });
       /* k1 is printed: its cap from its live baseline */
       U[0].y = m4Base(k1) - top - a4Cap(1000) * m4G.S;
       U.forEach(u => { if (u.rv){ u.el.classList.add('a4m-rv'); m4St(u.el, '--d', u.d + 'ms'); } u.on = u.el.classList.contains('a4m-on'); u.k = 1; });
       m4BgU = U;
     }
-    function m4BgFrame(sc){
-      const { H, CH } = m4G, bt = m4G.tops[3] - sc, lim = sc >= view.scrollHeight - H - 2 ? H : .88 * H; let n = 0, on = 0;   /* at the end of the scroll the last rows come in where they stand */
+    function m4BgFrame(sc, bt){   /* 513b: bt = the sheet's DRAWN top (it rises faster than the finger); the chrome's foot is the bar's */
+      const { H } = m4G, CH = m4G.CF, lim = sc >= view.scrollHeight - H - 2 ? H : .88 * H; let n = 0, on = 0;   /* at the end of the scroll the last rows come in where they stand */
       for (const u of m4BgU){
         const y = bt + u.y;
         if (u.rv){ n++;
@@ -10914,72 +10957,114 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       }
       return n ? on / n : 1;
     }
-    /* the nav, per frame: the scheme's row names the sheet under the chrome's foot; the swap is SEQUENTIAL (~.6s: the old
-       pair leaves 0-45%, the rule re-measures 20-80%, the new pair arrives 45-100%); open, the index -- five rows at the
-       menu's pitch (1 S) from the row's slot, row by row (fade + blur .55s, 60ms apart), the current one keeping its rule */
-    function m4NavFrame(kn, prog, now, cut){
+    /* 513b THE INDEX, per frame: shut, nothing shows (the slides carry their titles); open, five rows at the menu's pitch
+       (1 S) from the title rows' line, row by row (fade + blur .55s, 60ms apart -- the 512a menu's) over the veil, the band
+       solid behind them */
+    function m4NavFrame(now){
       const nav = document.getElementById('a4Nav'); if (!nav || !m4G) return;
-      const sp = nav.querySelectorAll('span'), li = nav.querySelectorAll('i'), { M, S, capS } = m4G, N = m4Nav;
-      if (cut){ N.k = kn; N.sw = null; }   /* a jump (a reopen at the top): the row names its sheet at once */
-      if (kn !== N.k && !N.open){ N.sw = { from:N.k, to:kn, t0:now }; N.k = kn; }
-      let t = 1; if (N.sw){ t = (now - N.sw.t0) / 600; if (t >= 1){ N.sw = null; t = 1; } }
-      const ease = x => x < .5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
-      const put = (el, a, y, show) => { m4St(el, 'visibility', show ? '' : 'hidden'); m4St(el, 'pointerEvents', show ? 'auto' : 'none');
-        m4St(el, 'opacity', a.toFixed(3)); m4St(el, 'filter', a > 0 && a < 1 ? 'blur(' + (8 * (1 - a)).toFixed(2) + 'px)' : 'none'); m4St(el, 'top', y.toFixed(2) + 'px'); };
-      sp.forEach((s, k) => {
-        if (N.open){ const a = m4Clamp((now - N.o0 - 60 * k) / 550); put(s, a, N.top0 + k * S, true); }
-        else if (N.sw && (k === N.sw.from || k === N.sw.to)){ const a = k === N.sw.from ? 1 - m4Clamp(t / .45) : m4Clamp((t - .45) / .55); put(s, a, N.top0, a > 0); }
-        else put(s, 1, N.top0, k === N.k);
+      const { M, S, capS } = m4G, N = m4Nav;
+      nav.querySelectorAll('span').forEach((s, k) => {
+        const a = N.open ? m4Clamp((now - N.o0 - 60 * k) / 550) : 0;
+        m4St(s, 'visibility', N.open ? '' : 'hidden'); m4St(s, 'pointerEvents', N.open ? 'auto' : 'none');
+        m4St(s, 'opacity', a.toFixed(3)); m4St(s, 'filter', a > 0 && a < 1 ? 'blur(' + (8 * (1 - a)).toFixed(2) + 'px)' : 'none');
+        m4St(s, 'top', (N.top0 + k * S).toFixed(2) + 'px');
       });
-      let x0, x1, y, f;
-      if (N.sw && !N.open){ const a = N.sw.from, b = N.sw.to;
-        x0 = M + Math.max(N.numW[a], N.numW[b]) + .8 * S; x1 = N.nameL[a] + (N.nameL[b] - N.nameL[a]) * ease(m4Clamp((t - .2) / .6)) - .8 * S;
-        f = t < .45 ? prog[a] : prog[b]; y = N.capY; }
-      else { const k = N.k; x0 = M + N.numW[k] + .8 * S; x1 = N.nameL[k] - .8 * S; f = prog[k]; y = N.capY + (N.open ? k * S : 0); }
-      [li[0], li[1]].forEach(e => { if (!e) return; m4St(e, 'visibility', ''); m4St(e, 'left', x0.toFixed(2) + 'px'); m4St(e, 'width', Math.max(0, x1 - x0).toFixed(2) + 'px'); m4St(e, 'top', (y + capS / 2 - .5).toFixed(2) + 'px'); });
-      m4St(li[0], 'opacity', '.22'); m4St(li[0], 'transform', 'none');
-      m4St(li[1], 'opacity', '1'); m4St(li[1], 'transform', 'scaleX(' + m4Clamp(f).toFixed(4) + ')');
-      m4St(li[2], 'visibility', 'hidden'); m4St(li[3], 'visibility', 'hidden');
       const hdr = document.getElementById('hdr');
       m4St(hdr, '--a4m-bh', N.open ? (N.capY + 4 * S + capS + M / 2).toFixed(2) + 'px' : '');
       m4St(hdr, '--a4m-ba', N.open ? '1' : '');
       nav.classList.toggle('a4m-open', N.open);
+    }
+    /* 513b THE SLIT, the desktop's place() on the phone: identical cards, every one edge-on (rotateY 90) in a row along X
+       through the band's one lens, the nearer the middle painted on top (z in 24px bands, scaled); a card's frame is its
+       place on the unrolled belt (509), changed only where the lens shows nothing -- edge-on (6px) or off the projected
+       clip (.84 = P / (P + cardW / 2)), both scaled with the band */
+    function m4Slit(host, cur){
+      const g = host._m4s; if (!g) return;
+      const cs = host.children, n = cs.length, sp = g.sp, k = g.k, ring = n * sp, half = ring / 2, hv = g.w / 2;
+      for (let i = 0; i < n; i++){
+        const c = cs[i]; if (c._li === undefined) continue;
+        const x = mod4(c._li * sp - cur * k + half, ring) - half, u = Math.round((x + cur * k) / sp);
+        if (u !== c._vi && (!host._m4ok || Math.abs(x) < 6 * k || .84 * Math.abs(x) > hv + 60 * k)) a4Img(c, u);
+        if (c._m4v !== ''){ c._m4v = ''; c.style.visibility = ''; }
+        const tf = 'translate3d(' + x.toFixed(2) + 'px,0,0) rotateY(90deg)';
+        if (c._m4t !== tf){ c._m4t = tf; c.style.transform = tf; }
+        const zi = (1000 - Math.round(Math.abs(x) / (24 * k))) | 0;
+        if (c._m4z !== zi){ c._m4z = zi; c.style.zIndex = zi; }
+      }
+      host._m4ok = true;
     }
     /* ---- THE FRAME: one rAF (tick's), fed by the view's native scroll; writes only what changed ---- */
     function m4Frame(now){
       const g = m4G; if (!g || !g.tops) return;
       const dt = Math.min(100, Math.max(0, now - (m4T || now))); m4T = now;
       m4Drift += A4_DRIFT * dt / 1000;
-      const sc = view.scrollTop, H = g.H, T = g.tops, cut = g.sc0 !== undefined && Math.abs(sc - g.sc0) > H; g.sc0 = sc;
+      const sc = view.scrollTop, H = g.H, T = g.tops, L = g.L;
       if (m4Nav.open && Math.abs(sc - m4Nav.sc0) > 8) m4Nav.open = false;   /* the index closes on scroll */
+      /* 513b THE SLIDES (his notes). Sheet i's natural top is T[i] - sc (the view's own scroll; INTRO, ROLE and APPROACH
+         hold on their sticky pins). THE INCOMING sheet runs its last L = H / A4M_IN of approach A4M_IN x as fast as the
+         finger -- its natural top y is drawn at A4M_IN x y, so it lands exactly where the native scroll puts it, nothing to
+         hand over; further off it waits just under the screen. THE OUTGOING one recedes A4M_OUT x the finger from the
+         moment the next starts to rise, and its content fades as the desktop's outgoing card does (tick's damp: from dampT
+         of the cover, gone by .55 of the rest). A sheet not yet risen, or wholly covered, is hidden.
+         vt[i] = its drawn top, u[i] = its rise (0 .. 1) */
+      const vt = [0, 0, 0, 0], u = [1, 0, 0, 0], hid = [];
+      const dampT = Math.min(.7, Math.max(.5, .5 + (1.4 - g.vw / H) / 3));   /* the desktop's law (tick): .7 on any phone */
+      for (let i = 0; i < 4; i++){
+        const yn = T[i] - sc; let dy = 0;
+        if (i > 0 && yn > 0){ dy = yn >= L ? H - L : (A4M_IN - 1) * yn; u[i] = m4Clamp(1 - yn / L); }
+        else { if (i > 0) u[i] = 1; if (i < 3) dy = -A4M_OUT * m4Clamp(sc - (T[i] + A4M_HOLD[i] * H), 0, L); }
+        vt[i] = (i < 3 ? Math.max(0, yn) : yn) + dy;
+        m4St(g.sl[i], '!transform', 'translate3d(0,' + dy.toFixed(2) + 'px,0)');
+      }
+      for (let i = 0; i < 4; i++){
+        hid[i] = vt[i] >= H || (i < 3 && u[i + 1] >= 1);
+        m4St(g.sl[i], 'visibility', hid[i] ? 'hidden' : '');
+        if (i < 3) m4St(g.pins[i], '!opacity', (1 - m4Clamp((u[i + 1] - dampT) / ((1 - dampT) * .55))).toFixed(3));
+      }
       /* INTRO, q through its hold: the l2 / l3 chain (.02-.40), the statement leaves (.42-.52), the train sweeps in (.45-.85) */
       const q = m4Clamp(sc / (A4M_HOLD[0] * H));
       m4Chain(m4Ch.intro, m4Clamp((q - .02) / .38));
       const out = m4Clamp((q - .42) / .1), cp = document.getElementById('a4Cp');
       m4St(cp, 'opacity', (1 - out).toFixed(3)); m4St(cp, 'filter', out > 0 && out < 1 ? 'blur(' + (8 * out).toFixed(2) + 'px)' : 'none');
-      const sw = m4Clamp((q - .45) / .4), e = 1 - Math.pow(1 - sw, 3), gal = document.getElementById('a4Gal'), gOn = sw > 0 && sc < T[1];
+      const sw = m4Clamp((q - .45) / .4), e = 1 - Math.pow(1 - sw, 3), gal = document.getElementById('a4Gal'), gOn = sw > 0 && !hid[0];
       m4St(gal, 'visibility', gOn ? '' : 'hidden');
       if (gOn) m4Place(gal, m4Drift + sc * A4_K, 1 - e);
-      /* ROLE and APPROACH: from the sheet half risen to 85% of its hold, reversible with the thumb */
-      const stage = i => m4Clamp((sc - (T[i] - .5 * H)) / (.5 * H + .85 * A4M_HOLD[i] * H));
+      /* ROLE's belt runs as the desktop's: the drift + A4_LB_K x the scroll, rightward -- logos rise from under the left
+         margin and leave under the right, the ring seamless */
+      const bx = document.querySelector('#a4Unit .a4m-lg'), ch = m4Ch.role;
+      if (A4M_LOGOS === 'belt' && bx && bx._m4ring && !hid[1]){
+        const ring = bx._m4ring, gp = bx._m4gap, s0 = m4Drift + sc * A4_LB_K;
+        for (const d of bx.children){ const x = mod4(d._m4x + s0 + d._m4w + gp, ring) - d._m4w - gp; d._m4bx = x;
+          const tf = 'translate3d(' + (x - d._m4x).toFixed(2) + 'px,0,0)'; if (d._m4tf !== tf){ d._m4tf = tf; d.style.transform = tf; } }
+      }
+      /* ROLE and APPROACH: each chain runs from the sheet A4M_LEAD risen to 85% of its hold, reversible with the thumb. The
+         belt's nine are nine links in the order they stand when the chain first reaches them, frozen for the pass (the
+         desktop's beltOrd), so the running belt never shuffles a half-come row */
+      const stage = i => m4Clamp((sc - (T[i] - (1 - A4M_LEAD) * L)) / ((1 - A4M_LEAD) * L + .85 * A4M_HOLD[i] * H));
       const cR = stage(1), cA = stage(2);
+      if (A4M_LOGOS === 'belt' && bx && ch.logos.length){
+        const lon = cR * ch.span - ch.lg0 > 0;
+        if (lon && !ch.ord){ ch.ord = [...bx.children].sort((a, b) => a._m4bx - b._m4bx); ch.logos.forEach((it, j) => { it.els = [ch.ord[j]]; it.k = -1; }); }
+        else if (!lon) ch.ord = null;
+      }
       m4Chain(m4Ch.role, cR); m4Chain(m4Ch.approach, cA);
-      if (sc > T[2] - H && sc < T[3]){   /* the slit: each sliver's crop drifts sideways, .35 of a frame per screen */
-        const p = (sc - T[2]) / H * .35, sl = document.querySelector('#a4GalV .a4m-slit');
-        if (sl) [...sl.children].forEach((s, n) => { const v = (((p * 100 + n * 37) % 100) + 100) % 100, bp = v.toFixed(1) + '% 50%'; if (s._m4b !== bp){ s._m4b = bp; s.style.backgroundPosition = bp; } });
+      /* APPROACH's slit, the desktop's: the band opens from nothing to its height as its link comes and closes as BACKGROUND
+         rises (42 .. 66% of the cover, the desktop's); the ring moves as the desktop's (the drift + A4_K x the scroll) */
+      const gv = document.getElementById('a4GalV'), sk = m4Ch.approach.slit;
+      if (gv && gv._m4s){
+        const o = hid[2] ? 0 : m4Clamp(sk ? sk.k : 1) * (1 - m4Clamp((u[3] - .42) / .24)), h = gv._m4s.h;
+        m4St(gv, 'visibility', o > 0 ? '' : 'hidden');
+        m4St(gv, 'clipPath', o >= 1 ? 'none' : 'inset(' + ((1 - o) * h / 2).toFixed(2) + 'px 0px)');
+        if (o > 0) m4Slit(gv, m4Drift + sc * A4_K);
       }
-      if (A4M_LOGOS === 'belt' && sc > T[1] - H && sc < T[2]){
-        const box = document.querySelector('#a4Unit .a4m-lg'), ring = box && box._m4ring;
-        if (ring) [...box.children].forEach(d => { const x = mod4(d._m4x + m4Drift * 1.5 + sc * .175 + d._m4w, ring) - d._m4w; d.style.transform = 'translate3d(' + (x - d._m4x).toFixed(2) + 'px,0,0)'; });
-      }
-      /* BACKGROUND: its lines in as they enter, out under the chrome; its corridor drifting while it shows */
-      const bp = m4BgFrame(sc), gb = document.getElementById('a4GalB');
-      if (gb && gb._m4g){ const y = T[3] - sc + gb._m4g.y, on = y < H && y + gb._m4g.h > 0; m4St(gb, 'visibility', on ? '' : 'hidden'); if (on) m4Place(gb, 120 + m4Drift + sc * A4_K, 0); }
-      /* THE CHROME: the scheme flips when a sheet's edge passes the chrome's middle; the row names the sheet under its foot */
-      const under = y => { let k = 0; for (let i = 1; i < 4; i++) if (T[i] - sc <= y) k = i; return k; };
-      const kc = under(g.CH / 2);
+      /* BACKGROUND: its lines in as they enter (on its drawn top), out under the chrome; its corridor drifting while it shows */
+      m4BgFrame(sc, vt[3]);
+      const gb = document.getElementById('a4GalB');
+      if (gb && gb._m4g){ const y = vt[3] + gb._m4g.y, on = !hid[3] && y < H && y + gb._m4g.h > 0; m4St(gb, 'visibility', on ? '' : 'hidden'); if (on) m4Place(gb, 120 + m4Drift + sc * A4_K, 0); }
+      /* THE CHROME: the scheme flips when a sheet's drawn edge passes the bar's middle */
+      let kc = 0; for (let i = 1; i < 4; i++) if (!hid[i] && vt[i] <= g.CF / 2) kc = i;
       document.body.classList.toggle('a4r', kc === 1 || kc === 3);
-      m4NavFrame(under(g.CH), [q, cR, cA, bp, 1], now, cut);
+      m4NavFrame(now);
     }
     function m4Jump(k){
       if (k >= 4){ const c = document.querySelector('.hdr .menu [data-go="contact"]'); if (c) c.click(); return; }   /* 05 CONTACT: the router's contact go, as the desktop's */
@@ -11004,11 +11089,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         e.stopPropagation();
         if (vd.t && performance.now() - vd.t < 400){ vd.t = 0; return; }   /* a drag's release */
         const sp = e.target.closest ? e.target.closest('#a4Nav span') : null, k = sp ? [...nav.querySelectorAll('span')].indexOf(sp) : -1;
-        if (!m4Nav.open){ if (k >= 0){ m4Nav.open = true; m4Nav.o0 = performance.now(); m4Nav.sc0 = view.scrollTop; m4Nav.sw = null; } return; }
+        if (!m4Nav.open) return;   /* 513b: shut, the index shows nothing to tap (a title row opens it) */
         m4Nav.open = false;   /* a row lands on its sheet; a tap outside just closes */
         if (k >= 0) m4Jump(k);
       });
       addEventListener('keydown', e => { if (m4On && m4Nav.open && e.key === 'Escape') m4Nav.open = false; });
+      /* 513b: a title row's tap opens the index in its slot (a drag is the view's own scroll; the index closes on scroll) */
+      view.addEventListener('click', e => {
+        if (!m4On || m4Nav.open) return;
+        const tr = e.target.closest ? e.target.closest('.a4m-tr') : null; if (!tr) return;
+        m4Nav.open = true; m4Nav.o0 = performance.now(); m4Nav.sc0 = view.scrollTop;
+      });
     }
     /* a mode switch: to a portrait phone, About lays out its own way; off it, the desktop's books come back */
     MOB.hooks.push(() => { if (m4OnPhone()){ if (active()) layout(); } else if (m4On) m4Leave(); });
@@ -11017,7 +11108,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       cancelAnimationFrame(m4Layout._r); m4Layout._r = requestAnimationFrame(() => m4Layout());
     });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (m4On) m4Layout(); });   /* after the desktop's own fonts pass: the phone's places win */
-    window.__a4m = () => m4G && { on: m4On, S: m4G.S, T: m4G.T, CH: m4G.CH, Z0: m4G.Z0, Z1: m4G.Z1, W: m4G.W, H: m4G.H, tops: m4G.tops, bgH: m4G.bgH, roleVoid: m4G.roleVoid, screens: +(view.scrollHeight / m4G.H).toFixed(2) };   /* for the rigs: read it, never write it */
+    window.__a4m = () => m4G && { on: m4On, S: m4G.S, T: m4G.T, CH: m4G.CH, CF: m4G.CF, capY: m4G.capY, L: m4G.L, IN: A4M_IN, OUT: A4M_OUT, LEAD: A4M_LEAD, Z0: m4G.Z0, Z1: m4G.Z1, W: m4G.W, H: m4G.H, tops: m4G.tops, bgH: m4G.bgH, roleVoid: m4G.roleVoid, screens: +(view.scrollHeight / m4G.H).toFixed(2) };   /* for the rigs: read it, never write it */
     return { open, layout, active, wheel };
   })();
   ab4Ready = true;
