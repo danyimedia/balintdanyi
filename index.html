@@ -3914,6 +3914,17 @@
     --t-body:var(--m-body);
     --t-nocaps:var(--m-nocaps);
   }
+  /* 515a ABOUT'S LOCAL CAP (SPEC-515 item 2). About has left the site's SUBTITLE solve: its view and its nav re-derive every
+     phone token from About's own S, --m-sub-a (JS: min(the site's S, the fit of About's rows)), so nothing on About overruns
+     at the bigger site SUBTITLE; the bar (B - D, the icon) keeps the site's. The nav's band follows the nav's words. */
+  html.mob #viewAbout4, html.mob #a4Nav{
+    --m-sub:var(--m-sub-a, 20px); --m-body:calc(var(--m-sub) / 2); --m-nocaps:calc(var(--m-body) * var(--body-k));
+    --t-sub:var(--m-sub); --t-body:var(--m-body); --t-nocaps:var(--m-nocaps);
+    --t-title:min(calc(var(--t-sub) / var(--t-fit)), calc((100vw - 2 * var(--pad)) * .0584));
+    --t-sub-row:max(var(--t-body), calc(var(--t-title) * var(--t-fit))); --big:var(--t-title); --ui-size:var(--t-body);
+    --m-title:calc(var(--m-title-k) * var(--m-sub));
+  }
+  html.mob{ --a4-nav-h:calc(var(--m-sub-a, var(--m-sub)) * 52 / 21); }
   /* NO HOVER ON A PHONE (sec. E): taps do what clicks do. The OPEN CASE chip and the corner cursor never show
      (their JS drivers stand down on MOB.on too), the system pointer comes back for a narrow desktop window, and a
      tap's sticky :hover lifts no card and softens no link. The header's hover expansion is off in JS. */
@@ -4154,6 +4165,16 @@
   html.mob #viewCase3 .c3-details.c3-stack .cell.media:not(.natural) .pic{ inset:1px 0; }
   /* the rows' and the intro's slide-in: 12px on a phone (28 started the left-margin number off the screen) */
   html.mob #viewCase3{ --c3-row-in-dx:calc(var(--m-pad) / 2); }
+  /* 515a THE BLOG LIST (not designed yet; out of the SUBTITLE solve): its date and tag captions are BODY at the list's own
+     cap, --m-sub-l (JS: min(the site's S, the size at which both clear the centred TITLE)), so they never run into it */
+  html.mob #viewBlog .ent-row .cap{ font-size:calc(var(--m-sub-l, var(--m-sub)) / 2); }
+  /* and a POST's page (the same view, body.blogread) wears the blog's S throughout -- its title too (c3S0, JS) */
+  html.mob body.blogread #viewCase3{
+    --m-sub:var(--m-sub-l, 20px); --m-body:calc(var(--m-sub) / 2); --m-nocaps:calc(var(--m-body) * var(--body-k));
+    --t-sub:var(--m-sub); --t-body:var(--m-body); --t-nocaps:var(--m-nocaps);
+    --t-title:min(calc(var(--t-sub) / var(--t-fit)), calc((100vw - 2 * var(--pad)) * .0584));
+    --t-sub-row:max(var(--t-body), calc(var(--t-title) * var(--t-fit))); --big:var(--t-title); --ui-size:var(--t-body);
+  }
   /* 514a THE PAPER UNDER THE PAGE (SPEC-514 A3). The page scrolls the document over the landing, which stays fixed and
      receded underneath: pulled past its end (iOS's rubber band) the gap showed the landing -- the showreel. Once the
      entrance wipe is done (.7s after c3-in) a fixed paper sheet stands between the two (body::after, just under the
@@ -4889,7 +4910,7 @@
      reset there); MOB.rows are the SUBTITLE solve's tight rows (a view step may add its own); MOB.solve is
      the solve itself, defined with the menu engine below. Above 600px nothing here touches the page: no
      class, no inline token. */
-  const MOB = { on:false, land:false, S:0, fit:0, tight:'', fits:[], hooks:[], rows:[], solve:null };
+  const MOB = { on:false, land:false, S:0, fit:0, tight:'', fits:[], all:[], aS:0, afit:0, atight:'', hooks:[], rows:[], arows:[], lrows:[], lS:0, ltight:'', solve:null };   /* 515a: all = every row's fit; arows / aS = About's local cap; lrows / lS the blog's (list and posts) */
   const MOB_Q = '(max-width: 600px)', MOB_LQ = '(pointer: coarse) and (orientation: landscape) and (max-height: 500px)';
   const MOB_LAND = true;   /* 512e: the landscape phones run the phone build (html.mob.mobl) */
   function mobEval(e){
@@ -4898,7 +4919,7 @@
     const flip = on !== MOB.on || land !== MOB.land;
     MOB.on = on; MOB.land = land;
     R.classList.toggle('mob', on); R.classList.toggle('mobl', land);
-    if (!on) R.style.removeProperty('--m-sub');
+    if (!on){ R.style.removeProperty('--m-sub'); R.style.removeProperty('--m-sub-a'); R.style.removeProperty('--m-sub-l'); }
     if (on && MOB.solve) MOB.solve(true);
     if (flip){
       MOB.hooks.forEach(f => { try { f(MOB); } catch (x) {} });
@@ -10680,7 +10701,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const m4Clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
     const m4OnPhone = () => MOB.on && !MOB.land;
     const m4Q = s => view.querySelector(s);
-    /* 513a: ABOUT JOINS THE SUBTITLE SOLVE (SPEC-513: About grows with the SUBTITLE -- TITLE = --m-title-k x it -- so its
+    /* 515a: ABOUT LEAVES THE SITE'S SOLVE (SPEC-515 item 2: his redesign is coming). Its rows below now feed MOB.arows, About's
+       LOCAL cap: MOB.aS = min(the site's S, the fit of these rows), written as --m-sub-a, from which About's view and its nav
+       re-derive every phone token (M512:ABOUT) -- so a bigger site SUBTITLE never overruns About, and TITLE = --m-title-k x
+       that. The rows themselves are unchanged.
+       513a: ABOUT JOINS THE SUBTITLE SOLVE (SPEC-513: About grows with the SUBTITLE -- TITLE = --m-title-k x it -- so its
        tight rows join the solve, and nothing on About may overrun or collide at any phone size). The rows are read from
        About's own DOM (its words, in the phone's lines). ON A PORTRAIT PHONE (the a4m composition): the three TITLE spreads
        (LEADING | VIDEO, FROM | BRIEF, TO | DELIVERY) with at least A4M_AIR TITLE of air, so a pair never reads as a phrase
@@ -10693,7 +10718,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const A4M_AIR = 1;   /* the least air in a TITLE spread, in TITLE */
     const m4Lines = el => { const o = ['']; if (el) el.childNodes.forEach(n => { if (n.nodeName === 'BR') o.push(''); else o[o.length - 1] += n.textContent; });
       return o.map(t => t.replace(/\s+/g, ' ').trim()).filter(Boolean); };
-    MOB.rows.push(W => {
+    MOB.arows.push(W => {
       if (!MOB.on) return [];
       const S = W.S, T = W.k * S, R = [], add = (what, w) => R.push({ what:'about ' + what, w });
       const nav = [...document.querySelectorAll('#a4Nav span')].map(e => e.textContent.trim()).filter(Boolean);
@@ -10874,7 +10899,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (!m4On || !active()) return;
       m4Wrote.forEach(el => { el._m4 = null; });   /* write everything afresh: another pass may have written in between */
       const R = document.documentElement, vw = R.clientWidth, H = view.clientHeight || innerHeight;
-      const M = padPx(), S = MOB.S || parseFloat(getComputedStyle(R).getPropertyValue('--m-sub')) || 20;
+      const M = padPx(), Sb = MOB.S || parseFloat(getComputedStyle(R).getPropertyValue('--m-sub')) || 20, S = Math.min(Sb, MOB.aS || Sb);   /* 515a: About's S (its local cap); Sb the bar's, the site's */
       m4St(view, '--a4m-h', H + 'px');
       a4Seat();   /* the desktop's edge margins, re-seated at the PHONE's type: a rotation or a desktop visit leaves them at its own */
       const big = m4Q('#a4Unit .a4-lbig.s1l'), apP = m4Q('#a4Unit3 .a4-ap p'), k1 = m4Q('#a4Unit4 .a4-bgk.k1');   /* 514d: TITLE read off LEADING (CREATIVE LEAD is SUBTITLE now) */
@@ -10884,8 +10909,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       m4G = { vw, H, M, S, T, B, N, W: vw - 2 * M, G: 1.5 * S, capS: cK * S, capT: cK * T, cB: a4Cap(700),
               pT: parseFloat(csT.lineHeight) || .78 * T, g: parseFloat(getComputedStyle(k1).lineHeight) || .8843 * S,
               pN: parseFloat(csN.lineHeight) || 1.13 * N, pB: 1.13 * B };
-      m4G.capY = 2 * M + m4G.capS; m4G.CH = m4G.capY + m4G.capS + M / 2; m4G.Z0 = m4G.CH + M; m4G.Z1 = H - M;   /* 514d: the title rows' line at rest -- one margin under the bar's baseline (B's cap on M) */
-      m4G.CF = M + m4G.capS + M / 2; m4G.L = H / A4M_IN;   /* 513b: the chrome's foot (the bar's), a transition's scroll */
+      m4G.capB = cK * Sb;   /* 515a: the bar's cap, at the site's S (About's own type may be capped smaller) */
+      m4G.capY = 2 * M + m4G.capB; m4G.CH = m4G.capY + m4G.capS + M / 2; m4G.Z0 = m4G.CH + M; m4G.Z1 = H - M;   /* 514d: the title rows' line at rest -- one margin under the bar's baseline (B's cap on M) */
+      m4G.CF = M + m4G.capB + M / 2; m4G.L = H / A4M_IN;   /* 513b: the chrome's foot (the bar's), a transition's scroll */
       const sl = ['.a4-sl1', '.a4-sl2', '.a4-sl3', '.a4-sl4'].map(m4Q);
       m4G.sl = sl; m4G.pins = [m4Q('#a4Sl1 .a4-s1'), document.getElementById('a4Unit'), document.getElementById('a4Unit3'), document.getElementById('a4Unit4')];
       A4M_HOLD.forEach((h, i) => m4St(sl[i], 'height', ((h + 1) * H + m4G.L).toFixed(2) + 'px'));   /* 513b: held for its hold, then pinned through the next one's rise (L) */
@@ -11827,11 +11853,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* THE TIGHT ROWS (SPEC-512 sec. C). Each returns [{ what, w }], w the row's run in px at the probe's S -- or (513a) a
      vertical row [{ what, s }], s the largest S at which it holds. About's rows are the About engine's (AB4), the
      landscape hero's the deck's (V67). */
-  MOB.rows.push(W => mRec.map(r => ({ what:'start row: ' + r.key,   /* a case / post START slide: title SUBTITLE + subtitle BODY on ONE row */
-    w: W(r.title) + M_GAP * W.S + W(mOneRow(r.sub), 1) })));
+  /* 515a (SPEC-515 items 1, 3): BLOG POSTS LEAVE THE SOLVE, portrait and landscape (his call: not designed yet -- a post's
+     over-long row may wrap). The start row is measured as 514c draws it: the title, then the two BODY rows (year over type,
+     mSub2 -- the reader the start slide and the hero's bottom row share), the widest of them. */
+  MOB.rows.push(W => mRec.filter(r => r.kind === 'case').map(r => ({ what:'start row: ' + r.key,   /* a case's START slide: title SUBTITLE + its two BODY rows beside it */
+    w: W(r.title) + M_GAP * W.S + Math.max(0, ...mSub2(r.key).map(x => W(x, 1))) })));
   MOB.rows.push(W => mRec.filter(r => r.kind === 'case').map(r => {   /* the hero's bottom row: title SUBTITLE + the case's two BODY lines (514b: its msub, mSub2) */
     return { what:'hero row: ' + r.key, w: W(r.title) + M_GAP * W.S + Math.max(0, ...mSub2(r.key).map(x => W(x, 1))) }; }));
-  MOB.rows.push(W => [].concat(...mRec.map(r => r.secs.map((x, i) => ({ what:'section row: ' + r.key + ' ' + x,   /* 02 ---- APPROACH */
+  MOB.rows.push(W => [].concat(...mRec.filter(r => r.kind === 'case').map(r => r.secs.map((x, i) => ({ what:'section row: ' + r.key + ' ' + x,   /* 02 ---- APPROACH (515a: cases only) */
     w: W(String(i + 1).padStart(2, '0')) + M_RULE * W.S + W(x) })))));
   /* 512e: on a landscape phone the menu's rows stand in half-width columns (M512:LAND: half the content less two margins
      between them). mColK is the full width over the column, so a row scaled by it is measured in the solve's terms. */
@@ -11840,24 +11869,97 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     { what:'menu row 01', w: k * (W('01') + (M_GAP + M_TRI) * W.S + W('Selected Works')) },   /* 01, the triangle, SELECTED WORKS */
     { what:'menu row 05', w: k * (W('Instagram') + M_GAP * W.S + W('05')) },                    /* INSTAGRAM, 05 */
     { what:'header bar', w: W('B') + M_RULE * W.S + W('D') + M_ICO * W.S } ]; });           /* B - D and the icon */
+  /* 515a THE REST OF WHAT IS SET IN SUBTITLE / BODY(CAPS) outside About and the blog (SPEC-515 item 3), each as drawn:
+     the start slide's PREV / NEXT row (an upright phone's) and its hint; the intro's subtitles alone on their rows; every
+     credit (the role wraps down to its longest word, the hairline's least .6em of BODY, the name whole); the menu's other
+     rows (the item and its number, in the column on a landscape phone), MENU, and each case title under SELECTED WORKS;
+     the menu OPEN WITH SELECTED WORKS EXPANDED -- a vertical row: the top group (MENU's three pitches, four rows, the
+     titles) and a pitch of air over the bottom group (landscape: the left column at its tightest 1.5 pitches, over the
+     open bar's cap); the loader's paragraph lines and count (BODY; BALINT ---- DANYI is fitted to the margins by ldSolve,
+     not SUBTITLE); contact's LET'S MAKE ... row (BODY, justified) and each field label with its air. The showreel's
+     control row is a share of the frame, not SUBTITLE / BODY. */
+  MOB.rows.push(W => {
+    const S = W.S, R = [], add = (what, w) => R.push({ what, w }), k = mColK(), c3 = mJSON('c3Data'), cs = (c3 && c3.cases) || {};
+    const cases = mRec.filter(r => r.kind === 'case'), q = s => [...document.querySelectorAll(s)];
+    if (!MOB.land) add('prev / next row', W('Prev case', 1) + M_GAP * S + W('Next case', 1));
+    add('scroll hint', W('Scroll down for case', 1));
+    ['My role', 'Summary', 'Credits'].forEach(t => add('intro subtitle: ' + t, W(t)));
+    cases.forEach(r => ((cs[r.key] && cs[r.key].credits) || []).forEach(p => { if (!Array.isArray(p) || !p[1]) return;
+      add('credit: ' + r.key + ' ' + p[1], Math.max(0, ...String(p[0] || '').split(/\s+/).filter(Boolean).map(x => W(x, 1))) + .6 * S / 2 + W(p[1], 1)); }));
+    q('#mMenu .m-row').forEach(e => { const no = ((e.querySelector('.m-no') || {}).textContent || '').trim(), it = ((e.querySelector('.m-it') || {}).textContent || '').trim();
+      if (no && it && no !== '01' && no !== '05') add('menu row ' + no, k * (W(no) + M_GAP * S + W(it))); });
+    add('menu label', W('Menu'));
+    const names = q('#csPick button').map(b => b.textContent.trim()).filter(Boolean);
+    names.forEach(t => add('menu title: ' + t, k * W(t, 1)));
+    { const vh = (window.visualViewport && visualViewport.height * visualViewport.scale) || document.documentElement.clientHeight || innerHeight, pad = padPx(), lh = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sm-lh')) || 1.13) * S / 2;
+      let lines = names.length;
+      if (MOB.land){ const col = (document.documentElement.clientWidth - 2 * pad) / k; let x = 0; lines = names.length ? 1 : 0;
+        names.forEach(t => { const w = W(t, 1); if (x > 0 && x + S + w > col){ lines++; x = w; } else x += (x > 0 ? S : 0) + w; }); }
+      const L = .75 * S + lines * lh, u = (MOB.land ? -.141 + 1.5 + 4 + 1 + .7 : -.141 + 3 + 4 + 1 + 4 + 3 - .159) + L / S;
+      R.push({ what:'menu open, works expanded (vertical)', s:(vh - 2 * pad) / u }); }
+    q('#ldCopy p').forEach(p => add('loader paragraph: ' + p.textContent.trim(), W(p.textContent.trim(), 1)));
+    add('loader count', W('100%', 1));
+    q('.c2-line').forEach(e => add('contact row: ' + e.textContent.replace(/\s+/g, ' ').trim(), W(e.textContent.replace(/\s+/g, ' ').trim(), 1)));
+    q('.c2-name').forEach(e => add('contact label: ' + e.textContent.trim(), W(e.textContent.trim()) + M_GAP * S));
+    return R;
+  });
+  /* 515a: THE BLOG LIST's rows (its local cap, MOB.lrows): each title centred on the page at its live TITLE width (--big:
+     width-bound on a phone, so S-free), its date and tag (BODY) beside it with a BODY of air -- a vertical-form row, the
+     largest S at which both captions clear the title */
+  MOB.lrows.push(W => {
+    if (!MOB.on) return [];
+    const S = W.S, content = document.documentElement.clientWidth - 2 * padPx(), pr = document.createElement('div');
+    pr.className = 'ent'; pr.setAttribute('aria-hidden', 'true'); pr.style.cssText = 'position:fixed; left:0; top:0; visibility:hidden; pointer-events:none; white-space:nowrap;';
+    document.body.appendChild(pr);
+    const R = [...document.querySelectorAll('#blogStack .ent-row')].map(row => {
+      const t = ((row.querySelector('.big') || {}).textContent || '').trim(), cs = [...row.querySelectorAll('.cap')].map(c => c.textContent.trim());
+      pr.textContent = t; const tw = pr.getBoundingClientRect().width, cw = Math.max(0, ...cs.map(x => W(x, 1))) / S;
+      return { what:'blog list: ' + t, s:Math.max(.01, (content - tw) / (2 * (cw + M_GAP / 2))) };
+    });
+    pr.remove();
+    const posts = mRec.filter(r => r.kind === 'post');   /* a post's page as drawn: its start row two-row (as a case's), its section rows, PREV / NEXT POST, the hint */
+    posts.forEach(r => R.push({ what:'post start row: ' + r.key, w: W(r.title) + M_GAP * S + Math.max(0, ...mSub2(r.key).map(x => W(x, 1))) }));
+    posts.forEach(r => r.secs.forEach((x, i) => R.push({ what:'post section row: ' + r.key + ' ' + x, w: W(String(i + 1).padStart(2, '0')) + M_RULE * S + W(x) })));
+    if (posts.length && !MOB.land) R.push({ what:'post prev / next row', w: W('Prev post', 1) + M_GAP * S + W('Next post', 1) });
+    if (posts.length) R.push({ what:'post scroll hint', w: W('Scroll down for post', 1) });
+    return R;
+  });
   function mSolve(){
     if (!MOB.on) return false;
     const content = document.documentElement.clientWidth - 2 * padPx();   /* the phone's width: innerWidth is the layout viewport, which a page's overflow grows */
-    let S = MOB.S || M_S0, fit = S, tight = '', fits = [];
-    for (let pass = 0; pass < 3; pass++){
-      const W = mMeasurer(S), all = [];
-      MOB.rows.forEach(f => { let rs = []; try { rs = f(W) || []; } catch (x) {}
+    let S = MOB.S || M_S0, fit = S, tight = '', fits = [], rows = [];
+    const measure = (list, W, S) => { const all = [];
+      list.forEach(f => { let rs = []; try { rs = f(W) || []; } catch (x) {}
         rs.forEach(r => { const k = r.s > 0 ? r.s : r.w > 0 ? S * content / r.w : 0; if (k > 0) all.push({ what:r.what, s:k }); }); });
-      all.sort((p, q) => p.s - q.s);
-      if (!all.length){ fit = S = M_S0; tight = ''; fits = []; break; }
-      fit = S = all[0].s; tight = all[0].what; fits = all.slice(0, 6);   /* 513a: no cap -- the tightest row IS the SUBTITLE */
+      return all.sort((p, q) => p.s - q.s); };
+    for (let pass = 0; pass < 3; pass++){
+      const W = mMeasurer(S), all = measure(MOB.rows, W, S);
+      if (!all.length){ fit = S = M_S0; tight = ''; fits = []; rows = []; break; }
+      fit = S = all[0].s; tight = all[0].what; fits = all.slice(0, 6); rows = all;   /* 513a: no cap -- the tightest row IS the SUBTITLE */
     }
+    /* 515a ABOUT'S LOCAL CAP (SPEC-515 item 2): About's own rows (MOB.arows) at About's S, which is the site's unless they
+       cannot hold it -- then their fit (two passes: the second at the capped size, for its optical size) */
+    let aS = S, afit = 0, atight = '';
+    for (let pass = 0; pass < 2; pass++){
+      const all = measure(MOB.arows, mMeasurer(aS), aS);
+      if (!all.length) break;
+      afit = all[0].s; atight = all[0].what; aS = Math.min(S, afit);
+    }
+    let lS = S, ltight = '';   /* 515a: the blog's cap (the list and the posts), two passes as About's */
+    for (let pass = 0; pass < 2; pass++){ const all = measure(MOB.lrows, mMeasurer(lS), lS); if (!all.length) break; ltight = all[0].what; lS = Math.min(S, all[0].s); }
     if (mProbeEl) mProbeEl.remove();   /* a desktop after a phone round trip is a fresh desktop */
     S = Math.floor(S * 100) / 100;   /* 513a: floored -- never past the fit */
-    MOB.fit = Math.round(fit * 100) / 100; MOB.tight = tight; MOB.fits = fits.map(r => ({ what:r.what, s:Math.round(r.s * 100) / 100 }));
-    const was = MOB.S; MOB.S = S;
+    aS = Math.min(S, Math.floor(aS * 100) / 100);
+    lS = Math.min(S, Math.floor(lS * 100) / 100);
+    const r2 = x => Math.round(x * 100) / 100;
+    MOB.fit = r2(fit); MOB.tight = tight; MOB.fits = fits.map(r => ({ what:r.what, s:r2(r.s) }));
+    MOB.all = rows.map(r => ({ what:r.what, s:r2(r.s) }));   /* 515a: every row the solve measured, tightest first (the rigs list them) */
+    MOB.afit = r2(afit); MOB.atight = atight; MOB.ltight = ltight;
+    const was = MOB.S, wasA = MOB.aS, wasL = MOB.lS; MOB.S = S; MOB.aS = aS; MOB.lS = lS;
     document.documentElement.style.setProperty('--m-sub', S + 'px');
-    return Math.abs(S - was) > .004;
+    document.documentElement.style.setProperty('--m-sub-a', aS + 'px');   /* 515a: About's S (M512:ABOUT) */
+    document.documentElement.style.setProperty('--m-sub-l', lS + 'px');   /* 515a: the blog's -- its list and its posts (M512:CASE) */
+    return Math.abs(S - was) > .004 || Math.abs(aS - wasA) > .004 || Math.abs(lS - wasL) > .004;
   }
   MOB.solve = silent => { const ch = mSolve(); if (ch && !silent) dispatchEvent(new Event('resize')); return ch; };
   MOB.solve(true);
@@ -12623,6 +12725,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       for (let p = 0; p < 3; p++){ const chCap = Math.max(H * HH7F, H - 2 * (clearC + aboveOf(hh))); if (chCap > 80 && hh > chCap) hh = chCap; }
       return mLandCard(hh, H, clearC, grow, aboveOf, S).ex <= 0;
     }
+    /* 515a: SELECTED / WORKS on an upright phone: each word stands turned on its margin, its ink .72 S across (the cap and
+       its overshoot), in the clearance CLEARX the card keeps inside the margins (on a portrait phone the card is width-bound,
+       so its sides sit there at any S), with M_SIDE_AIR S of air to the card. A landscape card is height-bound, far inside. */
+    const M_SIDE_AIR = .25;
+    MOB.rows.push(() => MOB.land ? [] : [{ what:'hero side words', s:CLEARX / (.72 + M_SIDE_AIR) }]);
     let mLandMemo = null;   /* the ceiling per window: it does not depend on the S being tried */
     MOB.rows.push(() => {
       if (!MOB.land || !v7()) return [];
@@ -14369,7 +14476,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const sp = [...el.children].filter(e => !e.classList.contains('c3-sub4'));
     /* 511b: drawn at F and scaled to the TITLE, so the optical size is pinned to the size the
        words SHOW at -- auto would pick DM Sans' opsz for F (SPEC-511 sec. 2) */
-    { const oz = Math.min(40, Math.max(9, Math.min(F, (typeof hdrS0 === 'number' && hdrS0) || F))).toFixed(2);
+    { const oz = Math.min(40, Math.max(9, Math.min(F, (typeof hdrS0 === 'number' && c3S0()) || F))).toFixed(2);
       sp.forEach(e => { e.style.fontVariationSettings = "'opsz' " + oz; }); }
     sp[0].style.marginLeft = (-ldInk(words[0], 1000, TR).left * F).toFixed(1) + 'px';
     if (sp[1]) sp[1].style.marginRight = (-ldInk(words[1], 1000, TR).right * F).toFixed(1) + 'px';
@@ -14387,6 +14494,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     hs.setProperty('--c3-brand-l', (ldInk(words[0], 1000, TR).left * F).toFixed(2) + 'px');
     hs.setProperty('--c3-brand-r', (sp[1] ? ldInk(words[1], 1000, TR).right * F : 0).toFixed(2) + 'px');
   }
+  /* 515a: THE TITLE'S SIZE ON THE PAGE -- the header's small size (hdrS0), as ever; on a phone's POST, capped at the blog's S
+     (MOB.lS: the blog has left the site's SUBTITLE solve and caps itself, SPEC-515) */
+  const c3S0 = () => SRC === 'blogs' && MOB.on && MOB.lS > 0 ? Math.min(hdrS0, MOB.lS) : hdrS0;
   let brandFull = 0, brandT = 0, brandBuiltC4 = null;   /* 401: which mode the head was last built for */
   /* 511b: THE START HINT GIVES WAY, NOT THE TITLE (SPEC-511 sec. 3: keep TITLE as large as
      possible; the lesser element yields first). At rest the hint stands mid-window on the
@@ -14526,7 +14636,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const mLow = mSp.length ? mSp.map(e => e.getBoundingClientRect()).sort((a, b) => b.bottom - a.bottom)[0] : null;
     if (mLow && mLow.bottom > 0){
       seatAdj4 = Math.max(-60, Math.min(60, seatAdj4 + Math.max(-6, Math.min(6, 8 - (tR.top - mLow.bottom)))));
-      const kBn = hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2;
+      const kBn = hdrFullF ? Math.min(1, c3S0() / hdrFullF) : 0.2;
       const hTn = inkBot4 + dial('--c3-c4-head-gap') - headBox.pad - (1 - kBn) * headBox.cap + seatAdj4;
       document.documentElement.style.setProperty('--c3-head-top', hTn.toFixed(2) + 'px');
     }
@@ -14968,7 +15078,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          seats deeper by exactly that slack; the menu's ink bottom is
          MEASURED (canvas metrics on the lowest menu span), not derived
          from trim guesses -- the 405 lesson. */
-      const kB4 = hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2;
+      const kB4 = hdrFullF ? Math.min(1, c3S0() / hdrFullF) : 0.2;
       let inkBot = hf - mv.b;   // the old derivation stands as the fallback
       try {
         const spans = [...hdr.querySelectorAll('.menu span')];
@@ -15022,7 +15132,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const S = MOB.S || M_S0, top = PAD + .7 * S + PAD, room = H - top - dial('--m-c3-film-gap') - .7 * S - PAD - .35 * S - PAD;
         vh = Math.max(0, Math.min(vh, room)); vw = vh * 16 / 9; xc = (W - vw) / 2; yc = top + (room - vh) / 2;
       }
-      stageH = yc + vh + (MOB.land ? dial('--m-c3-film-gap') : (mGapWant = mHeroGap()) + mGapDy) - headBox.pad - (1 - (hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2)) * brandFull;   /* 514c: portrait -- the film's foot to the title's cap top IS the hero's card foot to its paragraph's cap top, read live (mHeroGap), the seat's measured miss folded in (mGapFix) */
+      stageH = yc + vh + (MOB.land ? dial('--m-c3-film-gap') : (mGapWant = mHeroGap()) + mGapDy) - headBox.pad - (1 - (hdrFullF ? Math.min(1, c3S0() / hdrFullF) : 0.2)) * brandFull;   /* 514c: portrait -- the film's foot to the title's cap top IS the hero's card foot to its paragraph's cap top, read live (mHeroGap), the seat's measured miss folded in (mGapFix) */
     }
     $('#c3Stage').style.height = Math.max(0, stageH).toFixed(2) + 'px';   // to the sub-pixel: a rounded stage moved the head's foot by half a px
     if (MOB.on) $('#c3Head').style.setProperty('--m-c3-band-top', (yc + vh - Math.max(0, stageH) + .5).toFixed(2) + 'px');   /* 514c: the row's paper begins half a px under the film's foot (the head's box top is the stage's foot) */
@@ -15141,7 +15251,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        grown, full size through the climb; stuck under the header, down to
        the header's initials' size over CASE_DOWN of scroll, about their
        cap top */
-    const kB = hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2;
+    const kB = hdrFullF ? Math.min(1, c3S0() / hdrFullF) : 0.2;
     const C4 = chosen.case === 4;
     /* 403: THE ONE CURVE. kS is V3's shrink trajectory whether or not the
        title itself shrinks. V4's title holds kB throughout, but every piece
