@@ -3,6 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>
+/* 514a: THE iPHONE'S VIEWPORT (SPEC-514 A1). iOS ONLY -- an iPhone, an iPod, an iPad (one asking for the desktop site
+   reports MacIntel with touch points); every browser there is WebKit. Here, under the meta, before anything is laid out.
+   (1) NO ZOOM ON A FIELD. iOS zooms into any focused field under 16px -- the contact fields are half TITLE, 9-11px on a
+       phone -- and keeps that zoom, over a reload too. maximum-scale=1 stops that zoom and ONLY that: since iOS 10 the
+       reader's own pinch-zoom stays whatever a page asks. Never on Android, where it would take the pinch away.
+   (2) A LEFTOVER ZOOM BREAKS NO LAYOUT. WebKit reports innerWidth / innerHeight as the VISUAL viewport, so a zoomed page
+       (a pinch, or a zoom a reload restored) laid every engine out on a smaller window. While the page is zoomed both
+       read the LAYOUT viewport -- the visual one times its scale, the size the page has unzoomed -- as Chrome's always
+       do; unzoomed they are the browser's own values, untouched.
+   (3) NEVER LEFT ZOOMED. When a field lets go (the keyboard goes down) or the page is shown again, a zoom still standing
+       is handed back: the viewport is re-read through the same limit, which returns the page to 1 where iOS lets it. */
+(function(){
+  var n = navigator, W = window, vv = W.visualViewport;
+  if (!(/iPhone|iPad|iPod/.test(n.userAgent || '') || (n.platform === 'MacIntel' && n.maxTouchPoints > 1))) return;
+  var m = document.querySelector('meta[name=viewport]'), VP = 'width=device-width, initial-scale=1';
+  if (m) m.setAttribute('content', VP + ', maximum-scale=1');
+  if (!vv) return;
+  var own = function(k){ return Object.getOwnPropertyDescriptor(W, k) || Object.getOwnPropertyDescriptor(W.Window ? Window.prototype : {}, k); };
+  var dW = own('innerWidth'), dH = own('innerHeight');
+  var zoomed = function(){ var s = vv.scale; return s > 0 && Math.abs(s - 1) > .01 && !!dW && Math.abs(dW.get.call(W) - vv.width) < 2; };
+  try {
+    if (dW && dW.get && dW.configurable !== false) Object.defineProperty(W, 'innerWidth', { configurable:true, enumerable:true, set:dW.set,
+      get:function(){ return zoomed() ? Math.round(vv.width * vv.scale) : dW.get.call(W); } });
+    if (dW && dH && dH.get && dH.configurable !== false) Object.defineProperty(W, 'innerHeight', { configurable:true, enumerable:true, set:dH.set,
+      get:function(){ return zoomed() ? Math.round(vv.height * vv.scale) : dH.get.call(W); } });
+  } catch (e) {}
+  var field = function(el){ return !!el && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName); };
+  var unzoom = function(){
+    if (!m || !(vv.scale > 1.01) || field(document.activeElement)) return;
+    m.setAttribute('content', VP + ', maximum-scale=1.01');
+    setTimeout(function(){ m.setAttribute('content', VP + ', maximum-scale=1'); }, 80);
+  };
+  document.addEventListener('focusout', function(e){ if (field(e.target)) setTimeout(unzoom, 400); }, true);
+  W.addEventListener('pageshow', function(){ setTimeout(unzoom, 100); });
+})();
+</script>
 <title>Balint Danyi</title>
 <!-- Favicon: BD drawn from DM Sans at weight 1000, black on the page's
      own off-white. Real outlines rather than a font reference, since a
@@ -4113,6 +4150,15 @@
   html.mob #viewCase3 .c3-details.c3-stack .cell.media:not(.natural) .pic{ inset:1px 0; }
   /* the rows' and the intro's slide-in: 12px on a phone (28 started the left-margin number off the screen) */
   html.mob #viewCase3{ --c3-row-in-dx:calc(var(--m-pad) / 2); }
+  /* 514a THE PAPER UNDER THE PAGE (SPEC-514 A3). The page scrolls the document over the landing, which stays fixed and
+     receded underneath: pulled past its end (iOS's rubber band) the gap showed the landing -- the showreel. Once the
+     entrance wipe is done (.7s after c3-in) a fixed paper sheet stands between the two (body::after, just under the
+     case's 800) and the canvas turns paper, so whether the fixed layers stay on the screen through the bounce or ride
+     it, the gap is paper. Both step aside at once when the case leaves (caseopen falls for the exit curtain; a view swap
+     marks the held case vv-out / c3-exit): every transition still recedes onto the landing as before. */
+  html.mob body::after{ content:''; position:fixed; inset:0; z-index:799; background:var(--paper); visibility:hidden; pointer-events:none; }
+  html.mob body.caseopen.case3.c3-in:has(#viewCase3:not(.vv-out):not(.c3-exit))::after{ visibility:visible; transition:visibility 0s linear .7s; }
+  html.mob:has(> body.caseopen.case3.c3-in #viewCase3:not(.vv-out):not(.c3-exit)){ background-color:var(--paper); transition:background-color 0s linear .7s; }
 
   /* M512:ABOUT */
   /* 512g: ABOUT ON A PORTRAIT PHONE (typo512/ABOUT-MOBILE-DESIGN.md, the judged synthesis). The About engine's phone branch
@@ -7650,6 +7696,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     ldCopy.style.fontSize = Math.max(11, C).toFixed(1) + 'px';
     ldCopy.style.top = mid.toFixed(1) + 'px';
     ldSeatCount();   /* 511b: the counter's baseline onto the margin, measured */
+    if (MOB.on) ldCentre();   /* 514a: a phone centres the group in the band it shows */
   }
   /* 511b: THE COUNTER'S BASELINE ON THE MARGIN, BY MEASURE. A zero-size inline-block on the
      front layer's baseline reads where the line really sits (layout units, before the paint
@@ -7666,6 +7713,42 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const d = y - (innerHeight - PAD), dy = parseFloat(ldCnt.style.getPropertyValue('--ld-count-dy')) || 0;
     if (y > 0 && isFinite(d) && Math.abs(d) < 4) ldCnt.style.setProperty('--ld-count-dy', (dy + d).toFixed(3) + 'px');
   }
+  /* 514a: THE LOADER, CENTRED IN WHAT THE PHONE SHOWS (SPEC-514 A2). On a phone the name wears the bar's TITLE (--big,
+     .ld-name's !important), not the size solved above, so the top written from that size seated the group high -- his
+     iPhone showed the name and the statement a third of the way down. ldCentre moves the group as one (the name and the
+     statement on 440's seat, just under it) so its INK -- the name's cap top to the statement's last baseline -- is centred in the
+     VISIBLE band, ldBand: the fixed sheet the loader lives in, cut to the visual viewport while the page is unzoomed
+     (the browser's bars, a keyboard: out of it); a zoomed page lays it out on the layout viewport. Never 100vh. */
+  function ldBand(){
+    const r = ldSheet.getBoundingClientRect(), vv = window.visualViewport;
+    let t = r.top, b = r.bottom;
+    if (!(b - t > 0)){ t = 0; b = innerHeight; }
+    if (vv && Math.abs(vv.scale - 1) < .01){ t = Math.max(t, vv.offsetTop); b = Math.min(b, vv.offsetTop + vv.height); }
+    return { t, b };
+  }
+  function ldCentre(){
+    const ps = ldCopy.querySelectorAll('p'), lp = ps[ps.length - 1];
+    if (!ldName.isConnected || !lp) return;
+    const nr = ldName.getBoundingClientRect();
+    if (!nr.height) return;
+    const fn = parseFloat(getComputedStyle(ldName).fontSize), cs = getComputedStyle(lp), fc = parseFloat(cs.fontSize);
+    const lh = parseFloat(cs.lineHeight) || 1.13 * fc;
+    ldCopy.style.top = (nr.bottom + fc * 16 / 21).toFixed(1) + 'px';   /* 440's seat, as the copy lights: the statement just under the name (a resize's ldSolve had left it at the old mid) */
+    const lr = lp.getBoundingClientRect();
+    if (!lr.height) return;
+    const top = nr.top + ((.78 - 1.302) / 2 + .992 - .7) * fn;      /* the name's cap top: its .78 line box, DM Sans ascent .992, cap .70 */
+    const bot = lr.bottom - (lh - 1.302 * fc) / 2 - .31 * fc;         /* the statement's last baseline: its line box less the half-leading and the descent */
+    const B = ldBand(), d = (B.t + B.b) / 2 - (top + bot) / 2;
+    if (!isFinite(d) || Math.abs(d) < .05) return;
+    ldName.style.top = ((parseFloat(ldName.style.top) || 0) + d).toFixed(1) + 'px';
+    ldCopy.style.top = ((parseFloat(ldCopy.style.top) || 0) + d).toFixed(1) + 'px';
+  }
+  /* the band moves when the browser's bars do (the sheet's size), and with the visual viewport; the window's resize
+     already runs ldSolve. Only once the name is lit (the fonts' solve has run) and never once it has flown. */
+  { let q = 0;
+    const soon = () => { if (!MOB.on || ldFlown || q || !ldName.classList.contains('lit')) return; q = requestAnimationFrame(() => { q = 0; if (!ldFlown) ldSolve(); }); };
+    if (window.visualViewport){ visualViewport.addEventListener('resize', soon); visualViewport.addEventListener('scroll', soon); }
+    if (window.ResizeObserver) new ResizeObserver(soon).observe(ldSheet); }
 
   /* ---- the counter. Numbers step through a ramp, then fade onto a landing;
      four times over, the last of them onto the call to action.
@@ -11665,7 +11748,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const mSheet = document.getElementById('mSheet'), mMenu = document.getElementById('mMenu');
   const mIco = document.getElementById('mIco'), mList = document.getElementById('mList');
   const MNU = { p:0, to:0, anim:0, drag:null, open:false, swallow:0, rows:[], h:0 };   /* to: where the slide is headed */
-  const mVH = () => (window.visualViewport && visualViewport.height) || document.documentElement.clientHeight || innerHeight;   /* the height the phone shows: innerHeight is the layout viewport, which a page's overflow grows */
+  const mVH = () => (window.visualViewport && visualViewport.height * visualViewport.scale) || document.documentElement.clientHeight || innerHeight;   /* the height the phone shows: innerHeight is the layout viewport, which a page's overflow grows. 514a: times the scale -- in the layout's px, so a pinch or a zoom a reload restored moves nothing */
   const mTravel = () => Math.max(1, mVH() - 2 * PAD - .7 * (MOB.S || M_S0));
   const mEaseIO = u => u < .5 ? 8 * u * u * u * u : 1 - Math.pow(-2 * u + 2, 4) / 2;   /* the house curve, cubic-bezier(.76,0,.24,1) */
   const mEaseOut = u => 1 - Math.pow(1 - u, 3);                                          /* a release keeps the finger's speed */
