@@ -3860,15 +3860,18 @@
 
   /* M512:BASE */
   /* THE TOKENS. --m-pad is the phone's side margin (a bit under the desktop's 36). --m-sub is THE SUBTITLE,
-     one size across the whole site on a given phone: JS solves it (MOB.solve -- the tightest row defines it,
-     capped at the desktop's 20px) and writes it inline on <html>; 20px is only the value before that solve.
+     one size across the whole site on a given phone: JS solves it (MOB.solve -- the tightest row defines it; 513a: no
+     cap, portrait and landscape) and writes it inline on <html>; 20px is only the value before that solve.
      BODY(CAPS) is half of it (the 2 : 1 ratio), NOCAPS BODY x --body-k as on the desktop. The desktop tokens are
-     re-pointed here, so every existing rule that reads --pad / --t-sub / --t-body / --t-nocaps follows. */
+     re-pointed here, so every existing rule that reads --pad / --t-sub / --t-body / --t-nocaps follows.
+     --m-title-k is About's TITLE tier (his question 1, 512g: TITLE = --m-title-k x SUBTITLE; M512:ABOUT derives
+     --m-title from it). 513a: a phone token, so the SUBTITLE solve measures About's TITLE rows from any page. */
   html.mob{
     --m-pad:24px;
     --m-sub:20px;
     --m-body:calc(var(--m-sub) / 2);
     --m-nocaps:calc(var(--m-body) * var(--body-k));
+    --m-title-k:2;
     --pad:var(--m-pad);
     --t-sub:var(--m-sub);
     --t-body:var(--m-body);
@@ -3885,6 +3888,7 @@
   html.mob .m-probe{ position:fixed; left:0; top:0; visibility:hidden; pointer-events:none; white-space:nowrap; }
   html.mob .m-probe .m-ps{ font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); text-transform:uppercase; }
   html.mob .m-probe .m-pb{ font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase; }
+  html.mob .m-probe .m-pt{ font-weight:1000; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase; font-variation-settings:normal; font-optical-sizing:auto; }   /* 513a: TITLE, as About's TITLE rows wear it */
   /* THE LOADER PARAGRAPH (#ldCopy) drops to BODY(CAPS); the rest of the loader is unchanged */
   html.mob #ldCopy p{ font-size:var(--m-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh); }
 
@@ -3897,6 +3901,7 @@
   html.mob .hdr{ padding:var(--pad) var(--pad) calc(var(--pad) / 2); touch-action:none; }
   html.mob .hdr .masthead.flat{ display:none; }
   html.mob .hdr-name{ font-size:var(--m-sub); margin:0 calc(1.32 * var(--m-sub)) 0 0; }
+  html.mob .hdr-name{ transition:opacity 160ms ease, color .5s ease; }   /* 513a: a new S lands at once (S moves on a turn now): no font-size transition -- a phone has no hover expansion, and every layout that reads the bar measured it mid-way */
   /* the icon: three bars, cap-tall, turning into the close cross as the slide opens (--m-p, the slide's
      progress, written on .hdr by the menu engine). The button's box IS the icon -- its right edge on the right
      margin, its top on B's cap top, cap-tall; a 12px invisible pad round it (::after) takes the thumb */
@@ -4116,10 +4121,10 @@
      sheets in the desktop's order and colours -- INTRO, ROLE and APPROACH pinned stages (sticky, one MEASURED screen tall,
      --a4m-h, never 100vh), BACKGROUND flowing -- every line placed by ink in JS; the About nav is the section row under B - D.
      THE TYPE: a TITLE tier on About only, --m-title = --m-title-k x SUBTITLE (his question 1; 2 is the doc's answer, 1 gives
-     the two classes), following the site's SUBTITLE solve, which About never binds. His question 4 is --a4m-cp-align (the
+     the two classes; 513a: the dial lives with the phone's tokens in M512:BASE), following the site's SUBTITLE solve,
+     which About's tight rows now join (513a). His question 4 is --a4m-cp-align (the
      INTRO statement: left, the phone's text rule; center is the desktop's). */
   html.mob.a4m{
-    --m-title-k:2;
     --m-title:calc(var(--m-title-k) * var(--m-sub));
     --a4m-cp-align:left;
     --a4m-ch:calc(1.5 * var(--m-pad) + 2.7 * var(--m-sub));   /* the chrome's foot: the bar, the section row (cap top M + 2 S), half a margin */
@@ -4748,7 +4753,7 @@
      reset there); MOB.rows are the SUBTITLE solve's tight rows (a view step may add its own); MOB.solve is
      the solve itself, defined with the menu engine below. Above 600px nothing here touches the page: no
      class, no inline token. */
-  const MOB = { on:false, land:false, S:0, fit:0, tight:'', capBinds:false, hooks:[], rows:[], solve:null };
+  const MOB = { on:false, land:false, S:0, fit:0, tight:'', fits:[], hooks:[], rows:[], solve:null };
   const MOB_Q = '(max-width: 600px)', MOB_LQ = '(pointer: coarse) and (orientation: landscape) and (max-height: 500px)';
   const MOB_LAND = true;   /* 512e: the landscape phones run the phone build (html.mob.mobl) */
   function mobEval(e){
@@ -9681,7 +9686,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       a4Ring(document.getElementById('a4GalB'), kBB);
       view.style.setProperty('--a4-galh', bh1.toFixed(2) + 'px');   /* the slot is the INTRO band's own anchor */
       const slotEl = document.getElementById('a4GalSlot');
-      if (slotEl) slotEl.style.top = (0.5 * vh - off - bh1 / 2).toFixed(1) + 'px';   /* 422's true vertical centre, at the scaled height */
+      a4Foot = foot;   /* 513a: the band's foot, read -- the landscape phone's seats hang from it (a4LandY) */
+      const cy = a4LandOn() ? Math.max(0.5 * vh, foot + A4_BAND_GAP + bh1 / 2) : 0.5 * vh;   /* 513a: on a landscape phone the band at its floor scale would reach under the phone's band: its top holds at the foot + the gap */
+      if (slotEl) slotEl.style.top = (cy - off - bh1 / 2).toFixed(1) + 'px';   /* 422's true vertical centre, at the scaled height */
     }
     let beltRing = 0, curB = 0;
     const A4_R1 = 0.15, A4_R2 = 0.75;   /* ONE transition law at HALF speed: the fast card at x0.75 over the slow layer at x0.15; NO holds -- the slowness is the dwell */
@@ -9737,6 +9744,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       visSlitT = uTop + A4_V.slitT * uS; visSlitB = uTop + A4_V.slitB * uS;
       uTopL = uTop;
       visGalTop = (visSlitT + visSlitB) / 2 - bandH4 / 2;
+      if (a4LandOn()) a4LandSeat(uLeft);   /* 513a: a landscape phone seats ROLE and APPROACH under its band */
       /* the journey: in (vh/1.5) + hold + OUT (vh/1.5, the role exiting over
          vision) + hold + headroom -- every transition the same fast-over-slow */
       const off = parseFloat(getComputedStyle(view).getPropertyValue('--a4-off')) || 0;
@@ -9950,7 +9958,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            leading edge, easing to zero exactly at full cover -- content
            meets the eye early AND lands on the original centred
            composition untouched. */
-        const uT0 = (vh - 870 * uS) / 2;
+        const uT0 = a4LandOn() ? u2Seat.y : (vh - 870 * uS) / 2;   /* 513a: a landscape phone's ROLE sits under its band (a4LandSeat) */
         const P2 = .5 * (uT0 + a4RoleTopU * uS), P4 = .5 * bg4TopW;   /* half the MEASURED edge-distance (511d: the ROLE composition's ink top, a4Rows -- it was a drawn 287.3) */
         const un2 = document.getElementById('a4Unit');
         if (un2) un2.style.transform = 'translate3d(' + u2Seat.x.toFixed(2) + 'px,' + (u2Seat.y - P2 * (1 - e1 / vh)).toFixed(2) + 'px,0) scale(' + uS.toFixed(4) + ')';
@@ -10203,6 +10211,32 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        keeps its drawn centre; the belt keeps its 52. */
     const A4_AIR = { r23:.3977, r34:1.0499, rBelt:.0960, slitT:.4271, slitB:.4564, bgP:.2128, bgBand:.2703 };
     const A4_ROLE_MID = 429.25, A4_BELT_H = 52;
+    /* 513a: THE LANDSCAPE PHONE'S SEATS. A landscape phone keeps this journey under the phone's band -- B - D and the nav,
+       both SUBTITLE, so the band grows with the site's SUBTITLE solve -- while the sheets were seated for the window alone
+       (ROLE and APPROACH centred in it). Here a sheet's content -- [top, foot] in unit px -- sits in the room UNDER the band:
+       from its live foot (a4Foot, bandScale's reading) + A4_BAND_GAP to the bottom margin, centred when it fits. When it
+       does not, the room gives way in order: the bottom margin first (the sheet's foot down to the window's edge), then
+       the gap under the band (its top down to the band's foot); a sheet taller than all of that holds its top on the foot
+       and runs off below -- its text is never under the band. The desktop never takes this path. */
+    let a4Foot = 0, a4AppU = null;
+    const a4LandOn = () => MOB.on && MOB.land;
+    function a4LandY(topU, footU){
+      const vh = innerHeight, r0 = a4Foot + A4_BAND_GAP, r1 = vh - PAD, h = (footU - topU) * uS;
+      const y = h <= r1 - r0 ? r0 + (r1 - r0 - h) / 2 : Math.max(a4Foot, Math.min(r0, vh - h));
+      return y - topU * uS;
+    }
+    function a4LandSeat(uLeft){
+      const sc = ') scale(' + uS.toFixed(4) + ')';
+      const bU = 2 * A4_ROLE_MID - a4RoleTopU - A4_BELT_H;   /* the belt's top: a4Rows centres LEADING's cap .. a drawn 52 belt on A4_ROLE_MID */
+      const y2 = a4LandY(a4RoleTopU, bU + Math.max(A4_BELT_H, A4_LB_T * .7 * 74 / uS + 6));   /* .. the belt's foot as beltSolve sizes the box (its logos are window px) */
+      u2Seat = { x: uLeft, y: y2 };
+      document.getElementById('a4Unit').style.transform = 'translate(' + uLeft.toFixed(2) + 'px,' + y2.toFixed(2) + 'px' + sc;
+      if (!a4AppU) return;
+      const y3 = a4LandY(a4AppU.t, a4AppU.f);
+      document.getElementById('a4Unit3').style.transform = 'translate(' + uLeft.toFixed(2) + 'px,' + y3.toFixed(2) + 'px' + sc;
+      visSlitT = y3 + A4_V.slitT * uS; visSlitB = y3 + A4_V.slitB * uS;   /* the vision slit rides its sheet */
+      visGalTop = (visSlitT + visSlitB) / 2 - bandH4 / 2;
+    }
     function a4Rows(){
       if (!(uS > 0) || !isFinite(uS)) return;
       const q = s => view.querySelector(s), fs = e => parseFloat(getComputedStyle(e).fontSize) || 0;
@@ -10243,6 +10277,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const yT = Math.round(a4Base(bw)), dC = cT * (T - SR) * uS;
         v2.forEach(e => { const d = (yT - dC) - a4Base(e); if (isFinite(d) && Math.abs(d) > .01) e.style.top = (parseFloat(e.style.top) + d / uS).toFixed(2) + 'px'; });
         ap.style.top = (A4_V.slitB + A4_AIR.slitB * T - (bN - cN * N)).toFixed(2) + 'px';
+        a4AppU = { t: capC, f: parseFloat(ap.style.top) + Math.max(0, ...[...ap.querySelectorAll('p')].map(p => p.offsetHeight)) };   /* 513a: CONNECTING's cap .. the longer paragraph's foot, unit px (a4LandSeat) */
       }
     }
     function bg4Layout(){
@@ -10286,7 +10321,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const bandWin = 274 * Math.min(1, uS);                   /* the band's VISIBLE window height */
       const BG4_AIR = A4_AIR.bgBand * Tu * uS;   /* 508: renamed -- this is the band's own air, not the page margin. 511d: the drawn 20 in TITLE ems (window px) */
       const H = aboveU * uS + BG4_AIR + bandWin + BG4_AIR + eduU * uS;
-      const top0 = off2 + 6, bot0 = vh2 - footRm2 - 12;
+      const top0 = a4LandOn() ? Math.max(off2 + 6, a4Foot + A4_BAND_GAP) : off2 + 6, bot0 = vh2 - footRm2 - 12;   /* 513a: a landscape phone's band (B - D and the nav) is the group's ceiling */
       const gTop = top0 + Math.max(0, (bot0 - top0 - H) / 2);
       const kCapU = (gTop - U4T) / uS;
       const tTop = kCapU + kDrop - offT, kTop = kCapU - offS;   /* 511d: the live cap offsets */
@@ -10457,6 +10492,40 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const m4Clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
     const m4OnPhone = () => MOB.on && !MOB.land;
     const m4Q = s => view.querySelector(s);
+    /* 513a: ABOUT JOINS THE SUBTITLE SOLVE (SPEC-513: About grows with the SUBTITLE -- TITLE = --m-title-k x it -- so its
+       tight rows join the solve, and nothing on About may overrun or collide at any phone size). The rows are read from
+       About's own DOM (its words, in the phone's lines). ON A PORTRAIT PHONE (the a4m composition): the three TITLE spreads
+       (LEADING | VIDEO, FROM | BRIEF, TO | DELIVERY) with at least A4M_AIR TITLE of air, so a pair never reads as a phrase
+       (a TITLE word space is about a third of one); INTRO's bottom row line by line (CREATIVE | FOR, LEAD | BRAND FILM --
+       FOR's cap stands a hair over CREATIVE's baseline) with a title's air (M_GAP); every TITLE and SUBTITLE line alone;
+       the schools' captions (BODY, 2.2 S in, as m4Bg seats them); the section row and the end row (0n ---- NAME, the
+       least hairline M_RULE). ON A LANDSCAPE PHONE About keeps the desktop journey under the phone header, and its nav is
+       the tight row: the five words in one row with the travellers' gaps and BACKGROUND's hold (navMeasure / navDrive:
+       30 and 90, drawn round 21px words). */
+    const A4M_AIR = 1;   /* the least air in a TITLE spread, in TITLE */
+    const m4Lines = el => { const o = ['']; if (el) el.childNodes.forEach(n => { if (n.nodeName === 'BR') o.push(''); else o[o.length - 1] += n.textContent; });
+      return o.map(t => t.replace(/\s+/g, ' ').trim()).filter(Boolean); };
+    MOB.rows.push(W => {
+      if (!MOB.on) return [];
+      const S = W.S, T = W.k * S, R = [], add = (what, w) => R.push({ what:'about ' + what, w });
+      const nav = [...document.querySelectorAll('#a4Nav span')].map(e => e.textContent.trim()).filter(Boolean);
+      if (!m4OnPhone()){
+        if (nav.length) add('nav (landscape)', nav.reduce((a, t) => a + W(t), 0) + (4 * 30 + 90) / 21 * S);
+        return R;
+      }
+      const tx = s => (m4Q(s) ? m4Q(s).textContent : '').replace(/\s+/g, ' ').trim();
+      const rw = [...view.querySelectorAll('#a4Unit .a4-rw2 .w')].map(e => e.textContent.trim());
+      [[tx('#a4Unit .a4-lbig.s1l'), tx('#a4Unit .a4-lbig.s1r')], [rw[0], rw[1]], [rw[2], rw[3]]].forEach(([a, b]) => { if (a && b) add(a + ' | ' + b, W.T(a) + A4M_AIR * T + W.T(b)); });
+      const big = tx('.a4-row3 .a4-big').split(' '), mid = m4Lines(m4Q('.a4-row3 .a4-mid')), ml = [mid[0], mid.slice(1).join(' ')];
+      big.forEach((b, i) => { if (b && ml[i]) add(b + ' | ' + ml[i], W.T(b) + M_GAP * S + W(ml[i])); });
+      const ws = [...view.querySelectorAll('#a4Unit4 .a4-rw4 .w')].map(e => e.textContent.trim());
+      [tx('#a4Unit .a4-p2l'), tx('#a4Unit .a4-p2c'), tx('#a4Unit .a4-p2r'), tx('#a4Unit3 .a4-brk .bw'), ws.slice(0, -1).join(' '), ws[ws.length - 1]]
+        .forEach(t => { if (t) add(t, W.T(t)); });
+      view.querySelectorAll('.a4-mids, .a4-bgk').forEach(e => m4Lines(e).forEach(t => add(t, W(t))));
+      view.querySelectorAll('.a4-bgc .t').forEach(e => m4Lines(e).forEach(t => add(t, 2.2 * S + W(t, 1))));
+      nav.forEach((t, i) => add(String(i + 1).padStart(2, '0') + ' ' + t, W(String(i + 1).padStart(2, '0')) + M_RULE * S + W(t)));
+      return R;
+    });
     let m4On = false, m4G = null, m4Pin = null, m4T = 0, m4Drift = 0, m4Ch = null, m4BgU = [];
     const m4Nav = { k:0, sw:null, open:false, o0:0, sc0:0, top0:0, capY:0, numW:[], nameL:[] };
     const m4Wrote = new Set();
@@ -11417,13 +11486,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* ================= 512 MOBILE: THE SUBTITLE SOLVE AND THE MENU SLIDE (SPEC-512 sec. C, D) =========
      THE SUBTITLE IS ONE SIZE ACROSS THE WHOLE SITE on a given phone, as large as possible: the tightest row
      defines it. Every tight row is measured at a reference size in a probe that wears the members' exact
-     type (SUBTITLE, and BODY(CAPS) at half its size), and S is the largest size at which ALL of them fit
-     between the margins with their air -- capped at the desktop SUBTITLE (M_CAP). Two passes, so DM Sans'
-     optical size (auto from the computed size) is the one S will actually render at. On load, on the fonts,
-     on every resize (mobEval, first in line) and on a mode switch. The air, in S: M_GAP between a title and
-     its subtitle (and an item and its number), M_RULE the least hairline, M_TRI the triangle and its air,
-     M_ICO the menu icon and its air. */
-  const M_CAP = 20;   /* the desktop SUBTITLE at <= 1600 wide (2 x the BODY floor) */
+     type (SUBTITLE, BODY(CAPS) at half its size, and 513a: About's TITLE at --m-title-k x it), and S is the largest
+     size at which ALL of them fit between the margins with their air. 513a: NO CAP (his answer: "let it grow ...
+     everywhere, landscape too") -- the tightest row alone defines S, and a row may be VERTICAL: it then returns its
+     own ceiling ({ what, s }) instead of a run ({ what, w }). Three passes, so DM Sans' optical size (auto from the
+     computed size) is the one S will actually render at. On load, on the fonts, on every resize (mobEval, first in
+     line) and on a mode switch. The air, in S: M_GAP between a title and its subtitle (and an item and its number),
+     M_RULE the least hairline, M_TRI the triangle and its air, M_ICO the menu icon and its air. */
+  const M_S0 = 20;   /* 513a: the SUBTITLE before the first solve (the CSS's own --m-sub) -- no longer a cap */
   const M_GAP = 1, M_RULE = 2, M_TRI = 1.1 + .27, M_ICO = 1.32;
   const mJSON = id => { try { return JSON.parse(document.getElementById(id).textContent); } catch (e) { return null; } };
   const mOneRow = t => String(t || '').split('/').map(x => x.trim()).filter(Boolean).join(' ');
@@ -11441,18 +11511,23 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!mProbeEl){
       mProbeEl = document.createElement('div'); mProbeEl.className = 'm-probe'; mProbeEl.setAttribute('aria-hidden', 'true');
       mProbeEl.style.cssText = 'position:fixed; left:0; top:0; visibility:hidden; pointer-events:none; white-space:nowrap;';   /* inert in any mode */
-      mProbeEl.innerHTML = '<span class="m-ps"></span><span class="m-pb"></span>';
+      mProbeEl.innerHTML = '<span class="m-ps"></span><span class="m-pb"></span><span class="m-pt"></span>';
     }
     if (!mProbeEl.isConnected) document.body.appendChild(mProbeEl);   /* in the DOM only while a solve measures (mSolve removes it) */
-    const a = mProbeEl.children[0], b = mProbeEl.children[1];
-    a.style.fontSize = S + 'px'; b.style.fontSize = (S / 2) + 'px';
+    const a = mProbeEl.children[0], b = mProbeEl.children[1], t = mProbeEl.children[2];
+    const k = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--m-title-k')) || 2;   /* 513a: About's TITLE tier */
+    a.style.fontSize = S + 'px'; b.style.fontSize = (S / 2) + 'px'; t.style.fontSize = (k * S) + 'px';
     /* the box less its trailing tracking: the ink's run, to within a side bearing */
-    const W = (t, body) => { if (!t) return 0; const e = body ? b : a; e.textContent = t;
+    const run = (e, x) => { if (!x) return 0; e.textContent = x;
       return e.getBoundingClientRect().width - (parseFloat(getComputedStyle(e).letterSpacing) || 0); };
-    W.S = S;
+    const W = (x, body) => run(body ? b : a, x);
+    W.T = x => run(t, x);   /* 513a: TITLE, at --m-title-k x S */
+    W.S = S; W.k = k;
     return W;
   }
-  /* THE TIGHT ROWS (SPEC-512 sec. C). Each returns [{ what, w }], w the row's run in px at the probe's S. */
+  /* THE TIGHT ROWS (SPEC-512 sec. C). Each returns [{ what, w }], w the row's run in px at the probe's S -- or (513a) a
+     vertical row [{ what, s }], s the largest S at which it holds. About's rows are the About engine's (AB4), the
+     landscape hero's the deck's (V67). */
   MOB.rows.push(W => mRec.map(r => ({ what:'start row: ' + r.key,   /* a case / post START slide: title SUBTITLE + subtitle BODY on ONE row */
     w: W(r.title) + M_GAP * W.S + W(mOneRow(r.sub), 1) })));
   MOB.rows.push(W => mRec.filter(r => r.kind === 'case').map(r => {   /* the hero's bottom row: title SUBTITLE + year over type in BODY */
@@ -11470,17 +11545,18 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function mSolve(){
     if (!MOB.on) return false;
     const content = document.documentElement.clientWidth - 2 * padPx();   /* the phone's width: innerWidth is the layout viewport, which a page's overflow grows */
-    let S = MOB.S || M_CAP, fit = S, tight = '';
-    for (let pass = 0; pass < 2; pass++){
-      const W = mMeasurer(S); let best = Infinity, who = '';
+    let S = MOB.S || M_S0, fit = S, tight = '', fits = [];
+    for (let pass = 0; pass < 3; pass++){
+      const W = mMeasurer(S), all = [];
       MOB.rows.forEach(f => { let rs = []; try { rs = f(W) || []; } catch (x) {}
-        rs.forEach(r => { if (!(r.w > 0)) return; const k = S * content / r.w; if (k < best){ best = k; who = r.what; } }); });
-      if (!isFinite(best)){ best = M_CAP; who = ''; }
-      fit = best; tight = who; S = Math.min(M_CAP, best);
+        rs.forEach(r => { const k = r.s > 0 ? r.s : r.w > 0 ? S * content / r.w : 0; if (k > 0) all.push({ what:r.what, s:k }); }); });
+      all.sort((p, q) => p.s - q.s);
+      if (!all.length){ fit = S = M_S0; tight = ''; fits = []; break; }
+      fit = S = all[0].s; tight = all[0].what; fits = all.slice(0, 6);   /* 513a: no cap -- the tightest row IS the SUBTITLE */
     }
     if (mProbeEl) mProbeEl.remove();   /* a desktop after a phone round trip is a fresh desktop */
-    S = Math.round(S * 100) / 100;
-    MOB.fit = Math.round(fit * 100) / 100; MOB.tight = tight; MOB.capBinds = fit > M_CAP;
+    S = Math.floor(S * 100) / 100;   /* 513a: floored -- never past the fit */
+    MOB.fit = Math.round(fit * 100) / 100; MOB.tight = tight; MOB.fits = fits.map(r => ({ what:r.what, s:Math.round(r.s * 100) / 100 }));
     const was = MOB.S; MOB.S = S;
     document.documentElement.style.setProperty('--m-sub', S + 'px');
     return Math.abs(S - was) > .004;
@@ -11499,7 +11575,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const mIco = document.getElementById('mIco'), mList = document.getElementById('mList');
   const MNU = { p:0, to:0, anim:0, drag:null, open:false, swallow:0, rows:[], h:0 };   /* to: where the slide is headed */
   const mVH = () => (window.visualViewport && visualViewport.height) || document.documentElement.clientHeight || innerHeight;   /* the height the phone shows: innerHeight is the layout viewport, which a page's overflow grows */
-  const mTravel = () => Math.max(1, mVH() - 2 * PAD - .7 * (MOB.S || M_CAP));
+  const mTravel = () => Math.max(1, mVH() - 2 * PAD - .7 * (MOB.S || M_S0));
   const mEaseIO = u => u < .5 ? 8 * u * u * u * u : 1 - Math.pow(-2 * u + 2, 4) / 2;   /* the house curve, cubic-bezier(.76,0,.24,1) */
   const mEaseOut = u => 1 - Math.pow(1 - u, 3);                                          /* a release keeps the finger's speed */
   function mnuMeasure(){
@@ -12199,13 +12275,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* 512e: THE LANDSCAPE PHONE'S PARAGRAPH ROOM. From the card's foot to the LAST BASELINE of the longest deck paragraph
        (#h4sum, always on under the card) set at width w: the box starts .7 S - .206 BODY under the foot (M512:HERO) and
        the baseline is read off a zero-size inline-block at the text's end, in a hidden clone that wears the class. The
-       deck's height solve (layout) gives the card way until that baseline is on the bottom margin at worst. */
+       deck's height solve (layout) gives the card way until that baseline is on the bottom margin at worst. 513a: at a
+       given SUBTITLE S too (the SUBTITLE solve's landscape hero row): the clone wears BODY = S / 2 explicitly, which at
+       the live S is --m-body exactly. */
     let mSumPr = null;
-    function mLandSum(w){
+    function mLandSum(w, S){
       const sEl = document.getElementById('h4sum'); if (!sEl || !sEl.parentNode) return 0;
       if (!mSumPr){ mSumPr = sEl.cloneNode(false); mSumPr.removeAttribute('id'); mSumPr.setAttribute('aria-hidden', 'true'); }
-      const pr = mSumPr, S = MOB.S || M_CAP; let deep = 0;
-      pr.style.cssText = 'visibility:hidden; transition:none; top:0; bottom:auto; width:' + w + 'px;';
+      const pr = mSumPr; S = S || MOB.S || M_S0; let deep = 0;
+      pr.style.cssText = 'visibility:hidden; transition:none; top:0; bottom:auto; width:' + w + 'px; font-size:' + (S / 2) + 'px;';
       sEl.parentNode.appendChild(pr);
       L.forEach(r => { pr.textContent = HOV[r[KEY]] || ''; const mk = document.createElement('i');
         mk.style.cssText = 'display:inline-block; width:0; height:0;'; pr.appendChild(mk);
@@ -12213,6 +12291,51 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       pr.remove();
       return .7 * S - .206 * S / 2 + deep;
     }
+    /* 512e: THE LANDSCAPE CARD GIVES WAY (layout(), MOB.land): from the card the window allows, step down until the longest
+       paragraph under it ends on the bottom margin (top0 as placed below: centred, pushed down by what the peeks cannot
+       absorb), never under 80px. 513a: a function, so the SUBTITLE solve's landscape hero row runs the very same steps at a
+       trial S (S: mLandSum's BODY; the live one when absent). Returns the card's height and the paragraph's overrun. */
+    function mLandCard(hh, H, clearC, grow, aboveOf, S){
+      const top0Of = c => { const a = aboveOf(c), oR = Math.max(0, clearC - ((H - c) / 2 - a)); return Math.round((H - c) / 2 + oR - Math.min(oR, a * .6)) + Math.round(grow); };
+      const room = {}; let ex = 0;
+      for (let p = 0; p < 16; p++){
+        const c = Math.round(hh), w = Math.round(hh / 0.5625);
+        if (room[w] === undefined) room[w] = mLandSum(w, S);
+        ex = top0Of(c) + c + room[w] - (H - PAD);
+        if (ex <= 0 || hh <= 80) break;
+        hh = Math.max(80, hh - Math.max(1, Math.ceil(ex)));
+      }
+      return { hh, ex };
+    }
+    /* 513a: THE LANDSCAPE HERO JOINS THE SUBTITLE SOLVE (a vertical row). Past a certain SUBTITLE the card cannot give way
+       enough (80px floor) and the longest paragraph runs off the screen. The row is the largest S at which layout()'s own
+       card sizing -- the window's share (HH7, MAXW7, the clearance), the two-principle clamp, then mLandCard -- ends with
+       that paragraph on the bottom margin, the header and the name's growth (hdrGrow: .78 x the name, which is S on a
+       phone) taken at the trial S. */
+    function mLandFits(S){
+      const H = innerHeight, W = innerWidth;
+      const ncs = getComputedStyle(hdrName), lk = /px$/.test(ncs.lineHeight) ? parseFloat(ncs.lineHeight) / parseFloat(ncs.fontSize) : parseFloat(ncs.lineHeight);
+      const hf = 1.5 * PAD + (lk > 0 && lk < 3 ? lk : .78) * S;   /* the bar at S: its padding (a margin over, half under) and the name's line box */
+      const grow = .78 * (S - Math.min(74, Math.max(26, W * .046)));                                   /* hdrGrow at S */
+      const hfC = grow && hdrHf ? Math.round(hf - grow) : Math.round(hf) - grow;
+      let sumK = 0; for (let i = 1; i <= N - 1; i++) sumK += Math.pow(VTAPER, i);
+      const tb = Math.max(0, (N - 1) - BLUR_FROM + 1) * BLUR_STEP, clearC = hfC + TOP7 + tb * BLEED7 * .5;
+      const aboveOf = c => Math.min(20, Math.max(10, 12 + (c - 280) * .010)) * sumK / VTAPER;
+      let hh = H * HH7; hh = Math.min(hh / 0.5625, W * MAXW7, W - 2 * (PAD + CLEARX)) * 0.5625;
+      for (let p = 0; p < 3; p++){ const chCap = Math.max(H * HH7F, H - 2 * (clearC + aboveOf(hh))); if (chCap > 80 && hh > chCap) hh = chCap; }
+      return mLandCard(hh, H, clearC, grow, aboveOf, S).ex <= 0;
+    }
+    let mLandMemo = null;   /* the ceiling per window: it does not depend on the S being tried */
+    MOB.rows.push(() => {
+      if (!MOB.land || !v7()) return [];
+      const key = innerWidth + 'x' + innerHeight + ':' + PAD + ':' + !!hdrHf + ':' + ((document.fonts && document.fonts.status) || '');
+      if (!mLandMemo || mLandMemo.key !== key){
+        let lo = 8, hi = 80;
+        if (mLandFits(lo)) for (let i = 0; i < 14; i++){ const m = (lo + hi) / 2; if (mLandFits(m)) lo = m; else hi = m; }
+        mLandMemo = { key, s:lo };
+      }
+      return [{ what:'hero paragraph (landscape)', s:mLandMemo.s }];
+    });
 
     function layout(){
       if (!on()) return;
@@ -12293,17 +12416,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
             const chCap = Math.max(H * HH7F, H - 2 * (clearC + aboveOf(hh)));   /* never below what it was */
             if (chCap > 80 && hh > chCap) hh = chCap;
           }
-          if (MOB.land){   /* 512e: a LANDSCAPE phone -- the card gives way until the longest paragraph under it ends on the bottom margin at worst (top0 as placed below: centred, pushed down by what the peeks cannot absorb) */
-            const top0Of = c => { const a = aboveOf(c), oR = Math.max(0, clearC - ((H - c) / 2 - a)); return Math.round((H - c) / 2 + oR - Math.min(oR, a * .6)) + Math.round(grow); };
-            const room = {};
-            for (let p = 0; p < 16; p++){
-              const c = Math.round(hh), w = Math.round(hh / 0.5625);
-              if (room[w] === undefined) room[w] = mLandSum(w);
-              const ex = top0Of(c) + c + room[w] - (H - PAD);
-              if (ex <= 0 || hh <= 80) break;
-              hh = Math.max(80, hh - Math.max(1, Math.ceil(ex)));
-            }
-          }
+          if (MOB.land) hh = mLandCard(hh, H, clearC, grow, aboveOf).hh;   /* 512e: a LANDSCAPE phone -- the card gives way until the longest paragraph under it ends on the bottom margin at worst (513a: the loop is mLandCard, which the SUBTITLE solve's landscape hero row also runs) */
           hw = hh / 0.5625;
         }
       }
@@ -14577,7 +14690,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (MOB.on){   /* 512d: THE PHONE'S START SLIDE (SPEC-512 sec. G) -- the film margin to margin, centred in the window; the title row under it, its glass band's top on the film's foot (--m-c3-film-gap); so the head's rest box is seated from the film (the hint holds the bottom margin) */
       vw = W - 2 * PAD; vh = vw * 9 / 16; xc = PAD; yc = (H - vh) / 2;
       if (MOB.land){   /* 512e: a LANDSCAPE phone -- the film fit to the height: a margin under the B - D bar's baseline, the title row under the film, a margin from the title's baseline to the hint's cap top (its baseline on the bottom margin); centred across */
-        const S = MOB.S || M_CAP, top = PAD + .7 * S + PAD, room = H - top - dial('--m-c3-film-gap') - .7 * S - PAD - .35 * S - PAD;
+        const S = MOB.S || M_S0, top = PAD + .7 * S + PAD, room = H - top - dial('--m-c3-film-gap') - .7 * S - PAD - .35 * S - PAD;
         vh = Math.max(0, Math.min(vh, room)); vw = vh * 16 / 9; xc = (W - vw) / 2; yc = top + (room - vh) / 2;
       }
       stageH = yc + vh + dial('--m-c3-film-gap') - headBox.pad - (1 - (hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2)) * brandFull;
