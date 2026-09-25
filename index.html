@@ -4263,7 +4263,7 @@
   html.mob.a4m #a4Unit4{ position:relative; left:auto; top:auto; width:100%; transform:none !important; opacity:1 !important; will-change:auto; }
   /* EVERY LINE absolute in its pin; JS writes left / top by ink (m4Put) */
   html.mob.a4m #viewAbout4 .a4-row3{ position:absolute; left:0; right:auto; top:0; bottom:auto; width:100%; height:0; }
-  html.mob.a4m #viewAbout4 .a4-row3 .a4-big{ position:absolute; width:min-content; white-space:normal; }
+  html.mob.a4m #viewAbout4 .a4-row3 .a4-big{ position:absolute; width:max-content; white-space:nowrap; }   /* 514d: CREATIVE LEAD, one SUBTITLE line */
   html.mob.a4m #viewAbout4 .a4-row3 .a4-mid{ right:auto; bottom:auto; white-space:nowrap; }
   html.mob.a4m #viewAbout4 .a4-row3 .a4-mid br:nth-of-type(2){ display:none; }
   html.mob.a4m #a4Cp{ position:absolute; transform:none; max-width:none; text-align:var(--a4m-cp-align); text-wrap:pretty; transition:none; }
@@ -4282,15 +4282,25 @@
   html.mob.a4m #a4Unit4 .a4-bgc{ display:block; right:auto; width:0; height:0; transform:none; }
   html.mob.a4m #a4Unit4 .a4-bgc .lg{ position:absolute; transform:scale(var(--a4m-mk, 1)); transform-origin:0 0; }
   html.mob.a4m #a4Unit4 .a4-bgc .t{ position:absolute; }
-  /* THE TYPE (sec. 2). TITLE only where the desktop sets TITLE -- CREATIVE LEAD; LEADING ... DELIVERY; FLAGSHIP WORK FOR;
-     CONNECTING; WHY ARE THEY WATCHING -- in its desktop style, at its own optical size; the rest the site's phone classes */
-  html.mob.a4m #viewAbout4 .a4-big, html.mob.a4m #viewAbout4 .a4-lbig, html.mob.a4m #viewAbout4 .a4-brk .bw{
+  /* THE TYPE (sec. 2). TITLE only where the desktop sets TITLE -- LEADING ... DELIVERY; FLAGSHIP WORK FOR; CONNECTING; WHY
+     ARE THEY WATCHING -- in its desktop style, at its own optical size; the rest the site's phone classes. 514d (his notes):
+     INTRO's bottom row takes the hero bottom row's hierarchy -- CREATIVE LEAD one SUBTITLE line, FOR / BRAND FILM two
+     BODY(CAPS) lines at the hero subtitle's leading (--t-sub-lh), both baselines on the bottom margin (JS) */
+  html.mob.a4m #viewAbout4 .a4-lbig, html.mob.a4m #viewAbout4 .a4-brk .bw{
     font-size:var(--m-title) !important; font-variation-settings:normal; font-optical-sizing:auto;
   }
-  html.mob.a4m #viewAbout4 .a4-mid, html.mob.a4m #viewAbout4 .a4-mids, html.mob.a4m #viewAbout4 .a4-bgk, html.mob.a4m #a4Cp, html.mob.a4m #a4Nav span{
+  html.mob.a4m #viewAbout4 .a4-row3 .a4-big, html.mob.a4m #viewAbout4 .a4-mids, html.mob.a4m #viewAbout4 .a4-bgk, html.mob.a4m #a4Cp, html.mob.a4m #a4Nav span{
     font-size:var(--m-sub) !important; font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
     font-variation-settings:normal; font-optical-sizing:auto;
   }
+  html.mob.a4m #viewAbout4 .a4-row3 .a4-mid{ font-size:var(--m-body) !important; font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s);
+    line-height:var(--t-sub-lh); font-variation-settings:normal; font-optical-sizing:auto; }
+  /* 514d (his notes): INTRO's statement is ONE class -- its three rows and every word in them the statement's SUBTITLE,
+     inherited whole (the first row's plain words and the chained rows' word boxes alike); and About opts out of iOS's text
+     autosizing, which may enlarge a plain row of text but not words set in their own boxes */
+  html.mob.a4m #viewAbout4{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+  html.mob.a4m #a4Cp .l1, html.mob.a4m #a4Cp .l2, html.mob.a4m #a4Cp .l3, html.mob.a4m #a4Cp .w, html.mob.a4m #a4Cp .dots{
+    font:inherit; letter-spacing:inherit; word-spacing:inherit; text-transform:inherit; }
   html.mob.a4m #viewAbout4 .a4-bgc .t{ font-size:var(--m-body); font-variation-settings:normal; font-optical-sizing:auto; }
   html.mob.a4m #viewAbout4 .a4-ap p, html.mob.a4m #viewAbout4 .a4-bgp p{ font-size:var(--m-nocaps); font-variation-settings:normal; font-optical-sizing:auto; }
   /* THE CORRIDORS (INTRO, BACKGROUND), moved into their sheets: margin to margin, .7 W tall; JS writes the lens (perspective
@@ -4303,13 +4313,16 @@
   html.mob.a4m .a4m-mk{ position:absolute; overflow:hidden; }
   html.mob.a4m .a4m-mk img{ position:absolute; display:block; max-width:none; filter:brightness(0); }
   /* 513b THE TITLE ROWS (each slide's own, at its top edge) and THE END ROW (05  CONTACT): 0n  NAME, number left, name right,
-     SUBTITLE, no rule between (the end row's rule is the dial A4M_END_RULE). A title row's tap opens the index; the end
-     row's is the router's contact go (data-go). The INTRO row takes the boot's fade */
+     SUBTITLE (the end row's rule is the dial A4M_END_RULE). 514d: a title row's rule is its slide's progress -- JS seats it
+     and scales it from the number. A title row's tap opens the index; the end row's is the router's contact go (data-go),
+     and a finger's tap goes at once (JS). The INTRO row takes the boot's fade */
   html.mob.a4m .a4m-end, html.mob.a4m .a4m-tr{ position:absolute; left:0; width:100%; pointer-events:auto; cursor:pointer; -webkit-tap-highlight-color:transparent;
     font-size:var(--m-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
     text-transform:uppercase; white-space:nowrap; }
   html.mob.a4m .a4m-end span, html.mob.a4m .a4m-tr span{ position:absolute; }
   html.mob.a4m .a4m-end > i{ position:absolute; height:1px; background:currentColor; }
+  html.mob.a4m .a4m-tr > i{ position:absolute; height:1px; background:currentColor; transform-origin:0 50%; transform:scaleX(0); }
+  html.mob.a4m .a4m-end{ touch-action:manipulation; }
   html.mob.a4m #a4Unit3 .a4m-tr{ color:#F5F5F5; }   /* APPROACH's pin is .a4-unit (#000, declared after .u3): the row takes its sheet's ink */
   html.mob.a4m body.a4boot #a4Sl1 .a4m-tr{ opacity:0; transition:opacity .3s ease; }
   html.mob.a4m body.a4boot #a4Sl1 .a4m-tr.on{ opacity:1; }
@@ -4321,6 +4334,9 @@
   html.mob.a4m body.aboutopen.about4 .hdr::before{ bottom:auto; height:var(--a4m-bh, var(--a4m-ch)); background:rgba(0,0,0,var(--a4m-ba, .72));
     -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
   html.mob.a4m body.a4r.aboutopen.about4 .hdr::before{ background:rgba(245,245,245,var(--a4m-ba, .72)); }
+  /* 514d (his notes): the bar's own B - D rule stands at the very start of INTRO and fades as the thumb starts (JS writes
+     --a4m-hr on .hdr from the scroll); the slides' title rows carry the rule from there. The menu slide brings it back */
+  html.mob.a4m:not(.m-live) body.aboutopen.about4 .hdr-name i::before{ opacity:var(--a4m-hr, 1); transition:background .5s ease; }
   /* THE INDEX (#a4Nav restyled): 513b -- only while open (a title row's tap): five rows, number LEFT (a counter), name RIGHT,
      both SUBTITLE, no rules, over a veil. JS writes the places */
   html.mob.a4m body.aboutopen.about4 #a4Nav{ top:0; height:var(--a4m-ch); counter-reset:a4m; }
@@ -10647,13 +10663,19 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const A4M_LOGOS = 'belt';      /* Q3 -- 513b, his answer: 'belt' = the desktop's belt, one row running margin to margin, all nine, looping seamlessly; 'grid' = 512g's still 3 x 3 on the three anchors */
     const A4M_CORRIDORS = 2;       /* Q5: 2 = INTRO and BACKGROUND, as on the desktop; 1 = INTRO only */
     /* 513b: HIS NOTES (SPEC-513 "About on phones"), as dials. THE SLIDE TRANSITION, at every boundary: the incoming slide
-       rises A4M_IN x as fast as the finger (only a little faster: it overtakes, led by its title row), the outgoing one
+       rises A4M_IN x as fast as the finger (514d, his notes: both speeds halved -- it now rises a little slower than the
+       finger, still three times as fast as the outgoing one recedes, and covers it, led by its title row), the outgoing one
        recedes A4M_OUT x (a slow parallax) while its content fades as the desktop's outgoing card does; the incoming items
        come in one by one from the moment it is A4M_LEAD risen. THE BELT: logos A4M_BELT_H S tall (x their registry scale),
        A4M_BELT_GAP S apart (the desktop's air is 192px). The end row's rule: A4M_END_RULE (0 = none, as the title rows) */
-    const A4M_IN = 1.2, A4M_OUT = .4, A4M_LEAD = .4;
+    const A4M_IN = .6, A4M_OUT = .2, A4M_LEAD = .4;   /* 514d: 1.2 / .4 halved (his notes) */
     const A4M_BELT_H = 1.4, A4M_BELT_GAP = 1.6;
     const A4M_END_RULE = 0;
+    /* 514d: HIS 514 NOTES, as dials. A4M_ROLE_LIFT: the share of ROLE's void that goes UNDER FLAGSHIP WORK FOR + the belt
+       (0 = 513b's stand on the bottom margin; .5 = the lower group centred in the room left under the hung one). A4M_HR:
+       the header's B - D rule fades over the first A4M_HR of a screen. A4M_RULE_GAP: a title row's rule stands this many
+       S clear of its number and its name (the end row's air, as the header's own rule) */
+    const A4M_ROLE_LIFT = .5, A4M_HR = .12, A4M_RULE_GAP = .8;
     const A4M_LG4 = { 'METUlogo.png':[13,24,421,412,48], 'UoGlogo.png':[68,11,317,409,48], 'cMBAlogo.png':[6,7,317,149,26] };   /* build()'s school-mark ink boxes: x, y, w, h, the desktop ink height */
     const m4Clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
     const m4OnPhone = () => MOB.on && !MOB.land;
@@ -10662,8 +10684,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        tight rows join the solve, and nothing on About may overrun or collide at any phone size). The rows are read from
        About's own DOM (its words, in the phone's lines). ON A PORTRAIT PHONE (the a4m composition): the three TITLE spreads
        (LEADING | VIDEO, FROM | BRIEF, TO | DELIVERY) with at least A4M_AIR TITLE of air, so a pair never reads as a phrase
-       (a TITLE word space is about a third of one); INTRO's bottom row line by line (CREATIVE | FOR, LEAD | BRAND FILM --
-       FOR's cap stands a hair over CREATIVE's baseline) with a title's air (M_GAP); every TITLE and SUBTITLE line alone;
+       (a TITLE word space is about a third of one); INTRO's bottom row (514d: the hero row's -- CREATIVE LEAD in SUBTITLE |
+       FOR / BRAND FILM in BODY) with a title's air (M_GAP); every TITLE and SUBTITLE line alone;
        the schools' captions (BODY, 2.2 S in, as m4Bg seats them); the section row and the end row (0n ---- NAME, the
        least hairline M_RULE). ON A LANDSCAPE PHONE About keeps the desktop journey under the phone header, and its nav is
        the tight row: the five words in one row with the travellers' gaps and BACKGROUND's hold (navMeasure / navDrive:
@@ -10682,8 +10704,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const tx = s => (m4Q(s) ? m4Q(s).textContent : '').replace(/\s+/g, ' ').trim();
       const rw = [...view.querySelectorAll('#a4Unit .a4-rw2 .w')].map(e => e.textContent.trim());
       [[tx('#a4Unit .a4-lbig.s1l'), tx('#a4Unit .a4-lbig.s1r')], [rw[0], rw[1]], [rw[2], rw[3]]].forEach(([a, b]) => { if (a && b) add(a + ' | ' + b, W.T(a) + A4M_AIR * T + W.T(b)); });
-      const big = tx('.a4-row3 .a4-big').split(' '), mid = m4Lines(m4Q('.a4-row3 .a4-mid')), ml = [mid[0], mid.slice(1).join(' ')];
-      big.forEach((b, i) => { if (b && ml[i]) add(b + ' | ' + ml[i], W.T(b) + M_GAP * S + W(ml[i])); });
+      const big = tx('.a4-row3 .a4-big'), mid = m4Lines(m4Q('.a4-row3 .a4-mid')), ml = [mid[0], mid.slice(1).join(' ')];
+      if (big && ml[0]) add(big + ' | ' + ml.join(' / '), W(big) + M_GAP * S + Math.max(W(ml[0], 1), W(ml[1], 1)));   /* 514d: the hero row's hierarchy */
       const ws = [...view.querySelectorAll('#a4Unit4 .a4-rw4 .w')].map(e => e.textContent.trim());
       [tx('#a4Unit .a4-p2l'), tx('#a4Unit .a4-p2c'), tx('#a4Unit .a4-p2r'), tx('#a4Unit3 .a4-brk .bw'), ws.slice(0, -1).join(' '), ws[ws.length - 1]]
         .forEach(t => { if (t) add(t, W.T(t)); });
@@ -10785,7 +10807,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
           const r = document.createElement('div'); r.className = 'a4m-tr';
           const n = document.createElement('span'), w = document.createElement('span');
           n.textContent = String(k + 1).padStart(2, '0'); w.textContent = names[k] || '';
-          r.appendChild(n); r.appendChild(w); p.insertBefore(r, p.firstChild);
+          r.appendChild(n); r.appendChild(w); r.appendChild(document.createElement('i')); p.insertBefore(r, p.firstChild);   /* 514d: its rule, the slide's progress */
         });
         const unit = document.getElementById('a4Unit');
         if (unit && !unit.querySelector('.a4m-lg')){
@@ -10855,15 +10877,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const M = padPx(), S = MOB.S || parseFloat(getComputedStyle(R).getPropertyValue('--m-sub')) || 20;
       m4St(view, '--a4m-h', H + 'px');
       a4Seat();   /* the desktop's edge margins, re-seated at the PHONE's type: a rotation or a desktop visit leaves them at its own */
-      const big = m4Q('.a4-row3 .a4-big'), apP = m4Q('#a4Unit3 .a4-ap p'), k1 = m4Q('#a4Unit4 .a4-bgk.k1');
+      const big = m4Q('#a4Unit .a4-lbig.s1l'), apP = m4Q('#a4Unit3 .a4-ap p'), k1 = m4Q('#a4Unit4 .a4-bgk.k1');   /* 514d: TITLE read off LEADING (CREATIVE LEAD is SUBTITLE now) */
       if (!big || !apP || !k1) return;
       const csT = getComputedStyle(big), csN = getComputedStyle(apP);
       const T = parseFloat(csT.fontSize) || 2 * S, N = parseFloat(csN.fontSize) || .5454 * S, B = S / 2, cK = a4Cap(1000);
       m4G = { vw, H, M, S, T, B, N, W: vw - 2 * M, G: 1.5 * S, capS: cK * S, capT: cK * T, cB: a4Cap(700),
               pT: parseFloat(csT.lineHeight) || .78 * T, g: parseFloat(getComputedStyle(k1).lineHeight) || .8843 * S,
               pN: parseFloat(csN.lineHeight) || 1.13 * N, pB: 1.13 * B };
-      m4G.CH = M + 2 * S + m4G.capS + M / 2; m4G.Z0 = m4G.CH + M; m4G.Z1 = H - M;
-      m4G.CF = M + m4G.capS + M / 2; m4G.capY = M + 2 * S; m4G.L = H / A4M_IN;   /* 513b: the chrome's foot (the bar's), the title rows' cap top, a transition's scroll */
+      m4G.capY = 2 * M + m4G.capS; m4G.CH = m4G.capY + m4G.capS + M / 2; m4G.Z0 = m4G.CH + M; m4G.Z1 = H - M;   /* 514d: the title rows' line at rest -- one margin under the bar's baseline (B's cap on M) */
+      m4G.CF = M + m4G.capS + M / 2; m4G.L = H / A4M_IN;   /* 513b: the chrome's foot (the bar's), a transition's scroll */
       const sl = ['.a4-sl1', '.a4-sl2', '.a4-sl3', '.a4-sl4'].map(m4Q);
       m4G.sl = sl; m4G.pins = [m4Q('#a4Sl1 .a4-s1'), document.getElementById('a4Unit'), document.getElementById('a4Unit3'), document.getElementById('a4Unit4')];
       A4M_HOLD.forEach((h, i) => m4St(sl[i], 'height', ((h + 1) * H + m4G.L).toFixed(2) + 'px'));   /* 513b: held for its hold, then pinned through the next one's rise (L) */
@@ -10872,13 +10894,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       m4NavLayout(); m4Chains(); m4BgUnits();
       m4Frame(performance.now());
     }
-    /* 01 INTRO: the bottom row (his hero bottom row at double scale) -- CREATIVE / LEAD in TITLE, LEAD's baseline on Z1;
-       FOR / BRAND FILM in SUBTITLE on the right margin, on the same baseline. The statement, left, margin to margin, three
+    /* 01 INTRO: the bottom row (514d: his hero bottom row's hierarchy) -- CREATIVE LEAD, one SUBTITLE line, its baseline on
+       Z1; FOR / BRAND FILM, two BODY(CAPS) lines on the right margin, on the same baseline. The statement, left, margin to margin, three
        short paragraphs .5 S apart, the FINISHED block centred on C between the zone top and CREATIVE's cap (nothing
        re-centres); the corridor takes its place, centred on the same C */
     function m4Intro(){
       const { vw, M, W, Z0, Z1 } = m4G; m4Pin = m4O(m4Q('#a4Sl1 .a4-s1'));
-      const cre = m4Put(m4Q('.a4-row3 .a4-big'), 'L', M, Z1, { last:true, fc:['C', 'L'] });
+      const cre = m4Put(m4Q('.a4-row3 .a4-big'), 'L', M, Z1, { last:true });
       m4Put(m4Q('.a4-row3 .a4-mid'), 'R', vw - M, Z1, { last:true, lc:['R', 'M'] });
       const cp = document.getElementById('a4Cp'); m4St(cp, 'width', W.toFixed(2) + 'px');
       const st = m4Put(cp, 'B', M, 0), l3 = cp.querySelector('.l3');
@@ -10914,7 +10936,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const e = hung(y0); stood(e + G + sH - lgH);
         m4G.roleVoid = G;
       } else {
-        const e = hung(Z0); m4G.roleVoid = stood(Z1 - lgH) - e;
+        const e = hung(Z0), v0 = Math.max(0, Z1 - sH - e); m4G.roleVoid = stood(Z1 - lgH - A4M_ROLE_LIFT * v0) - e;   /* 514d: FLAGSHIP WORK FOR + the belt lifted (his notes) */
       }
     }
     /* the nine: each cropped to its registry ink box, ink height LH x the registry scale (the desktop belt's law). 513b THE
@@ -11005,20 +11027,24 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       m4G.bgH = Hb;
     }
     /* 513b THE TITLE ROWS: each slide's own, 0n  NAME -- the number's left ink on the left margin, the name's right ink on
-       the right margin, the cap top at M + 2 S under the bar (the line 512g's section row stood on), no rule; each rides its
-       slide (INTRO, ROLE and APPROACH on their pins, BACKGROUND's scrolls away with it) */
+       the right margin; each rides its slide (INTRO, ROLE and APPROACH on their pins, BACKGROUND's scrolls away with it).
+       514d (his notes): the cap top ONE margin under the slide's top (M in its pin -- the frame docks it on capY, one margin
+       under the bar, while the slide ends its rise behind the chrome), and a rule between the number and the name,
+       A4M_RULE_GAP S clear of each, on the cap's middle -- the frame draws it out with the slide's own progress */
     function m4Titles(){
-      const { vw, M, S, capY } = m4G;
-      m4G.pins.forEach(pin => {
-        const tr = pin && pin.querySelector(':scope > .a4m-tr'); if (!tr) return;
-        m4Pin = m4O(pin);
-        m4St(tr, 'top', (capY - .75 * S).toFixed(2) + 'px'); m4St(tr, 'height', (2 * S).toFixed(2) + 'px');
-        m4Put(tr.children[0], 'L', M, capY); m4Put(tr.children[1], 'R', vw - M, capY);
+      const { vw, M, S, capS } = m4G; m4G.trs = [];
+      m4G.pins.forEach((pin, k) => {
+        const tr = pin && pin.querySelector(':scope > .a4m-tr'); m4G.trs[k] = tr; if (!tr) return;
+        m4Pin = m4O(pin); m4St(tr, 'transform', 'none');
+        m4St(tr, 'top', (M - .75 * S).toFixed(2) + 'px'); m4St(tr, 'height', (2 * S).toFixed(2) + 'px');
+        const n = m4Put(tr.children[0], 'L', M, M), w = m4Put(tr.children[1], 'R', vw - M, M), r = tr.children[2];
+        if (r){ const x0 = n.r + A4M_RULE_GAP * S, x1 = w.l - A4M_RULE_GAP * S;
+          m4St(r, 'left', x0.toFixed(2) + 'px'); m4St(r, 'width', Math.max(0, x1 - x0).toFixed(2) + 'px'); m4St(r, 'top', (.75 * S + capS / 2 - .5).toFixed(2) + 'px'); }
       });
     }
     /* the index's places (513b: #a4Nav shows only as the index): every name's right ink on the right margin (a right-aligned
        box, its trailing bearing taken back), the number's left ink on the left margin, row 01's cap top on the title rows'
-       line (M + 2 S), the rest at the menu's pitch under it */
+       line at rest (capY), the rest at the menu's pitch under it */
     function m4NavLayout(){
       const nav = document.getElementById('a4Nav'); if (!nav) return;
       const { M, S } = m4G, sp = [...nav.querySelectorAll('span')];
@@ -11026,7 +11052,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const t = s.textContent.trim(), pr = inkPx(s, t.charAt(t.length - 1)); m4St(s, 'marginRight', (pr ? -pr.r : 0).toFixed(2) + 'px'); });
       const p0 = sp[0] && inkPx(sp[0], '0'); m4St(nav, '--a4m-nl', (p0 ? -p0.l : 0).toFixed(2) + 'px');
       const nt = nav.getBoundingClientRect().top, cap0 = m4Base(sp[0]) - nt - a4Cap(1000) * S;
-      m4Nav.capY = M + 2 * S; m4Nav.top0 = m4Nav.capY - cap0;
+      m4Nav.capY = m4G.capY; m4Nav.top0 = m4Nav.capY - cap0;
     }
     /* THE CHAINS (the desktop's weights): INTRO the statement's l2 / l3 words, 3 each; ROLE FROM BRIEF TO DELIVERY 13.5,
        BRAND .. SOCIALS 4.5, FLAGSHIP WORK FOR 13.5, each logo 4.5 (513b: nine links, their logos assigned by the frame in
@@ -11194,6 +11220,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         else if (!lon) ch.ord = null;
       }
       m4Chain(m4Ch.role, cR); m4Chain(m4Ch.approach, cA);
+      /* 514d THE TITLE ROWS (his 514 notes): each leads its slide ONE margin under the slide's drawn top, docks on capY (one
+         margin under the bar) while the slide ends its rise behind the chrome, and leaves with it; its rule draws out with
+         ITS OWN slide -- INTRO over .85 of its hold, ROLE and APPROACH with their chains, BACKGROUND over its flow to the
+         end -- as a desktop case's section row does with its section. The bar's own B - D rule stands at the very start
+         and fades over the first A4M_HR of a screen */
+      const dk = g.capY - g.M, bg0 = T[3] - (1 - A4M_LEAD) * L;
+      const pr = [m4Clamp(sc / (.85 * A4M_HOLD[0] * H)), cR, cA, m4Clamp((sc - bg0) / Math.max(1, view.scrollHeight - H - bg0))];
+      (g.trs || []).forEach((tr, i) => { if (!tr) return;
+        m4St(tr, 'transform', 'translate3d(0,' + m4Clamp(dk - vt[i], 0, dk).toFixed(2) + 'px,0)');
+        if (tr.children[2]) m4St(tr.children[2], 'transform', 'scaleX(' + pr[i].toFixed(4) + ')'); });
+      m4St(document.getElementById('hdr'), '--a4m-hr', (1 - m4Clamp(sc / (A4M_HR * H))).toFixed(3));
       /* APPROACH's slit, the desktop's: the band opens from nothing to its height as its link comes and closes as BACKGROUND
          rises (42 .. 66% of the cover, the desktop's); the ring moves as the desktop's (the drift + A4_K x the scroll) */
       const gv = document.getElementById('a4GalV'), sk = m4Ch.approach.slit;
@@ -11240,6 +11277,18 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         if (k >= 0) m4Jump(k);
       });
       addEventListener('keydown', e => { if (m4On && m4Nav.open && e.key === 'Escape') m4Nav.open = false; });
+      /* 514d (his notes): 05 CONTACT goes to the contact page on a finger's TAP too -- a touch's pointerdown + pointerup on
+         the end row with no travel (a drag is the view's scroll and cancels) goes at once, by the same contact go; the
+         tap's own click after it is swallowed, so nothing under it lands. A mouse or a key keeps the router's click */
+      const m4Tap = { id:null, x:0, y:0, t:0, sw:0 };
+      view.addEventListener('pointerdown', e => { if (!m4On || e.pointerType !== 'touch') return;
+        m4Tap.id = e.target.closest && e.target.closest('.a4m-end') ? e.pointerId : null; m4Tap.x = e.clientX; m4Tap.y = e.clientY; m4Tap.t = performance.now(); }, { passive:true });
+      view.addEventListener('pointerup', e => { if (e.pointerId !== m4Tap.id) return; m4Tap.id = null;
+        if (!m4On || Math.abs(e.clientX - m4Tap.x) > 10 || Math.abs(e.clientY - m4Tap.y) > 10 || performance.now() - m4Tap.t > 800) return;
+        m4Jump(4); m4Tap.sw = performance.now(); });
+      view.addEventListener('pointercancel', () => { m4Tap.id = null; });
+      addEventListener('pointerdown', () => { m4Tap.sw = 0; }, { capture:true, passive:true });
+      addEventListener('click', e => { if (m4Tap.sw && performance.now() - m4Tap.sw < 800){ m4Tap.sw = 0; e.stopPropagation(); e.preventDefault(); } }, { capture:true });
       /* 513b: a title row's tap opens the index in its slot (a drag is the view's own scroll; the index closes on scroll) */
       view.addEventListener('click', e => {
         if (!m4On || m4Nav.open) return;
