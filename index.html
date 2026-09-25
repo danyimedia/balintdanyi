@@ -4084,21 +4084,25 @@
   html.mob{ --m-p1:var(--c3-row-pad); --m-p2:var(--c3-row-gap); --m-c3-film-gap:var(--c3-head-pad); }
   /* THE START SLIDE. The film's layer scrolls WITH the page (absolute; JS lifts it to the page's top), so the
      film goes up under the header -- there is no morph on a phone. The title row: the title SUBTITLE, the
-     subtitle ONE row of BODY(CAPS) beside it, its baseline on the title's and its ink on the right margin
-     (seated in JS); it is drawn inside the words' scale like the desktop's stack, so its size is BODY over it. */
+     subtitle beside it in BODY(CAPS), its ink on the right margin (seated in JS); it is drawn inside the words'
+     scale like the desktop's stack, so its size is BODY over it. 514c (SPEC-514 C5): TWO rows, the year over the
+     type (the case's phone subtitle, JS), stacked as the hero's bottom row (.8843) -- the LAST row's baseline on
+     the title's, the widest row's ink on the right margin. Like the hero's, the pair stands about .09 S above the
+     title's cap top: two BODY rows fill one SUBTITLE cap only with no air between them (a leading of one cap), so
+     SPEC-514 C5's model -- the hero bottom row -- is kept exactly rather than forced to the cap. */
   html.mob #viewCase3 .c3-3d{ position:absolute; }
   html.mob #viewCase3 .c3-sub4, html.mob #viewCase3 .c3-sub4.sub-floor{
     font-size:calc(var(--m-body) / var(--c3-brand-k)); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s);
-    line-height:var(--sm-lh); white-space:nowrap;
+    line-height:var(--t-sub-lh); white-space:nowrap;
   }
-  html.mob #viewCase3 .c3-sub4 i, html.mob #viewCase3 .c3-sub4.sub-floor i{ display:inline; line-height:var(--sm-lh); }
-  html.mob #viewCase3 .c3-sub4 i + i::before{ content:' '; }
+  html.mob #viewCase3 .c3-sub4 i, html.mob #viewCase3 .c3-sub4.sub-floor i{ display:block; line-height:var(--t-sub-lh); }
   /* SCROLL DOWN FOR CASE / POST: static at the foot of the window -- its baseline on the bottom margin, one line
-     justified margin to margin (the trailing tracking given back on the right) -- and gone the moment the page
-     moves: JS writes --c3-hint-op 1 or 0, this transition is the fade. */
+     CENTRED on the page (514c, SPEC-514 C7: not justified; the trailing tracking given back on the right, so the
+     ink's middle is the page's) -- and gone the moment the page moves: JS writes --c3-hint-op 1 or 0, this
+     transition is the fade. */
   html.mob #viewCase3 .c3-hint{
     position:fixed; left:var(--pad); right:calc(var(--pad) - var(--track-s)); top:auto; bottom:calc(var(--pad) - var(--ink-b));
-    transform:none; white-space:normal; text-align:justify; text-align-last:justify; transition:opacity .3s ease;
+    transform:none; white-space:nowrap; text-align:center; text-align-last:center; transition:opacity .3s ease;
   }
   /* THE INTRO: one column (MY ROLE, SUMMARY, CREDITS; a post's lede first), its top on the title's baseline
      (it rises under the head's foot pad), every subtitle P2 under the block above it and P1 over its text. */
@@ -4159,6 +4163,65 @@
   html.mob body::after{ content:''; position:fixed; inset:0; z-index:799; background:var(--paper); visibility:hidden; pointer-events:none; }
   html.mob body.caseopen.case3.c3-in:has(#viewCase3:not(.vv-out):not(.c3-exit))::after{ visibility:visible; transition:visibility 0s linear .7s; }
   html.mob:has(> body.caseopen.case3.c3-in #viewCase3:not(.vv-out):not(.c3-exit)){ background-color:var(--paper); transition:background-color 0s linear .7s; }
+  /* 514c THE START SLIDE, CLEAN (SPEC-514 C1-C4, his iPhone). NO BLUR UNDER THE TITLE ROW: the row's glass (#c3Glass)
+     sat under it from the first frame -- Safari's blur pulled the film's foot into it -- and, placed by JS from the
+     scroll a frame late, it flickered over MY ROLE. On a portrait phone that glass is not drawn (JS); the row's ground is
+     PAPER and belongs to the row itself: the head's own ::before, from the film's foot (--m-c3-band-top, written once
+     per layout: the film and the row move together until the row sticks) to the row's foot (the stack's top: less the
+     follow, --c3-sub-dy), so it rides the row's sticky position exactly, never a frame late, and never lies on the
+     film. A pinned section row carries its own paper, margin to margin. The header keeps its own glass throughout (the
+     desktop hands it to the band at the join), shortened on the case page to the bar -- a hair under B - D's baseline
+     -- so the stuck title under it is never behind glass; what leaves the page's top passes under that glass as on
+     every page. THE CATCH-UP: the intro (and the details behind it) carries a lead that JS writes and closes as the
+     page moves -- at rest the intro waits under the window's foot, it comes up faster than the page and arrives under
+     the title row as the row attaches. THE PREV / NEXT ROW: BODY(CAPS) on the start slide, its cap top a margin under
+     the B - D bar's baseline, PREV on the left margin and NEXT on the right (ink, JS), scrolling away with the slide;
+     portrait only (a landscape phone's film stands a margin under the bar). The whole case page
+     takes no double-tap zoom (a double tap is the film's). All of it on an UPRIGHT phone (html.m-rot, the phone build's own
+     class; the engine reads the same one): a landscape phone keeps its 512e page and glass (not this round). */
+  html.mob #viewCase3{ touch-action:manipulation; }
+  html.mob.m-rot body.c3-joined .hdr::before{ display:block; }
+  html.mob.m-rot:not(.m-live) body.caseopen.case3 .hdr::before{ bottom:auto; height:calc(var(--pad) + .7 * var(--m-sub) + 1px); }
+  html.mob.m-rot #viewCase3 .c3-head::before{
+    content:''; position:absolute; left:0; right:0; top:var(--m-c3-band-top, 0px); bottom:calc(-1 * var(--c3-sub-dy, 0px));
+    background:var(--paper); z-index:-1; pointer-events:none;
+  }
+  html.mob.m-rot #viewCase3 .c3-row::before{
+    content:''; position:absolute; top:0; bottom:0; left:calc(-1 * var(--pad)); right:calc(-1 * var(--pad)); background:var(--paper); z-index:-1;
+  }
+  html.mob #viewCase3 .c3-intro, html.mob #viewCase3 .c3-details{ transform:var(--m-c3-catch, none); }
+  html.mob.m-rot #viewCase3 .c3-mnav{
+    display:flex; justify-content:space-between; align-items:flex-start; position:absolute; z-index:1;
+    left:var(--pad); right:var(--pad); top:calc(var(--m-c3-nav-y, 0px) - var(--m-t1, var(--ink-t)));
+  }
+  html.mob #viewCase3 .c3-mnav button{
+    position:relative; margin:0; padding:0; border:0; background:none; color:inherit; font-family:inherit; white-space:nowrap;
+    cursor:pointer; -webkit-tap-highlight-color:transparent;
+  }
+  html.mob #viewCase3 .c3-mnav button::after{ content:''; position:absolute; inset:calc(-1 * var(--m-pad) / 2); }
+  /* 514c THE FILM ON A PHONE (SPEC-514 C2). A TAP shows three things over the film: play on the left, MUTE and
+     fullscreen on the right -- no playback bar, no Vimeo mark; their thumb pads reach 12px round them. A DOUBLE TAP, or
+     the fullscreen icon, fills the upright phone as the phone's showreel does: the film card is laid out as the window
+     turned (its long side the window's height), turned a quarter clockwise about its middle, and Vimeo contains the
+     picture inside it; the control row is squared to that picture and turned with it, so the playback bar runs down the
+     window's LEFT side, MUTE and fullscreen with it. JS writes the window (--m-fsw / --m-fsh) and the picture (--m-fpw /
+     --m-fph) on the view as it goes full screen. The whole window is the film's surface there (the layer takes every
+     touch, no scroll). The control keeps the phone's margin inside the film. */
+  html.mob #viewCase3 .c3-ctl{ --c3-ctl-inset:var(--m-pad); }
+  html.mob #viewCase3 .c3-ctl .vm{ display:none; }
+  html.mob body:not(.c3-fs) #viewCase3 .c3-ctl .tl{ visibility:hidden; }
+  html.mob #viewCase3 .c3-ctl .mu{ position:relative; }
+  html.mob #viewCase3 .c3-ctl .pp::after, html.mob #viewCase3 .c3-ctl .fs::after, html.mob #viewCase3 .c3-ctl .mu::after{ content:''; position:absolute; inset:-12px; }
+  html.mob #viewCase3 .c3-ctl:not(.on) .bar > *{ pointer-events:none; }   /* unseen, they take no tap: the tap shows them */
+  html.mob body.c3-fs #viewCase3 .c3-3d{ pointer-events:auto; touch-action:none; }
+  html.mob.m-rot body.c3-fs #viewCase3 .c3-case.fs{
+    left:calc((var(--m-fsw) - var(--m-fsh)) / 2) !important; top:calc((var(--m-fsh) - var(--m-fsw)) / 2) !important;
+    width:var(--m-fsh) !important; height:var(--m-fsw) !important; transform:rotate(90deg) !important; transform-origin:50% 50% !important;
+  }
+  html.mob.m-rot body.c3-fs #viewCase3 .c3-ctl{
+    left:calc((var(--m-fsw) - var(--m-fpw)) / 2) !important; top:calc((var(--m-fsh) - var(--m-fph)) / 2) !important;
+    width:var(--m-fpw) !important; height:var(--m-fph) !important; transform:rotate(90deg); transform-origin:50% 50%;
+  }
 
   /* M512:ABOUT */
   /* 512g: ABOUT ON A PORTRAIT PHONE (typo512/ABOUT-MOBILE-DESIGN.md, the judged synthesis). The About engine's phone branch
@@ -14247,7 +14310,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const words = C4 ? [CASE.brand.join(' ')] : CASE.brand;
     const E = SRC === 'blogs' ? esc : (x => x);   /* 508: a post's strings come from a form -- escaped into markup */
     el.innerHTML = words.map(w => '<span>' + E(w) + '</span>').join('')
-      + (C4 ? '<span class="c3-sub4">' + (CASE.subtitle.includes('/') ? CASE.subtitle.split('/').map(s => s.trim()) : CASE.subtitle.split(' ')).map(w => '<i>' + E(w) + '</i>').join('') + '</span>' : '');   /* 427->484: the slash MARKS the row break and leaves the page -- slashed subtitles render their groups, the rest keep the word-per-row law; three rows either way, the sub4 sizing law untouched */
+      + (C4 ? '<span class="c3-sub4">' + (MOB.on ? mStartSub() : CASE.subtitle.includes('/') ? CASE.subtitle.split('/').map(s => s.trim()) : CASE.subtitle.split(' ')).map(w => '<i>' + E(w) + '</i>').join('') + '</span>' : '');   /* 427->484: the slash MARKS the row break and leaves the page -- slashed subtitles render their groups, the rest keep the word-per-row law; three rows either way, the sub4 sizing law untouched */
     const F = hdrFullF;
     /* every measure is linear in the size, so each is written as a share of
        --c3-brand-k of its full value: the scroll sets one number and the
@@ -14321,13 +14384,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const base = el => { const q = document.createElement('i'); q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; el.appendChild(q); const y = q.getBoundingClientRect().bottom; q.remove(); return y; };
     const cap = w => vtrim(w, 200, 200).cap / 200;
     const d = base(t) - cap(1000) * T + cap(parseFloat(cs.fontWeight) || 1000) * S - base(r0);
-    const dM = MOB.on ? base(t) - base(r0) : d;   /* 512d: on a phone the stack is ONE row of BODY(CAPS) beside the title: its baseline on the title's */
+    const dM = MOB.on ? base(t) - base(s4.lastElementChild) : d;   /* 512d: on a phone the stack is BODY(CAPS) beside the title -- 514c: TWO rows (year over type), the LAST one's baseline on the title's */
     if (isFinite(dM) && Math.abs(dM) > .02){
       const mt = parseFloat(head.style.getPropertyValue('--c3-sub4-mt')) || 0;
       head.style.setProperty('--c3-sub4-mt', (mt + dM).toFixed(2) + 'px');
     }
-    if (MOB.on) seatRowsRight({ children:[s4.lastElementChild], style:s4.style }, k);   /* 512d: one row -- its LAST word's ink on the right margin */
-    else seatRowsRight(s4, k);
+    seatRowsRight(s4, k);   /* 514c: a phone's two rows seat as the desktop's stack -- the widest ink on the right margin (512d's one row seated its last word) */
     return true;
   }
   let headBox = null, headTop = 0, headTopCanvas = null, inkBot4 = 0, seatAdj4 = 0, followAdj4 = 0;   // the head's box at k = 1 (videoLayout) and its sticky top; the canvas measures the menu's ink (406)
@@ -14755,7 +14817,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     ctl.querySelector('.pp').addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
     ctl.querySelector('.tl').addEventListener('click', e => {
       e.stopPropagation(); const player = curPlayer(); if (!player) return;
-      const r = e.currentTarget.getBoundingClientRect(), p = clamp01((e.clientX - r.left) / Math.max(1, r.width));
+      const r = e.currentTarget.getBoundingClientRect(), p = clamp01(r.height > r.width ? (e.clientY - r.top) / Math.max(1, r.height) : (e.clientX - r.left) / Math.max(1, r.width));   /* 514c: turned (a phone's full screen), the bar runs down the window's left side, its start at the top */
       ctlFillTo(p);
       player.getDuration().then(d => player.setCurrentTime(p * d)).catch(() => {});
     });
@@ -14800,8 +14862,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function fsToggle(){
     if (!fsOn){
       const fc = filmCard();
-      if (!fc || !CASE.film || busy || trS > 0.5) return;
-      fsOn = true; fsCard = fc;
+      if (!fc || !CASE.film || busy || trAway()) return;
+      fsOn = true; fsCard = fc; mFsSize();   /* 514c: a phone's turned full screen -- the window and the picture, sized */
       document.body.classList.add('c3-fs');
       fc.el.classList.add('fs');
     } else {
@@ -14911,9 +14973,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const S = MOB.S || M_S0, top = PAD + .7 * S + PAD, room = H - top - dial('--m-c3-film-gap') - .7 * S - PAD - .35 * S - PAD;
         vh = Math.max(0, Math.min(vh, room)); vw = vh * 16 / 9; xc = (W - vw) / 2; yc = top + (room - vh) / 2;
       }
-      stageH = yc + vh + dial('--m-c3-film-gap') - headBox.pad - (1 - (hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2)) * brandFull;
+      stageH = yc + vh + (MOB.land ? dial('--m-c3-film-gap') : (mGapWant = mHeroGap()) + mGapDy) - headBox.pad - (1 - (hdrFullF ? Math.min(1, hdrS0 / hdrFullF) : 0.2)) * brandFull;   /* 514c: portrait -- the film's foot to the title's cap top IS the hero's card foot to its paragraph's cap top, read live (mHeroGap), the seat's measured miss folded in (mGapFix) */
     }
     $('#c3Stage').style.height = Math.max(0, stageH).toFixed(2) + 'px';   // to the sub-pixel: a rounded stage moved the head's foot by half a px
+    if (MOB.on) $('#c3Head').style.setProperty('--m-c3-band-top', (yc + vh - Math.max(0, stageH) + .5).toFixed(2) + 'px');   /* 514c: the row's paper begins half a px under the film's foot (the head's box top is the stage's foot) */
     const Sin = Math.max(1, stageH - headTop);                          // the scroll at which the head reaches its slot and sticks
     /* the picture's layout size: the window's cover, so the film is crisp at
        full-window; in the box it is scaled down (cardsLayout) */
@@ -14939,6 +15002,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      The loop runs all the time (stopping and restarting it was the
      roughness). */
   let tr = 0, trS = 0, sV = 0, sLast = 0, sRaf = 0, sOwnY = -1;
+  function trAway(){ return MOB.on ? window.scrollY > 0.5 : trS > 0.5; }   /* 514c: the film is off its rest -- on a phone the page's own scroll says so (the track there is only that scroll read back); on the desktop the track, as always */
   const HOLD = () => chosen.case === 4 ? 0 : MOVE_AT * PRE_WHEEL;   /* 404: V4 has no page-hold -- the title (and the page) move from the first notch, eased by the track's own spring; the hold was the grow-era's */
   /* the page from the wheel past the hold (u), and back: the rate is
      K x smoothstep on the way in, K, then K -> 1 x smoothstep after the
@@ -14981,8 +15045,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          pipeline twice per wheeled frame. The track adopts the native
          position as before (never at 0, the programmatic reset's home). */
       if (window.scrollY > 0.5){ tr = trS = HOLD() + wheelOf(window.scrollY); sV = 0; }
+      else if (MOB.on){ tr = trS = 0; sV = 0; }   /* 514c: a phone's reader came back to the top -- the track goes home with the page (a fresh load's state) */
       videoScroll();
-    }
+    } else if (MOB.on) sOwnY = -1;   /* 514c: a phone's own position is read once -- a later native return to it (0 after a PREV / NEXT reset) is the reader's */
   }, { passive:true });
   function sTick(now){
     if (!active()){ sRaf = 0; return; }                 // the loop lives while the case is open; open() starts it
@@ -15157,7 +15222,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        forces the compositor to re-capture and re-blur its backdrop, so a
        same-geometry frame must not touch it (over a playing film that was
        a re-blur per video frame, forever). */
-    const gT = glassTop.toFixed(2), gH = Math.max(0, foot - glassTop).toFixed(2);
+    const gT = glassTop.toFixed(2), gH = (mPort() ? 0 : Math.max(0, foot - glassTop)).toFixed(2);   /* 514c: a portrait phone draws no glass -- the title row's ground is the head's own paper (M512:CASE), from the film's foot */
     if (videoScroll._gt !== gT){ videoScroll._gt = gT; glass.style.top = gT + 'px'; }
     if (videoScroll._gh !== gH){ videoScroll._gh = gH; glass.style.height = gH + 'px'; }
     /* THE MORPH: the whole group scaled about the film's centre from the box
@@ -15173,6 +15238,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     doorFade = m;
     if (!stepQ) cardsPaint();
     detailsScroll(window.scrollY);
+    if (MOB.on || mCatchV) mCatch(S);   /* 514c: the intro's catch-up lead (and its removal after a switch) */
     if (MOB.on || mRvOn) mIntroReveal(S);   /* 512d: the intro's entrance on a phone (and its clean-up after a switch) */
     layer3d.classList.toggle('rest', m >= 0.999 && !busy);
     ctlEach(c => c.classList.toggle('away', m < 0.999 || busy || (MOB.on && S > 0.5)));   /* 512d: on a phone the film scrolls away under a fixed control: it goes with the first move */
@@ -15352,7 +15418,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const easeExpo = t => t >= 1 ? 1 : 1 - Math.pow(2, -10 * t);
   const wait = ms => new Promise(r => setTimeout(r, ms));
   function pick(card){
-    if (busy || stepQ || !vGeo || trS > 0.5 || card.q === 0 || Math.abs(card.q) > TRANS_PICK || !card.pose || !card.pose.vis) return;
+    if (busy || stepQ || !vGeo || trAway() || card.q === 0 || Math.abs(card.q) > TRANS_PICK || !card.pose || !card.pose.vis) return;
     run(card.q);
   }
   async function run(steps){
@@ -15635,13 +15701,161 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   let mRvEls = null, mRvOn = false;
   function mIntroReveal(S){
     if (!mRvEls) mRvEls = [...document.querySelectorAll('#c3Lede, #c3Intro .c3-it, #c3Contrib, #c3Summary, #c3Cred .cr')];
-    const lim = innerHeight * M_RV_LINE, go = MOB.on && S > 0.5;
+    const lim = innerHeight * (mPort() ? (dial('--c3-in-line') || .85) : M_RV_LINE), go = MOB.on && S > 0.5;   /* 514c: an upright phone's intro catches up (twice the page's pace at first): it comes in on the details' own line */
     mRvOn = MOB.on;
     for (const e of mRvEls){
       const on = go && (e._mRv || e.getBoundingClientRect().top < lim);
       if (e._mRv !== on){ e._mRv = on; e.classList.toggle('m-rv', on); }
     }
   }
+  /* ================= 514c THE PHONE'S CASE / POST PAGE (SPEC-514 C, his iPhone) ==================== */
+  /* AN UPRIGHT PHONE: the phone build's own class (html.m-rot, srTurn -- a phone-mode window taller than wide, not a
+     landscape phone), the one M512:CASE keys the paper ground, PREV / NEXT and the turned full screen on. */
+  const mPort = () => MOB.on && root.classList.contains('m-rot');
+  /* C5 THE SUBTITLE'S TWO ROWS: the year over the type. His per-case phone subtitle (#csData's 'msub', written with his
+     " / " rule: a slash with spaces is the break, a slash in a name is not; an array is taken as the rows), or a case
+     record's own msub; until one is there, derived from the case's subtitle as the hero's bottom row derives it -- the
+     year, then the rest (no year: the last word under the rest). A post: its msub, else its year over its tag. */
+  let mCsData = null;
+  function mSubRows(c, f, post){
+    if (Array.isArray(f) && f.length) return f.map(x => String(x).trim()).filter(Boolean);
+    if (typeof f === 'string' && f.trim()) return f.split(/\s+\/\s+/).map(x => x.trim()).filter(Boolean);
+    const py = post ? (String(c.date || '').match(/^\d{4}/) || [''])[0] : '', tg = post ? String(c.tag || '').trim() : '';
+    if (py && tg) return [py, tg];
+    const t = String(c.subtitle || '').split('/').map(x => x.trim()).filter(Boolean).join(' '), y = (t.match(/\b\d{4}\b/) || [''])[0];
+    const ty = t.replace(y, '').replace(/\s+/g, ' ').trim();
+    if (y && ty) return [y, ty];
+    const w = (ty || t).split(' ').filter(Boolean);
+    return w.length > 1 ? [w.slice(0, -1).join(' '), w[w.length - 1]] : w;
+  }
+  function mStartSub(){   /* 514c: its own name -- 514b's site-level mSub2 (the solve) reads the same field */
+    if (SRC === 'blogs') return mSubRows(CASE, CASE.msub, true);
+    if (mCsData === null){ try { mCsData = JSON.parse(document.getElementById('csData').textContent) || {}; } catch (e) { mCsData = {}; } }
+    const r = mCsData[RING[cur]];
+    return mSubRows(CASE, (r && r.msub) || CASE.msub, false);
+  }
+  /* C6 THE GAP UNDER THE FILM IS THE HERO'S: its deck card's foot (--h4-top + --h4-h) to its paragraph's first cap top
+     (#h4sum's computed top and its register's cap offset -- the case's live BODY(CAPS) trim where the sizes are one,
+     else the face's) -- read, not restated. Unreadable (no hero laid out): the old dial. */
+  function mHeroGap(){
+    const fb = dial('--m-c3-film-gap');
+    try {
+      const s = document.getElementById('h4sum'), cs = s && getComputedStyle(s), rs = getComputedStyle(root);
+      const top = cs ? parseFloat(cs.top) : NaN, foot = parseFloat(rs.getPropertyValue('--h4-top')) + parseFloat(rs.getPropertyValue('--h4-h'));
+      const px = cs ? parseFloat(cs.fontSize) : NaN;
+      if (!isFinite(top) || !isFinite(foot) || !(px > 0)) return fb;
+      const cb = document.getElementById('c3Contrib'), t1 = parseFloat(rs.getPropertyValue('--m-t1'));
+      const lh = parseFloat(cs.lineHeight);
+      const cap = cb && isFinite(t1) && Math.abs(parseFloat(getComputedStyle(cb).fontSize) - px) < .01 && getComputedStyle(cb).lineHeight === cs.lineHeight
+        ? t1 : vtrim(parseFloat(cs.fontWeight) || 700, px, lh > 0 ? lh : px * 1.13).t;
+      const g = top + cap - foot;
+      return g > 0 && g < 4 * px ? g : fb;
+    } catch (e) { return fb; }
+  }
+  let mGapDy = 0, mGapWant = 0;
+  function mGapFix(){
+    if (!MOB.on || MOB.land || !vGeo){ mGapDy = 0; return; }
+    const S = window.scrollY, t = $('#c3Brand span');
+    if (!t || !t.firstChild || S >= vGeo.Sin - 1 || !t.getClientRects().length) return;   /* only while the row is in the page's flow */
+    const r = t.getBoundingClientRect(), k = t.offsetHeight ? r.height / t.offsetHeight : 1, fz = parseFloat(getComputedStyle(t).fontSize);
+    const q = document.createElement('i'); q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;';
+    t.appendChild(q); const bl = q.getBoundingClientRect().bottom; q.remove();
+    const err = vGeo.yc + vGeo.vh + mGapWant - (bl + S - M_CAPK * fz * k);
+    if (isFinite(err) && Math.abs(err) > .05 && Math.abs(err) < 8){ mGapDy += err; videoLayout(); }
+  }
+  /* C4 THE CATCH-UP. At rest the intro's first block waits at the window's foot (a lead D0 below its place in the flow:
+     the intro and the details behind it are translated, --m-c3-catch); as the page moves the lead closes as
+     (1 - S / Sin)^M_CATCH_K -- the intro comes up faster than the page, slowing into its place P2 under the title row
+     just as the row attaches under the header (Sin), and from there it all moves as one page. Measured at layout with no
+     lead; the reveal reads the moving places. */
+  const M_CATCH_K = 2;
+  let mCatch0 = 0, mCatchHold = false, mCatchV = '';
+  function mCatch(S){
+    const g = vGeo, on = mPort() && !mCatchHold && !!g && S < g.Sin && mCatch0 > 0;   /* an upright phone's */
+    const D = on ? mCatch0 * Math.pow(1 - clamp01(S / Math.max(1, g.Sin)), M_CATCH_K) : 0;
+    const v = D > 0.05 ? 'translateY(' + D.toFixed(2) + 'px)' : '';
+    if (v === mCatchV) return;
+    mCatchV = v;
+    const b = $('#c3Body'); if (!b) return;
+    if (v) b.style.setProperty('--m-c3-catch', v); else b.style.removeProperty('--m-c3-catch');
+  }
+  function mCatchSet(){
+    mCatchHold = false; mCatch0 = 0;
+    if (mPort() && vGeo){
+      const y0 = window.scrollY, tops = [...document.querySelectorAll('#c3Lede, #c3Intro .c3-it')].filter(e => e.getClientRects().length).map(e => e.getBoundingClientRect().top + y0);
+      if (tops.length) mCatch0 = Math.max(0, vGeo.H - Math.min(...tops));
+    }
+    mCatch(window.scrollY);
+  }
+  /* C3 PREV / NEXT: BODY(CAPS) on the start slide, in the stage (it scrolls away with the film), its cap top ONE margin
+     under the B - D bar's baseline (inkBot4: the bar's ink, measured live in videoLayout); PREV's ink on the left
+     margin, NEXT's on the right. A portrait phone's (a landscape phone's film stands a margin under the bar: no row). Hidden off a phone (M512:CASE shows it). A tap
+     steps the ring one case (post) either way, wrapping -- the belt's own step, the title's fade -- from the page's top. */
+  let mNavEl = null;
+  function mNavBuild(){
+    const st = $('#c3Stage'); if (mNavEl || !st) return;
+    const nv = mNavEl = document.createElement('nav'); nv.className = 'c3-mnav'; nv.id = 'c3MNav'; nv.hidden = true;
+    nv.innerHTML = '<button type="button" class="t" data-d="-1"></button><button type="button" class="t" data-d="1"></button>';
+    nv.addEventListener('click', e => { const b = e.target && e.target.closest ? e.target.closest('button[data-d]') : null; if (b){ e.stopPropagation(); mStep(+b.dataset.d); } });
+    st.appendChild(nv);
+  }
+  function mNav(){
+    if (!mNavEl) return;
+    const [p, n] = mNavEl.children, w = SRC === 'blogs' ? 'post' : 'case';
+    p.textContent = 'Prev ' + w; n.textContent = 'Next ' + w;
+    p.setAttribute('aria-label', 'Previous ' + w); n.setAttribute('aria-label', 'Next ' + w);
+    p.style.marginLeft = n.style.marginRight = '';
+    mNavEl.style.visibility = N > 1 ? '' : 'hidden';
+    if (!mPort()){ mNavEl.style.removeProperty('--m-c3-nav-y'); return; }
+    mNavEl.style.setProperty('--m-c3-nav-y', ((inkBot4 > 0 ? inkBot4 : (typeof hdrH === 'number' && hdrH > 0 ? hdrH : 0)) + PAD).toFixed(2) + 'px');
+    mSeatX(p, 'left'); mSeatX(n, 'right');
+  }
+  function mStep(dir){
+    if (!active() || !mPort() || busy || stepQ || !vGeo || N < 2) return;
+    if (fsOn) fsToggle();
+    if (window.scrollY > 0.5 || trS > 0.5){ tr = trS = 0; sV = 0; sOwnY = 0; window.scrollTo(0, 0); }
+    run(dir > 0 ? 1 : -1);
+  }
+  /* C2 THE FILM ON A PHONE. A TAP on the film (at rest) shows its three controls -- or takes them away; they leave on
+     their own after M_CTL_MS while the film plays (a still film keeps them). A DOUBLE TAP (two within M_TAP_MS) goes full
+     screen, turned (M512:CASE), or comes back; the fullscreen icon does the same. Taps are read from pointer events on the
+     window (a finger's tap over the film lands on the stage or the body, never on the film), so the page's own scroll is
+     untouched: a touch that becomes a scroll is cancelled, never a tap. Full screen takes no scroll. */
+  const M_TAP_MS = 320, M_CTL_MS = 2500, M_SWALLOW_MS = 600;
+  let mTapD = null, mTapT = 0, mTapX = 0, mTapY = 0, mCtlT = 0, mSwallow = 0;
+  function mWake(on){
+    ctlShow(on); clearTimeout(mCtlT);
+    if (on) mCtlT = setTimeout(() => { if (active() && MOB.on && !userPaused) ctlShow(false); }, M_CTL_MS);
+  }
+  function mFsSize(){
+    const st = view.style, nm = ['--m-fsw', '--m-fsh', '--m-fpw', '--m-fph'];
+    if (!MOB.on || !vGeo){ nm.forEach(n => st.removeProperty(n)); return; }
+    const W = vGeo.W, H = vGeo.H, pw = Math.min(H, W * 16 / 9);
+    [W, H, pw, pw * 9 / 16].forEach((v, i) => st.setProperty(nm[i], v.toFixed(2) + 'px'));
+  }
+  addEventListener('pointerdown', e => { mSwallow = 0; mTapD = MOB.on && active() && e.isPrimary ? { x:e.clientX, y:e.clientY, t:performance.now(), id:e.pointerId } : null; }, { capture:true, passive:true });
+  addEventListener('pointercancel', () => { mTapD = null; }, { capture:true, passive:true });
+  addEventListener('pointerup', e => {
+    const d0 = mTapD; mTapD = null;
+    if (!d0 || d0.id !== e.pointerId || !MOB.on || !active() || busy || FILM_CONTROLS) return;
+    if (performance.now() - d0.t > 500 || Math.hypot(e.clientX - d0.x, e.clientY - d0.y) > 12) return;
+    const tg = e.target && e.target.closest ? e.target : null;
+    if (tg && tg.closest('.c3-ctl')){ if (fsOn || (ctl && ctl.classList.contains('on'))) mWake(true); return; }   /* the controls' own taps keep them up */
+    if (tg && tg.closest('.c3-mnav, .hdr, .m-menu, .m-sheet')) return;
+    if (!(fsOn || overFilm(e))) return;
+    const now = performance.now();
+    if (now - mTapT < M_TAP_MS && Math.hypot(e.clientX - mTapX, e.clientY - mTapY) < 40){ mTapT = 0; fsToggle(); mWake(true); mSwallow = now; return; }
+    mTapT = now; mTapX = e.clientX; mTapY = e.clientY;
+    const shown = !!(ctl && ctl.classList.contains('on'));
+    mWake(!shown); if (!shown) mSwallow = now;   /* the click after this tap must not press the icon it just showed */
+  }, { capture:true, passive:true });
+  addEventListener('click', e => {
+    if (!mSwallow) return;
+    if (performance.now() - mSwallow > M_SWALLOW_MS){ mSwallow = 0; return; }
+    mSwallow = 0;   /* this click is the tap's own: on a control it is swallowed, and either way the next tap is free */
+    if (e.target && e.target.closest && e.target.closest('#viewCase3 .c3-ctl')){ e.stopPropagation(); e.preventDefault(); }
+  }, { capture:true });
+  addEventListener('touchmove', e => { if (fsOn && MOB.on && active() && e.cancelable) e.preventDefault(); }, { passive:false });
   /* 512d: A MODE FLIP KEEPS THE READER'S PLACE (SPEC-512 sec. A: a switch re-runs the solves, no reload). A phone
      turned to landscape, or a window pulled across 600px, re-lays the page for the other mode, and the browser
      clamps the scroll while the document is briefly the wrong length -- BEFORE the resize is dispatched (a phone
@@ -15829,9 +16043,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     layoutDetails();
     mTrims();   /* 512d: a phone's registers, read live */
     videoLayout();
+    mGapFix();   /* 514c: the title's live cap top onto the hero's gap under the film (once; it re-lays the film and the stage) */
+    mCatchHold = true; mCatch(window.scrollY);   /* 514c: the ranges, the words' places and the flip's table read the page with no catch-up lead */
     detailsRanges();                 // last: every height above the details is now what it is
     detailsScroll(window.scrollY);
     mfAfterLayout();   /* 512d: after a mode flip, the reader's place back under the header; always, the blocks' tops for the next flip */
+    mCatchSet(); mNav();   /* 514c: the lead measured at rest and written back; the PREV / NEXT row's words and ink */
   }
   /* THE FILM UNDER THE POINTER: in its box, over the picture, the control
      shows and the pointer says the picture is clickable; a click on the
@@ -15839,16 +16056,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      left as the user left it until they click again (the policy still
      stops it the moment the page moves) */
   const stage = $('#c3Stage');
-  const overFilm = e => { const g = vGeo; return !!g && !busy && trS <= 0.5 && e.clientX >= g.xc && e.clientX <= g.xc + g.vw && e.clientY >= g.yc && e.clientY <= g.yc + g.vh; };
+  const overFilm = e => { const g = vGeo; return !!g && !busy && !trAway() && e.clientX >= g.xc && e.clientX <= g.xc + g.vw && e.clientY >= g.yc && e.clientY <= g.yc + g.vh; };
   const ctlShow = on => ctlEach(c => c.classList.toggle('on', on));
-  stage.addEventListener('pointermove', e => { const on = !FILM_CONTROLS && (fsOn || overFilm(e)); stage.style.cursor = on ? 'pointer' : ''; ctlShow(on); });
+  stage.addEventListener('pointermove', e => { if (MOB.on) return; const on = !FILM_CONTROLS && (fsOn || overFilm(e)); stage.style.cursor = on ? 'pointer' : ''; ctlShow(on); });
   stage.addEventListener('pointerleave', () => { stage.style.cursor = ''; });
   /* 501: the click waits out the dblclick window (instant, a double click
      fired play/pause/play as a visible stutter); a double click enters and
      exits fullscreen. In fullscreen the whole window is the film's surface. */
   let clkT = 0;
-  stage.addEventListener('click', e => { if (!FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); clkT = setTimeout(togglePlay, 250); } });
-  stage.addEventListener('dblclick', e => { if (!FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); fsToggle(); } });
+  stage.addEventListener('click', e => { if (!MOB.on && !FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); clkT = setTimeout(togglePlay, 250); } });
+  stage.addEventListener('dblclick', e => { if (!MOB.on && !FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); fsToggle(); } });
   function boot(){
     document.title = CASE.title || RING[cur];   /* 508: the case's (or post's) own title, nothing else */
     { const h = $('#c3Hint'); if (h) h.textContent = SRC === 'blogs' ? 'Scroll down for post' : 'Scroll down for case'; }   /* 508 */
@@ -15860,9 +16077,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     credits();
     detailsBuild();
     ctlBuild();
+    mNavBuild();   /* 514c */
     layout();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (active() && MOB.on) layout(); });   /* 512d: a phone's live trims and word places are the web font's */
-    if (ctl) ctl.addEventListener('pointerleave', e => { ctlShow(overFilm(e)); });
+    if (ctl) ctl.addEventListener('pointerleave', e => { if (!MOB.on) ctlShow(overFilm(e)); });   /* 514c: a finger's up is a leave -- a phone's control keeps its own time */
     if (!stripRaf) stripRaf = requestAnimationFrame(stripTick);
 
     let rt = 0;
