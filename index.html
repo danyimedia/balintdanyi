@@ -15888,12 +15888,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const d0 = mTapD; mTapD = null;
     if (!d0 || d0.id !== e.pointerId || !MOB.on || !active() || busy || FILM_CONTROLS) return;
     if (performance.now() - d0.t > 500 || Math.hypot(e.clientX - d0.x, e.clientY - d0.y) > 12) return;
-    const tg = e.target && e.target.closest ? e.target : null;
-    if (tg && tg.closest('.c3-ctl')){ if (fsOn || (ctl && ctl.classList.contains('on'))) mWake(true); return; }   /* the controls' own taps keep them up */
+    const tg = e.target && e.target.closest ? e.target : null, now = performance.now();
+    /* 514e: the pair is read FIRST. A double tap's first tap shows the icons, and its second then lands on one of them
+       (the play spot, MUTE, fullscreen: a thumb's corners of the film) -- still the double tap: full screen or back, the
+       icon's click swallowed. mTapT is set only by a tap on the film: taps on icons already showing are their own. */
+    const dbl = now - mTapT < M_TAP_MS && Math.hypot(e.clientX - mTapX, e.clientY - mTapY) < 40;
+    if (tg && tg.closest('.c3-ctl') && !dbl){ if (fsOn || (ctl && ctl.classList.contains('on'))) mWake(true); return; }   /* the controls' own taps keep them up */
     if (tg && tg.closest('.c3-mnav, .hdr, .m-menu, .m-sheet')) return;
     if (!(fsOn || overFilm(e))) return;
-    const now = performance.now();
-    if (now - mTapT < M_TAP_MS && Math.hypot(e.clientX - mTapX, e.clientY - mTapY) < 40){ mTapT = 0; fsToggle(); mWake(true); mSwallow = now; return; }
+    if (dbl){ mTapT = 0; fsToggle(); mWake(true); mSwallow = now; return; }
     mTapT = now; mTapX = e.clientX; mTapY = e.clientY;
     const shown = !!(ctl && ctl.classList.contains('on'));
     mWake(!shown); if (!shown) mSwallow = now;   /* the click after this tap must not press the icon it just showed */
