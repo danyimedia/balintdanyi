@@ -4995,13 +4995,30 @@
   const MOB = { on:false, land:false, S:0, fit:0, tight:'', fits:[], all:[], aS:0, afit:0, atight:'', hooks:[], rows:[], arows:[], lrows:[], lS:0, ltight:'', solve:null };   /* 515a: all = every row's fit; arows / aS = About's local cap; lrows / lS the blog's (list and posts) */
   const MOB_Q = '(max-width: 600px)', MOB_LQ = '(pointer: coarse) and (orientation: landscape) and (max-height: 500px)';
   const MOB_LAND = true;   /* 512e: the landscape phones run the phone build (html.mob.mobl) */
-  /* 518a (SPEC-518 C1): PHONE SCROLL SENSITIVITY -- one multiplier per page system, each scaling ONLY that system's input
-     (finger travel -> its progress); the systems' own timings, springs and easing curves stay as they are (his rule for
-     SPEC-518 F, which extends this table). landing: the HERO -> SHOWREEL journey under a finger on an upright phone
-     (V67.wheel8's px per page -- and the spring's speed cap with it, or the cap would take the gain back). 2.8: the commit
-     (J1: ROT_WHEEL, 700px of finger at 1, on every phone) comes at 700 / 2.8 = 250px -- one 260px swipe commits; .27 of a
-     932-tall screen, not .75. mSens(k): a system's gain, 1 anywhere but an upright phone. */
-  const M_SENS = { about:.5, landing:2.8 };
+  /* 518a / 518d (SPEC-518 C1, F): PHONE SCROLL SENSITIVITY -- ONE multiplier per page system, side by side, each scaling ONLY
+     that system's finger input (px of finger -> its own progress); every system's timings, springs, holds and easing curves
+     stay exactly as they were (his rule for F: "INSTEAD adjust overall sensitivity, as a general multiplier here to the
+     systems that are responsive for each page"). mSens(k): a system's gain on an upright phone, 1 anywhere else.
+       landing  2.8  518a: the HERO -> SHOWREEL journey (V67.wheel8, below the showreel): px of finger per page / 2.8, the
+                     spring's speed cap x 2.8 (or the cap takes the gain back). The commit (J1: ROT_WHEEL, 700px of finger at
+                     1, every phone) comes at 250px -- one swipe; a page of the journey is 916px of finger at 932 tall
+                     (unit8 2564 / 2.8): the slide crosses about a screen per screen of finger, as a native page does
+       deck     1    the deck under a finger (vsTouchStep): travel toward VS_TOUCH_STEP, one card per gesture -- a 10px trigger
+                     is already the lightest a step can be; it stays
+       showreel 1    the hold at the showreel (wheel8: SR_HOLD_M of the window of finger, then one swipe carries the page on
+                     to contact) -- it stays
+       contact  1.5  the page past the showreel (wheel8: contact <-> showreel): px of finger per window / 1.5. The black
+                     slide then moves 1.5px per px of finger there -- as fast as the journey's own slide arrives at the
+                     showreel from below (BLOCK_POW 1.5 x H x 2.8 / unit8: 1.53 at 932 tall, 1.48 at 844, 1.46 at 800), so a
+                     drag through the showreel keeps ONE speed (it stepped 1 -> 1.53 there); and inside a native page's band
+                     (1 held still, ~4 after a flick with iOS's momentum -- the landing's systems have none)
+       case     1    the case and post pages: iOS scrolls them NATIVELY (1px per px of finger, then its own momentum). The
+                     ANCHOR the others are measured against; nothing in the page may scale it short of taking the scroll
+                     from iOS (a new engine -- his rule excludes it), so it is recorded here and applied nowhere
+       about    .5   518c: About's journey (jx = the view's scroll x .5): E1's own limit -- at .6 ROLE's last element lands
+                     after its slide at the 550px/s reading pace (typo512/d518/arig-a6)
+     Measured (typo512/m518d-sens.js: the same 150px finger on every system, held and flicked): typo512/d518/. */
+  const M_SENS = { landing:2.8, deck:1, showreel:1, contact:1.5, case:1, about:.5 };
   const mSens = k => (MOB.on && !MOB.land && M_SENS[k]) || 1;
   /* 518b (SPEC-518 D1, DIAG-518 v6): A BROWSER TOOLBAR IS NOT A LAYOUT -- on an upright touch phone with a case / post open, a
      trusted resize that keeps the width and the orientation stops here (see mobEval) -- 518b fix: whether or not clientHeight moved
@@ -13989,7 +14006,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       pageT8 = 0; pv8 = 0; auto = false; auto8 = null; pageTo = null; restLeft = 0; upRun8 = 0; homeDwellT = 0;
     }
     function vsTouchStep(d){   /* d as the wheel's: positive = the finger travelling UP */
-      vsT.acc += d;
+      vsT.acc += d * mSens('deck');   /* 518d (SPEC-518 F): the deck's own sensitivity (M_SENS.deck) -- a finger only ever reaches here */
       if (vsT.done || Math.abs(vsT.acc) < VS_TOUCH_STEP) return;
       if (home8 || rot > 0 || posed){ vsT.pend = true; return; }   /* 518a: the way back first -- while the deck is turned pose8 rewrites every card; pageSync fires it once restore8 has run */
       if (lock) return;
@@ -14026,7 +14043,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          by distance, downward only, taken at the showreel before the
          target moves on; an upward delta spends it at once. */
       if (MOB.on && restLeft > SR_HOLD_M * innerHeight) restLeft = SR_HOLD_M * innerHeight;   /* 514b: a phone's hold */
-      if (d > 0 && restLeft > 0 && pageT8 >= 0.999 && pageT8 <= 1.001){ restLeft -= d; return; }
+      if (d > 0 && restLeft > 0 && pageT8 >= 0.999 && pageT8 <= 1.001){ restLeft -= vsTo ? d * mSens('showreel') : d; return; }   /* 518d (SPEC-518 F): a finger spends the hold at M_SENS.showreel */
       if (d < 0) restLeft = 0;
       if (MOB.on && d > 0 && pageT8 >= 0.999 && pageT8 < 2){ pageT8 = 2; upRun8 = 0; return; }   /* 514b: past it, one swipe carries the page to contact */
       if (pageT8 >= 1 && d < 0) done = false; // leaving the showreel upward: the run may fire again later
@@ -14034,12 +14051,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          it; a delta that crosses the showreel is split at it */
       let rem = d;
       const u8 = unit8() / (vsTo ? mSens('landing') : 1);   /* 518a (SPEC-518 C1): a finger on an upright phone travels 1 / M_SENS.landing as far per page of the journey */
+      const uC = innerHeight / (vsTo ? mSens('contact') : 1);   /* 518d (SPEC-518 F): and 1 / M_SENS.contact as far per window past the showreel (contact) */
       if (pageT8 < 1 && rem > 0){
         const take = Math.min(rem, (1 - pageT8) * u8); pageT8 += take / u8; rem -= take;
       } else if (pageT8 > 1 && rem < 0){
-        const take = Math.max(rem, (1 - pageT8) * innerHeight); pageT8 += take / innerHeight; rem -= take;
+        const take = Math.max(rem, (1 - pageT8) * uC); pageT8 += take / uC; rem -= take;
       }
-      if (rem) pageT8 += rem / (pageT8 >= 1 ? innerHeight : u8);
+      if (rem) pageT8 += rem / ((vsTo && rem < 0 ? pageT8 > 1 + 1e-9 : pageT8 >= 1) ? uC : u8);   /* 518d: a finger leaving the showreel UPWARD from exactly there is on the journey's side (u8), not contact's; the wheel as it was */
       pageT8 = Math.min(2, Math.max(0, pageT8));
       /* HOME, all the way: an upward MOVE that would leave the deck within its last six percent is committed to home -- the spring finishes at its own pace. A move is HOME_MOVE8 of upward wheel in a run; a reversed pixel in a downward gesture is not one. */
       upRun8 = d < 0 ? upRun8 - d : 0;
