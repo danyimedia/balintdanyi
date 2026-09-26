@@ -7735,10 +7735,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      the tab: nothing ever unloads it. */
   /* 512c: THE PHONE'S REEL. His mobile cut of the showreel will get its own Vimeo link: its id goes HERE and only
      here -- a one-line swap (an unlisted film's link reads vimeo.com/<id>/<hash>: write '<id>/<hash>'). Until it
-     arrives it is the desktop's film, the id in #vimeo's data-src. The choice is made once, when the reel is
+     arrives it is the desktop's film, the id in #vimeo's data-src. 518f: his mobile cut is live -- vimeo.com/
+     balintdanyi/2026mobile = the unlisted 1230535024/cfd03cd74d (16:9, 86s). The choice is made once, when the reel is
      fetched (srLoad): a phone-mode window then gets this film; a live player is never re-pointed afterwards (one
      iframe, one signed session: the 480f and 510 laws). */
-  const SR_FILM_MOB = '1182514258';
+  const SR_FILM_MOB = '1230535024/cfd03cd74d';
   const srSrc = u => {
     if (!u || !MOB.on) return u;
     const [id, h] = SR_FILM_MOB.split('/');
