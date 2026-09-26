@@ -3897,8 +3897,9 @@
 
   /* M512:BASE */
   /* THE TOKENS. --m-pad is the phone's side margin (a bit under the desktop's 36). --m-sub is THE SUBTITLE,
-     one size across the whole site on a given phone: JS solves it (MOB.solve -- the tightest row defines it; 513a: no
-     cap, portrait and landscape) and writes it inline on <html>; 20px is only the value before that solve.
+     one size across the whole site on a given phone: JS solves it (MOB.solve -- the tightest row defines it; 518a: capped
+     at 20px again, portrait and landscape, as the first mobile build) and writes it inline on <html>; 20px is also the
+     value before that solve.
      BODY(CAPS) is half of it (the 2 : 1 ratio), NOCAPS BODY x --body-k as on the desktop. The desktop tokens are
      re-pointed here, so every existing rule that reads --pad / --t-sub / --t-body / --t-nocaps follows.
      516a: About's TITLE tier (--m-title-k, 512g-515a) is gone -- his mockups set About in the phone's classes alone. */
@@ -3981,6 +3982,9 @@
   }
   html.mob.m-live .m-menu{ visibility:visible; }
   html.mob.m-open .m-menu .m-row, html.mob.m-open .m-menu .m-list button{ pointer-events:auto; }
+  /* 518a (SPEC-518 B): the word MENU closes the open slide -- it takes the tap, over a pad of the icon's own reach round it */
+  html.mob.m-open .m-menu .m-lbl{ pointer-events:auto; cursor:pointer; }
+  html.mob .m-menu .m-lbl::after{ content:''; position:absolute; inset:calc(-1 * var(--m-ico-hit)); }
   /* the row system: one SUBTITLE line pitch (1em) per row; at leading 1 DM Sans' cap top is .141em under the
      line box and its baseline .841em. MENU's cap top on the top margin; 01 three pitches under it; 08 three
      pitches over the open bar's baseline, which sits on the bottom margin. */
@@ -4017,6 +4021,11 @@
      the phone never has to start a video that is not rendered (an iPhone will not play a muted video that is
      display:none) and nothing black ever shows between the still and the playing loop. */
   html.mob body.hero-v7 .vs-card video{ display:block; }
+  /* 518a (SPEC-518 C4): THE DECK OVER SELECTED / WORKS, the whole way. At rest the cards' own ladder (z 100 - p) stood over the
+     words' 6 inside .vs; from the first degree of the turn pose8's perspective made the deck a stacking context of its own at
+     level 0, and every card dropped UNDER the words. The deck is one layer over them from the start (nothing else of .vs sits
+     between the cards under hero-v8: the tag, the rail and the right-hand label are hidden there). */
+  html.mob body.hero-v8 .vs-deck{ z-index:7; }
   /* THE PARAGRAPH (#h4sum) IS ALWAYS ON: directly under the deck, its sides on the front card's sides (--rail4 /
      --hero4, the card box layout() publishes), its cap top one SUBTITLE cap height (.7 S) under the card's foot --
      at leading --sm-lh (1.13) BODY's cap top sits .206em under its line box. BODY(CAPS), as on the desktop. It still
@@ -4705,7 +4714,7 @@
      BLOG is inactive. Hidden and inert above 600px. -->
 <div class="m-sheet" id="mSheet" aria-hidden="true" hidden></div>
 <nav class="m-menu" id="mMenu" aria-label="Menu" aria-hidden="true" hidden>
-  <div class="m-lbl m-r">Menu</div>
+  <div class="m-lbl m-r" role="button" tabindex="0" aria-label="Close the menu">Menu</div><!-- 518a: a tap on MENU closes the slide -->
   <div class="m-top">
     <div class="m-row m-r m-works"><span class="m-tog" role="button" tabindex="0" aria-expanded="false" aria-controls="mList" aria-label="Show the case studies"><span class="m-no">01</span><i class="m-tri" aria-hidden="true"></i></span><span class="m-it" data-go="home">Selected Works</span></div>
     <div class="m-list" id="mList"></div>
@@ -4952,6 +4961,14 @@
   const MOB = { on:false, land:false, S:0, fit:0, tight:'', fits:[], all:[], aS:0, afit:0, atight:'', hooks:[], rows:[], arows:[], lrows:[], lS:0, ltight:'', solve:null };   /* 515a: all = every row's fit; arows / aS = About's local cap; lrows / lS the blog's (list and posts) */
   const MOB_Q = '(max-width: 600px)', MOB_LQ = '(pointer: coarse) and (orientation: landscape) and (max-height: 500px)';
   const MOB_LAND = true;   /* 512e: the landscape phones run the phone build (html.mob.mobl) */
+  /* 518a (SPEC-518 C1): PHONE SCROLL SENSITIVITY -- one multiplier per page system, each scaling ONLY that system's input
+     (finger travel -> its progress); the systems' own timings, springs and easing curves stay as they are (his rule for
+     SPEC-518 F, which extends this table). landing: the HERO -> SHOWREEL journey under a finger on an upright phone
+     (V67.wheel8's px per page -- and the spring's speed cap with it, or the cap would take the gain back). 2.8: the commit
+     (J1: ROT_WHEEL, 700px of finger at 1, on every phone) comes at 700 / 2.8 = 250px -- one 260px swipe commits; .27 of a
+     932-tall screen, not .75. mSens(k): a system's gain, 1 anywhere but an upright phone. */
+  const M_SENS = { landing:2.8 };
+  const mSens = k => (MOB.on && !MOB.land && M_SENS[k]) || 1;
   function mobEval(e){
     const mm = q => { try { return !!(window.matchMedia && matchMedia(q).matches); } catch (x) { return false; } };
     const land = MOB_LAND && mm(MOB_LQ), on = land || mm(MOB_Q), R = document.documentElement;
@@ -6267,6 +6284,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      (J1 of the journey) takes at least ~1.4s. */
   const SPRING8_VMAX = 0.24;
   let auto8 = null, pageT8 = 0, pv8 = 0;
+  /* 518a (SPEC-518 C3): THE 5% RULE'S WAY BACK. On an upright phone a drag that starts ON THE DECK while the journey is at
+     most M_HOME5 along goes to the deck (V67's touchstart), and the landing first EASES back to the start view: home8, its own
+     short clock (M_HOME5_MS, shorter for a shorter way), a cubic Hermite from (page, its speed if already heading home) to
+     (0, 0) -- the run's own form (auto8) -- so nothing snaps and nothing is yanked. The spring stands aside while it runs;
+     the target is home from the first frame (the hero's loop anticipates, as the basin's return). The deck step waits for
+     it (vsTouchStep). */
+  const M_HOME5 = 0.05, M_HOME5_MS = 300;
+  let home8 = null;
   function commit8(){
     if (auto || done || page >= 1) return;
     const p0 = page, T = Math.max(AUTO8_MIN, AUTO8_MS * (1 - p0)) / 1000;
@@ -6404,19 +6429,26 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* V8's spring: page toward pageT8, critically damped, closed form --
        exact for any dt, never overshoots. Only along the journey: beyond
        the showreel the page is the site's, and a run or Escape owns it. */
-    if (v67Ready && V67.v8() && !auto && pageTo === null){
+    if (home8 && (auto || pageTo !== null)) home8 = null;   /* 518a: a run, Escape or the menu takes the page back */
+    if (home8){                                               /* 518a (SPEC-518 C3): the eased way back from the first 5% */
+      if (!home8.t0) home8.t0 = t;
+      const u = Math.min(1, (t - home8.t0) / home8.T), u2 = u * u, u3 = u2 * u;
+      page = (2 * u3 - 3 * u2 + 1) * home8.p0 + (u3 - 2 * u2 + u) * home8.m0; pageT8 = 0; pv8 = 0;
+      if (u >= 1 || page < 2e-3){ page = 0; home8 = null; }
+    } else if (v67Ready && V67.v8() && !auto && pageTo === null){
       const k = SPRING8_W, x = page - pageT8, ex = Math.exp(-k * dt);
       const nx = (x + (pv8 + k * x) * dt) * ex;
       let nv = (pv8 - k * (pv8 + k * x) * dt) * ex, np = pageT8 + nx;
       /* the cap: if the spring wants to move faster than VMAX, it moves at
          VMAX, and carries that as its velocity -- it eases in from there
          once the gap has closed enough */
-      const step = np - page, lim = SPRING8_VMAX * dt;
+      const vmax = SPRING8_VMAX * mSens('landing');   /* 518a (SPEC-518 C1): the phone's gain raises the cap with it */
+      const step = np - page, lim = vmax * dt;
       /* the cap is for the way DOWN -- the turn's intensity under a flick;
          the way back up is the spring's own, and prompt */
       if (page < 1){                                                       // the cap is the journey's, not contact's
-        if (step > lim){ np = page + lim; nv = SPRING8_VMAX; }
-        nv = Math.min(SPRING8_VMAX, nv);
+        if (step > lim){ np = page + lim; nv = vmax; }
+        nv = Math.min(vmax, nv);
       }
       pv8 = nv; page = np;
       if (Math.abs(page - pageT8) < 3e-3 && Math.abs(pv8) < 3e-2){ page = pageT8; pv8 = 0; }   // landed: a tolerance the eye cannot see (under a degree of the turn), not a jump
@@ -12190,13 +12222,18 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      THE SUBTITLE IS ONE SIZE ACROSS THE WHOLE SITE on a given phone, as large as possible: the tightest row
      defines it. Every tight row is measured at a reference size in a probe that wears the members' exact
      type (SUBTITLE, BODY(CAPS) at half its size; 516a: About's TITLE tier is gone, and its probe), and S is the largest
-     size at which ALL of them fit between the margins with their air. 513a: NO CAP (his answer: "let it grow ...
-     everywhere, landscape too") -- the tightest row alone defines S, and a row may be VERTICAL: it then returns its
+     size at which ALL of them fit between the margins with their air -- 518a: CAPPED AT M_CAP again, portrait and
+     landscape (SPEC-518 A, his answer: "the first build's (SUBTITLE 20 / BODY 10 / NOCAPS 10.9, landscape too)"; 513a-517a
+     let it grow). A row may be VERTICAL: it then returns its
      own ceiling ({ what, s }) instead of a run ({ what, w }). Three passes, so DM Sans' optical size (auto from the
      computed size) is the one S will actually render at. On load, on the fonts, on every resize (mobEval, first in
      line) and on a mode switch. The air, in S: M_GAP between a title and its subtitle (and an item and its number),
      M_RULE the least hairline, M_TRI the triangle and its air, M_ICO the menu icon and its air. */
-  const M_S0 = 20;   /* 513a: the SUBTITLE before the first solve (the CSS's own --m-sub) -- no longer a cap */
+  const M_S0 = 20;   /* the SUBTITLE before the first solve (the CSS's own --m-sub) */
+  /* 518a (SPEC-518 A): THE CAP, BACK -- the first mobile build's (512a): the desktop SUBTITLE at <= 1600 wide, 2 x the BODY
+     floor. S = min(M_CAP, the tightest row's fit); BODY = S / 2 (10), NOCAPS = BODY x 1.0909 (10.9). About's and the blog's
+     local caps take min(S, their own fit), so they follow it. */
+  const M_CAP = 20;
   const M_GAP = 1, M_RULE = 2, M_TRI = 1.1 + .27, M_ICO = 1.32;
   const mJSON = id => { try { return JSON.parse(document.getElementById(id).textContent); } catch (e) { return null; } };
   const mOneRow = t => String(t || '').split('/').map(x => x.trim()).filter(Boolean).join(' ');
@@ -12325,7 +12362,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     for (let pass = 0; pass < 3; pass++){
       const W = mMeasurer(S), all = measure(MOB.rows, W, S);
       if (!all.length){ fit = S = M_S0; tight = ''; fits = []; rows = []; break; }
-      fit = S = all[0].s; tight = all[0].what; fits = all.slice(0, 6); rows = all;   /* 513a: no cap -- the tightest row IS the SUBTITLE */
+      fit = all[0].s; S = Math.min(M_CAP, fit); tight = all[0].what; fits = all.slice(0, 6); rows = all;   /* 518a: capped again -- the tightest row's fit, never over M_CAP */
     }
     /* 515a ABOUT'S LOCAL CAP (SPEC-515 item 2): About's own rows (MOB.arows) at About's S, which is the site's unless they
        cannot hold it -- then their fit (two passes: the second at the capped size, for its optical size) */
@@ -12342,7 +12379,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     aS = Math.min(S, Math.floor(aS * 100) / 100);
     lS = Math.min(S, Math.floor(lS * 100) / 100);
     const r2 = x => Math.round(x * 100) / 100;
-    MOB.fit = r2(fit); MOB.tight = tight; MOB.fits = fits.map(r => ({ what:r.what, s:r2(r.s) }));
+    MOB.fit = r2(fit); MOB.tight = tight; MOB.fits = fits.map(r => ({ what:r.what, s:r2(r.s) })); MOB.capBinds = fit > M_CAP;   /* 518a: for the rigs */
     MOB.all = rows.map(r => ({ what:r.what, s:r2(r.s) }));   /* 515a: every row the solve measured, tightest first (the rigs list them) */
     MOB.afit = r2(afit); MOB.atight = atight; MOB.ltight = ltight;
     const was = MOB.S, wasA = MOB.aS, wasL = MOB.lS; MOB.S = S; MOB.aS = aS; MOB.lS = lS;
@@ -12444,6 +12481,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   mMenu.addEventListener('click', e => {
     if (!MOB.on) return;
     if (e.target.closest('.m-tog')){ e.stopPropagation(); mnuWorks(!mMenu.classList.contains('m-works-on')); return; }
+    if (e.target.closest('.m-lbl')){ e.stopPropagation(); mnuGo(0); return; }   /* 518a (SPEC-518 B): a tap on MENU closes the slide, as the cross does */
     const cb = e.target.closest('.m-list button');
     if (cb){ e.stopPropagation(); const b = document.querySelector('#csPick button[data-key="' + cb.dataset.key + '"]'); mnuGo(0); if (b) b.click(); return; }   /* the desktop picker's own open, view swap included */
     if (e.target.closest('[data-go], [data-view], a[href]')) mnuGo(0);   /* the document router does the rest, as for the desktop menu */
@@ -12453,7 +12491,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      favour of the nearest link (VIMEO, 10px above) -- so a tap on BLOG opened Vimeo. Its own listener keeps the tap on
      it and swallows the activation: a tap on BLOG does nothing, and the slide stays open. */
   mMenu.querySelectorAll('.m-off').forEach(el => el.addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); }));
-  mMenu.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.m-tog')){ e.preventDefault(); e.target.click(); } });
+  mMenu.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.closest('.m-tog, .m-lbl')){ e.preventDefault(); e.target.click(); } });   /* 518a: and on MENU */
   /* the drag: down on the bar opens, up anywhere on the open slide closes; 8px before it counts */
   function mnuDown(e){
     if (!MOB.on || MNU.drag || (e.pointerType === 'mouse' && e.button !== 0)) return;
@@ -12764,6 +12802,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        FADE_W of the turn, the first at FADE0, each next one FADE_STEP
        later, the last never later than FADE_END. */
     const FADE0 = 0.20, FADE_U = 0.55, FADE_STEP = 0.045, FADE_W = 0.08, FADE_END = 0.90;
+    const M_ROW_OUT = 0.9;   /* 518a (SPEC-518 C2): an upright phone's bottom row is out at .9 of FADE0 -- before the first new card */
     /* PAINT ORDER: ONE RULE, the whole way. A card's order is its slot
        counted from the bottom of the frame -- the lower card is in front,
        always, from the first degree of the turn to the last slab of the
@@ -13706,7 +13745,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* the caption and the logo rail belong to a hero card; a wall has none */
       const fade = (1 - e).toFixed(3);
       const h4c = document.getElementById('h4c');
-      if (h4c) h4c.style.opacity = fade;
+      /* 518a (SPEC-518 C2): on an upright phone the bottom row (the case title and its two lines -- and the paragraph, the same
+         #h4c) is GONE before the first new card comes in: out by M_ROW_OUT of FADE0 on the same eased turn, instead of over
+         the whole turn (it still showed over the new cards at half the turn) */
+      if (h4c) h4c.style.opacity = MOB.on && !MOB.land ? Math.max(0, 1 - e / (M_ROW_OUT * FADE0)).toFixed(3) : fade;
       nv.style.opacity = fade;
     }
     function restore8(){
@@ -13747,17 +13789,30 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        way (a first pixel of jitter never picks the direction), or as a step's lock lifts. Only while MOB is on; the
        wheel and the keys keep their own direction. */
     const VS_TOUCH_STEP = 10;
-    const vsT = { on:false, deck:false, acc:0, done:false };
+    const vsT = { on:false, deck:false, acc:0, done:false, pend:false };   /* 518a: pend -- a step held for the eased return */
     addEventListener('touchstart', e => {
       const t = e.touches[0]; if (!t || e.touches.length > 1) return;   /* a second finger keeps the first one's route */
-      vsT.on = MOB.on; vsT.acc = 0; vsT.done = false;
-      vsT.deck = vsT.on && v8() && !introOn && (page <= 0 || (rot > 0 && rot < 0.02 && pageT8 < 0.02)) && overDeck(t.clientX, t.clientY);
+      vsT.on = MOB.on; vsT.acc = 0; vsT.done = false; vsT.pend = false;
+      const home5 = MOB.on && !MOB.land && !auto && pageTo === null && page <= M_HOME5 && pageT8 < J1();   /* 518a (SPEC-518 C3): the journey AS SEEN at most 5% along still reads as the start view -- unless its target is already past the commit (J1: a swipe on its way to the showreel) */
+      vsT.deck = vsT.on && v8() && !introOn && (page <= 0 || home5 || (rot > 0 && rot < 0.02 && pageT8 < 0.02)) && overDeck(t.clientX, t.clientY);
+      if (vsT.deck && home5 && page > 0) home8Go();   /* 518a: the way back starts with the touch, not with its first move */
     }, { passive:true });
     ['touchend', 'touchcancel'].forEach(n => addEventListener(n, e => { if (!e.touches.length) vsT.on = false; }, { passive:true }));
+    /* 518a (SPEC-518 C3): the eased way back (home8, run by frame()). The Hermite keeps the page's speed where it has one --
+       heading home, up to what stays monotone (3 p0); still heading out, up to p0 (a crest of 5% of the way at most) -- so the
+       turn never stops dead; its clock is M_HOME5_MS for the whole 5%, shorter for less (never under 120ms). The journey
+       stands down while it runs. */
+    function home8Go(){
+      if (!home8 && page > 0){ const p0 = page, T = Math.max(120, M_HOME5_MS * Math.sqrt(Math.min(1, p0 / M_HOME5)));
+        home8 = { t0:0, p0, T, m0: Math.min(p0, Math.max(-3 * p0, pv8 * T / 1000)) }; }
+      pageT8 = 0; pv8 = 0; auto = false; auto8 = null; pageTo = null; restLeft = 0; upRun8 = 0; homeDwellT = 0;
+    }
     function vsTouchStep(d){   /* d as the wheel's: positive = the finger travelling UP */
       vsT.acc += d;
-      if (vsT.done || lock || Math.abs(vsT.acc) < VS_TOUCH_STEP) return;
-      vsT.done = true; lock = true;
+      if (vsT.done || Math.abs(vsT.acc) < VS_TOUCH_STEP) return;
+      if (home8 || rot > 0 || posed){ vsT.pend = true; return; }   /* 518a: the way back first -- while the deck is turned pose8 rewrites every card; pageSync fires it once restore8 has run */
+      if (lock) return;
+      vsT.done = true; vsT.pend = false; lock = true;
       k -= Math.sign(vsT.acc); place();
       setTimeout(() => { lock = false; }, dur() + 120);
     }
@@ -13777,12 +13832,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (introOn) return;   /* 434: the intro owns the deck */
       const vsTo = vsT.on && MOB.on;   /* 514b: a phone's finger -- routed where it started */
       if (vsTo ? vsT.deck : (page <= 0 || (rot > 0 && rot < 0.02 && pageT8 < 0.02)) && overDeck(x, y)){   /* 476: a deck that LOOKS at rest IS the belt -- and the gesture heals whatever the journey left behind */
-        if (page !== 0 || pageT8 !== 0){ page = 0; pageT8 = 0; pv8 = 0; auto = false; auto8 = null; pageTo = null; restLeft = 0; upRun8 = 0; homeDwellT = 0; }
+        if (vsTo && !MOB.land && page > 0) home8Go();   /* 518a (SPEC-518 C3): an upright phone EASES home, never snaps; the step waits for it */
+        else if (page !== 0 || pageT8 !== 0){ page = 0; pageT8 = 0; pv8 = 0; auto = false; auto8 = null; pageTo = null; restLeft = 0; upRun8 = 0; homeDwellT = 0; }
         if (vsTo) vsTouchStep(d); else wheel(d); return;
       }
       if (page <= 0 && d < 0) return;
       if (auto) return;                        // the run owns the journey while it lasts
       pageTo = null;                           // scrolling takes the wheel back from Escape / the menu
+      home8 = null;                            // 518a: and from the eased way back -- the spring picks up where it is
       /* THE WHOLE PAGE IS THE TARGET'S: the journey to the showreel, the
          hold there, and on to contact, one spring end to end. The hold is
          by distance, downward only, taken at the showreel before the
@@ -13795,12 +13852,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* the unit is the journey's below the showreel and a window beyond
          it; a delta that crosses the showreel is split at it */
       let rem = d;
+      const u8 = unit8() / (vsTo ? mSens('landing') : 1);   /* 518a (SPEC-518 C1): a finger on an upright phone travels 1 / M_SENS.landing as far per page of the journey */
       if (pageT8 < 1 && rem > 0){
-        const take = Math.min(rem, (1 - pageT8) * unit8()); pageT8 += take / unit8(); rem -= take;
+        const take = Math.min(rem, (1 - pageT8) * u8); pageT8 += take / u8; rem -= take;
       } else if (pageT8 > 1 && rem < 0){
         const take = Math.max(rem, (1 - pageT8) * innerHeight); pageT8 += take / innerHeight; rem -= take;
       }
-      if (rem) pageT8 += rem / (pageT8 >= 1 ? innerHeight : unit8());
+      if (rem) pageT8 += rem / (pageT8 >= 1 ? innerHeight : u8);
       pageT8 = Math.min(2, Math.max(0, pageT8));
       /* HOME, all the way: an upward MOVE that would leave the deck within its last six percent is committed to home -- the spring finishes at its own pace. A move is HOME_MOVE8 of upward wheel in a run; a reversed pixel in a downward gesture is not one. */
       upRun8 = d < 0 ? upRun8 - d : 0;
@@ -13854,6 +13912,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          by spring or by step -- never takes the lift. */
       const vsMv = lock || auto || !!auto8 || pageTo !== null || Math.abs(page - pageT8) >= 3e-3 || Math.abs(pv8) >= 3e-2;   /* 486: `lock` is the DECK STEP's own in-flight flag -- the rest-over-deck gesture never moves the spring */
       if (vsMv !== vsMoveCl){ vsMoveCl = vsMv; document.body.classList.toggle('vs-move', vsMv); }
+      const pend = vsT.pend && rot === 0 && !posed;   /* 518a (SPEC-518 C3): a deck step held for the eased return -- read BEFORE this frame's restore8, so it fires the frame after it */
       if (rot > 0){
         posed = true;
         pose8();
@@ -13863,6 +13922,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         pose8();                               /* 457b: ONE last frame at rot 0 -- a snap home can jump the fade window, and the LAST written frame is what the spares keep; at zero the law itself parks every spare transparent (the occasional case-6 spare left lit at the back) */
         restore8();                            // V7's own poses back, once, on the way home
       }
+      if (pend){ vsT.pend = false; vsTouchStep(0); }
       videoPolicy();
       /* THE COMMIT. The run starts when the page crosses J1 going DOWN --
          moving down, from below -- or, already past it, on a DELIBERATE
