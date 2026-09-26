@@ -11047,6 +11047,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const A4M_CONTACT = { email:'Email', base:'UK & Worldwide', year:'2026' };
     const A4M_BGC = ['BSc / Film and Media / Specialist', 'Master (Joint) / Film and TV / Sociology'];
     const A4M_LG4 = { 'METUlogo.png':[13,24,421,412,48], 'UoGlogo.png':[68,11,317,409,48], 'cMBAlogo.png':[6,7,317,149,26] };   /* build()'s school-mark ink boxes: x, y, w, h, the desktop ink height */
+    /* 517a: THE SCHOOLS' ROW AS HE DREW IT (typo512/about516/4-background.jpg, a 392px view at 3x). His answers: the captions are
+       BODY(CAPS) -- the class, never a size of their own -- and "don't worry about school logos being legible just make the
+       design I have created". So the TYPE holds, and the rest of the row -- the marks, each mark's gap to its caption, the air
+       between the groups -- is his drawing scaled as ONE into what the captions leave between the margins. Measured off the
+       mockup in a mark's height h (METU's and Glasgow's ink, 94 / 95px there): each mark's gap to its caption .16 h (13 / 18px),
+       the air between the groups .70 h (72 / 60px), cMBA's mark 1.12 h (106px); at most as tall as he drew them against their
+       captions, 1.06 of the captions' cap top to last baseline (94.5 / 89px). The least (About's guard, MOB.arows): marks as tall
+       as the captions' capitals */
+    const A4M_SCH = { gap:.16, air:.70, k:{ 'cMBAlogo.png':1.12 }, max:1.06 };
     const m4Clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
     const m4OnPhone = () => MOB.on && !MOB.land;
     const m4Q = s => view.querySelector(s);
@@ -11054,7 +11063,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        site's S, the fit of these rows), written as --m-sub-a, from which About's view and its nav re-derive every phone token
        (M512:BASE). 516a: the rows as his mockups draw them -- on a PORTRAIT phone every line alone (SUBTITLE, or BODY(CAPS));
        INTRO's bottom row and CONTACT's three rows pair-wise with a title's air (M_GAP); the title rows with the least hairline
-       (M_RULE); the schools' row with its marks at their least (A4M_GH_MIN of the captions); INTRO's statement and the
+       (M_RULE); the schools' row with its marks at their least (517a: A4M_SCH, his drawing at the captions' capitals -- a
+       guard: the captions are BODY(CAPS) and the marks take what they leave); INTRO's statement and the
        paragraphs wrap (not rows). ON A LANDSCAPE PHONE About keeps the desktop journey under the phone header, and its nav is
        the tight row: the five words in one row with the travellers' gaps and BACKGROUND's hold (navMeasure / navDrive: 30 and
        90, drawn round 21px words). */
@@ -11077,8 +11087,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         .forEach(t => { if (t) add(t, W(t)); });
       view.querySelectorAll('#a4Unit3 .a4-mids, .a4-bgk').forEach(e => m4Lines(e).forEach(t => add(t, W(t))));
       ['.a4-mids.ml', '.a4-mids.mc', '.a4-mids.mr', '.a4-p2l', '.a4-p2c'].forEach(c => m4Lines(m4Q('#a4Unit ' + c)).forEach(t => add(t, W(t, 1))));
-      const cw = A4M_BGC.map(c => Math.max(0, ...c.split(' / ').map(t => W(t, 1)))), ar = Object.keys(A4M_LG4).reduce((a, k) => a + A4M_LG4[k][2] / A4M_LG4[k][3], 0);
-      add('schools row', cw[0] + cw[1] + (2 * .6 + 2) * S / 2 + A4M_GH_MIN * ar * (.7 + 2 * 1.13) * S / 2);   /* the captions, their air, the least marks */
+      const cw = A4M_BGC.map(c => Math.max(0, ...c.split(' / ').map(t => W(t, 1)))), lg = Object.keys(A4M_LG4);
+      const su = lg.reduce((a, k) => a + A4M_LG4[k][2] / A4M_LG4[k][3] * (A4M_SCH.k[k] || 1), 0) + A4M_SCH.gap * A4M_BGC.length + A4M_SCH.air * (lg.length - 1);
+      add('schools row', cw[0] + cw[1] + su * a4Cap(700) * S / 2);   /* 517a: the captions at BODY, his drawing (A4M_SCH) at its least -- marks as tall as the captions' capitals */
       nav.forEach((t, i) => add(String(i + 1).padStart(2, '0') + ' ' + t, W(String(i + 1).padStart(2, '0')) + M_RULE * S + W(t)));
       const lk = t => ((m4Foot(t) || {}).textContent || t).trim();
       [[lk('instagram'), lk('linkedin')], [A4M_CONTACT.email, lk('vimeo')], [A4M_CONTACT.base, A4M_CONTACT.year]].forEach(([a, b]) => add(a + ' | ' + b, W(a) + M_GAP * S + W(b)));
@@ -11423,28 +11434,31 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const bgp = [...pin.querySelectorAll('.a4-bgp')];
       bgp.forEach(p => { last = m4Put(p, 'L', M, y, { ref:p.querySelector('p'), fc:mLineStarts(p.querySelector('p')) }); y = last.b1 + pN + (pN - cB * N); });   /* 516c: by its leftmost line's ink */
       /* THE SCHOOLS, one row (his mockup): each mark beside its caption (three BODY(CAPS) lines), cMBA alone; the first mark's
-         ink on the left margin, cMBA's on the right, the middle pair centred between; the marks as tall as a caption, or as
-         tall as the row leaves them (never under A4M_GH_MIN of it) -- the type holds its size */
-      const yy = last.b1 + CP, LH = cB * B + 2 * pB, g1 = .6 * B, sMin = B;
+         ink on the left margin, cMBA's on the right, the middle group between at the same air; the marks centred on their
+         captions. 517a: the captions are BODY(CAPS) and hold; the marks, their gaps and the air are HIS DRAWING (A4M_SCH) scaled
+         as ONE into what the captions leave -- h, a mark's height, from the width; never taller than he drew them (then the air
+         takes the rest), never under the captions' capitals (About's guard keeps the row from needing that) */
+      const yy = last.b1 + CP, LH = cB * B + 2 * pB, Z = A4M_SCH;
       const bgc = [...pin.querySelectorAll('.a4-bgc')].map(c => { const im = c.querySelector('.bglg'), k = A4M_LG4[im && im.dataset.lg] || [0, 0, 1, 1, 48];
-        return { c, lg:c.querySelector('.lg'), t:c.querySelector('.t'), k, a:k[2] / k[3] }; });
+        return { c, lg:c.querySelector('.lg'), t:c.querySelector('.t'), k, a:k[2] / k[3], z:Z.k[im && im.dataset.lg] || 1 }; });
       bgc.forEach(o => { m4St(o.c, 'left', '0px'); m4St(o.c, 'top', '0px'); o.tw = 0;
-        if (o.t){ const p = m4Put(o.t, 'L', 0, yy); o.tw = p.r - p.l; } });
-      const tw = bgc.reduce((a, o) => a + o.tw + (o.t ? g1 : 0), 0), ar = bgc.reduce((a, o) => a + o.a, 0);
-      const h = Math.max(A4M_GH_MIN * LH, Math.min(LH, (W - tw - 2 * sMin) / ar));
-      const gw = bgc.map(o => o.a * h + (o.t ? g1 + o.tw : 0)), spread = (W - gw.reduce((a, b) => a + b, 0)) / Math.max(1, bgc.length - 1);
+        if (o.t){ o.fc = mLineStarts(o.t); const p = m4Put(o.t, 'L', 0, yy, { fc:o.fc }); o.tw = p.r - p.l; } });   /* 517a: by its leftmost line's ink */
+      const nG = bgc.length, tw = bgc.reduce((a, o) => a + o.tw, 0);
+      const su = bgc.reduce((a, o) => a + o.a * o.z + (o.t ? Z.gap : 0), 0) + Z.air * Math.max(0, nG - 1);   /* his row, in h */
+      const h = Math.max(cB * B, Math.min(Z.max * LH, (W - tw) / su)), hx = Math.max(...bgc.map(o => o.z * h));
+      const gw = bgc.map(o => o.a * o.z * h + (o.t ? Z.gap * h + o.tw : 0)), air = (W - gw.reduce((a, b) => a + b, 0)) / Math.max(1, nG - 1);
       let x = M;
       bgc.forEach((o, i) => {
-        const s = o.k[4] / o.k[3], f = h / o.k[4];
-        m4St(o.lg, '--a4m-mk', f.toFixed(5)); m4St(o.lg, 'left', (x - o.k[0] * s * f).toFixed(2) + 'px'); m4St(o.lg, 'top', (yy + (LH - h) / 2).toFixed(2) + 'px');
-        if (o.t) m4Put(o.t, 'L', x + o.a * h + g1, yy);
-        x += gw[i] + spread;
+        const hi = o.z * h, s = o.k[4] / o.k[3], f = hi / o.k[4];
+        m4St(o.lg, '--a4m-mk', f.toFixed(5)); m4St(o.lg, 'left', (x - o.k[0] * s * f).toFixed(2) + 'px'); m4St(o.lg, 'top', (yy + (LH - hi) / 2).toFixed(2) + 'px');
+        if (o.t) m4Put(o.t, 'L', x + o.a * hi + Z.gap * h, yy, { fc:o.fc });
+        x += gw[i] + air;
       });
       const rw = q('.a4-rw4'), ws = [...rw.querySelectorAll('.w')];
       const t1 = m4Put(rw, 'R', vw - M, 0, { lc:['Y'] }), t2 = m4Put(ws[ws.length - 1], 'R', vw - M, t1.cap + g);
       const mid = [...bgp, ...bgc.map(o => o.lg), ...bgc.map(o => o.t)];
       return { top:{ els:['k1', 'k2', 'k3'].map(c => q('.a4-bgk.' + c)), h: kk[2].b0 - kk[0].cap },
-               mid:{ els:mid, h: yy + LH }, bot:{ els:[rw], h: t2.b0 - t1.cap } };
+               mid:{ els:mid, h: yy + (LH + Math.max(LH, hx)) / 2 }, bot:{ els:[rw], h: t2.b0 - t1.cap } };
     }
     /* 513b THE TITLE ROWS: each slide's own, 0n  NAME -- the number's left ink on the left margin, the name's right ink on
        the right margin; each rides its slide. 514d (his notes): the cap top ONE margin under the slide's top (M in its pin --
