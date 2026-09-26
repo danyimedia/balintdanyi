@@ -3946,6 +3946,7 @@
   html.mob .hdr .masthead.flat{ display:none; }
   html.mob .hdr-name{ font-size:var(--m-sub); margin:0 calc(1.32 * var(--m-sub)) 0 0; }
   html.mob .hdr-name{ transition:opacity 160ms ease, color .5s ease; }   /* 513a: a new S lands at once (S moves on a turn now): no font-size transition -- a phone has no hover expansion, and every layout that reads the bar measured it mid-way */
+  html.mob .hdr-name{ position:relative; top:var(--m-hdy, 0px); }   /* 516c: B's cap top ON the top margin, measured (hdrSolve): Chrome rounds the half-leading, so at some sizes the leading-.78 seat stood up to a pixel low */
   /* the icon: three bars, cap-tall, turning into the close cross as the slide opens (--m-p, the slide's
      progress, written on .hdr by the menu engine). The button's box IS the icon -- its right edge on the right
      margin, its top on B's cap top, cap-tall; a 12px invisible pad round it (::after) takes the thumb */
@@ -4074,6 +4075,16 @@
      form's auto margin turns it into lift, and past that it is scroll room. */
   html.mob .c2-line span{ transform:none !important; }
   html.mob .contact .variant.on{ padding-bottom:var(--m-kb, 0px); }
+  /* 516c (SPEC-516 sec. 5): GET IN TOUCH's cap top one margin under the bar's baseline, as every page's first row; SEND's
+     baseline on the bottom margin, the page's bottom row. JS measures both (c2Seat: --m-c2-dy, --m-c2-foot); an open message
+     keeps the desktop's air (the :has() rule above outranks this one) */
+  html.mob body.site3 .contact{ --c2-top:calc(var(--hdr-h, 140px) + 24px + var(--m-c2-dy, 0px)); }
+  html.mob .c2-form{ margin-bottom:var(--m-c2-foot, var(--c2-air)); }
+  /* 516c: one margin under the bar's baseline GET IN TOUCH stood UNDER the bar's glass (.hdr::before bleeds 10px past the bar's
+     foot): at 400 - 430 its caps' top pixel was frosted and cut (the pixels read 25.00), at 360 a third of one. While the page is at
+     the header (ct-lid, no view open) the glass ends a pixel short of the title's cap top -- two margins and the bar's cap, less
+     1px -- as the case page's glass ends at its stuck title (M512:CASE). An upright phone; a landscape phone keeps its 512e glass */
+  html.mob.m-rot:not(.m-live) body.site3.ct-lid:not(.caseopen):not(.aboutopen):not(.blogopen) .hdr::before{ bottom:auto; height:calc(2 * var(--pad) + .7 * var(--m-sub) - 1px); }
 
   /* M512:CASE */
   /* THE CASE AND POST PAGES ON A PHONE (SPEC-512 sec. G; a post is the same page). The engine's rules stand;
@@ -4108,7 +4119,7 @@
      ink's middle is the page's) -- and gone the moment the page moves: JS writes --c3-hint-op 1 or 0, this
      transition is the fade. */
   html.mob #viewCase3 .c3-hint{
-    position:fixed; left:var(--pad); right:calc(var(--pad) - var(--track-s)); top:auto; bottom:calc(var(--pad) - var(--ink-b));
+    position:fixed; left:var(--pad); right:calc(var(--pad) - var(--track-s)); top:auto; bottom:calc(var(--pad) - var(--ink-b) - var(--m-hint-dy, 0px));   /* 516c: + the measured rest (mCaseSeat) */
     transform:none; white-space:nowrap; text-align:center; text-align-last:center; transition:opacity .3s ease;
   }
   /* THE INTRO: one column (MY ROLE, SUMMARY, CREDITS; a post's lede first), its top on the title's baseline
@@ -4143,7 +4154,13 @@
   html.mob #viewCase3 .c3-details.c3-stack .cell.text, html.mob #viewCase3 .c3-details.c3-stack .cell.stat, html.mob #viewCase3 .c3-details.c3-stack .cell.quote{
     width:100%; max-width:none; height:auto; min-height:0;
   }
-  html.mob #viewCase3 .c3-details.c3-stack .cell.media{ width:100%; height:auto; aspect-ratio:1 / 1; margin-top:calc(var(--c3-cap-gap) + .7 * var(--t-nocaps)); }
+  html.mob #viewCase3 .c3-details.c3-stack .cell.media{ width:100%; height:auto; aspect-ratio:1 / 1; margin-top:calc(var(--c3-cap-gap) + .7 * var(--t-nocaps) + var(--m-cap-x, 0px)); }
+  /* 516c: a caption whose two parts do not fit one row (a long right part at the phone's NOCAPS ran up to 22px past the right
+     margin) wraps its RIGHT part onto right-aligned rows on an upright phone (its pictures run margin to margin; a landscape
+     phone's narrower pictures keep their one row); the picture comes down by the rows it added (--m-cap-x, mCaseSeat) */
+  html.mob.m-rot #viewCase3 .cell .c3-cap{ white-space:normal; }
+  html.mob.m-rot #viewCase3 .cell .c3-cap .cl{ flex:0 0 auto; white-space:nowrap; }
+  html.mob.m-rot #viewCase3 .cell .c3-cap .cr{ flex:0 1 auto; min-width:0; text-align:right; }
   html.mob #viewCase3 .c3-details.c3-stack .cell.media.natural{ aspect-ratio:auto; }
   html.mob #viewCase3 .cell.media.natural .pic{ width:100%; height:auto; }
   html.mob #viewCase3 .cell.media.natural .pic video, html.mob #viewCase3 .cell.media.natural .pic img{ width:100%; height:auto; aspect-ratio:auto 16 / 9; }
@@ -4954,6 +4971,146 @@
   try { const mq = window.matchMedia && matchMedia(MOB_LQ); if (mq && mq.addEventListener) mq.addEventListener('change', mobEval); } catch (x) {}   /* 512e: the landscape query's own change */
   mobEval();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (MOB.solve) MOB.solve(true); });   /* first in line: S lands before any engine's own fonts pass reads it */
+  /* ==== 516c THE PHONE'S INK, SUB-PIXEL (SPEC-516 sec. 5: "a margin alignment is sorely required for this mobile version") ====
+     Every margin word on a phone is seated by its INK, as the desktop's is (507). The desktop's probes read a glyph's left
+     edge in WHOLE pixels (inkPx's raster; the case engine's canvas metric, which Chrome rounds) or at 1000px (mSeatX, ldInk),
+     where the variable face's optical size is not the phone's SUBTITLE's -- a DPR-3 pixel audit of every phone view found
+     the margin type 0.3 - 1.6px inside or past its margins. mGlyph draws the glyph at its RENDERED size (so its optical size
+     is the page's) under an 8x canvas transform and reads its first and last inked columns and its top row WITH their
+     coverage: bearings to about .05px (the audit's pixels agree to .05 on average). It is asked only while MOB.on: inkPx,
+     the case engine's bear() and mSeatX answer from it on a phone; the desktop's answers are untouched.
+     { l, r }: the ink's left and right edges from the pen (px, + rightwards); w the advance; a the ink's height over the
+     baseline (the side words' cap edge). Memoised per face, size and glyph -- once the web font has landed. */
+  const M_GLY_K = 8;
+  const mGly = {};
+  let mGlyCv = null, mGlyCx = null;
+  function mGlyphF(font, ch, px){
+    const key = font + '|' + ch;
+    if (key in mGly) return mGly[key];
+    let v = null;
+    try {
+      const K = M_GLY_K, pad = Math.ceil(px * .5) + 2, w = Math.ceil((px * 1.6 + 2 * pad) * K), h = Math.ceil((px * 1.8 + 2 * pad) * K);
+      if (!mGlyCv) mGlyCv = document.createElement('canvas');
+      if (mGlyCv.width < w || mGlyCv.height < h){ mGlyCv.width = Math.max(mGlyCv.width, w); mGlyCv.height = Math.max(mGlyCv.height, h); mGlyCx = null; }
+      const x = mGlyCx || (mGlyCx = mGlyCv.getContext('2d', { willReadFrequently: true }));
+      if (x){
+        const y0 = pad + px * 1.2;   /* the baseline, an ascender's room over it */
+        x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, w, h); x.setTransform(K, 0, 0, K, 0, 0);
+        x.font = font; x.textBaseline = 'alphabetic'; x.fillStyle = '#000'; x.fillText(ch, pad, y0);
+        const adv = x.measureText(ch).width, d = x.getImageData(0, 0, w, h).data, col = new Float32Array(w), row = new Float32Array(h);
+        /* the side edges from the ink ON and OVER the baseline: a descender's tail (j, y, g) hangs past the line's edge by design
+           and is not what the eye sets on the margin */
+        const yb = Math.ceil(y0 * K) + 1;
+        for (let yy = 0; yy < h; yy++) for (let xx = 0; xx < w; xx++){ const a = d[(yy * w + xx) * 4 + 3] / 255; if (yy <= yb && a > col[xx]) col[xx] = a; if (a > row[yy]) row[yy] = a; }
+        let l = -1, r = -1, t = -1;
+        for (let i = 0; i < w; i++) if (col[i] > .02){ l = i; break; }
+        for (let i = w - 1; i >= 0; i--) if (col[i] > .02){ r = i; break; }
+        for (let i = 0; i < h; i++) if (row[i] > .02){ t = i; break; }
+        if (l >= 0) v = { l: (l + 1 - col[l]) / K - pad, r: (r + col[r]) / K - pad, w: adv, a: y0 - (t + 1 - row[t]) / K };
+      }
+    } catch (e) { v = null; }
+    if (!document.fonts || document.fonts.status === 'loaded') mGly[key] = v;   /* kept once the face has landed: before it, the canvas draws the fallback under the same name */
+    return v;
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { for (const k in mGly) delete mGly[k]; });
+  /* an element whose optical size is PINNED ('opsz' in its font-variation-settings: the start slide's title and its two rows,
+     drawn large and scaled) is drawn with the shapes of that size: the glyph is read at it and scaled to the element's size
+     (at one optical size an outline scales linearly) */
+  const mGlyph = (cs, ch, px) => { const o = /opsz["']?\s+(-?[\d.]+)/.exec(cs.fontVariationSettings || ''), n = o ? Math.min(40, Math.max(9, +o[1])) : 0;
+    if (!n || Math.abs(n - px) < .005) return mGlyphF(cs.fontStyle + ' ' + cs.fontWeight + ' ' + px + 'px ' + cs.fontFamily, ch, px);
+    const g = mGlyphF(cs.fontStyle + ' ' + cs.fontWeight + ' ' + n + 'px ' + cs.fontFamily, ch, n), k = px / n;
+    return g ? { l: g.l * k, r: g.r * k, w: g.w * k, a: g.a * k } : null; };
+  /* inkPx's answer on a phone: { l, r } as inkPx gives them -- l the left bearing, r the room from the ink's right edge to the
+     advance's end, the letter-space after it included unless noTrack */
+  function mInkPx(el, ch, noTrack){
+    try {
+      const cs = getComputedStyle(el), px = parseFloat(cs.fontSize) || 16;
+      const g = mGlyph(cs, cs.textTransform === 'uppercase' ? ch.toUpperCase() : ch, px); if (!g) return null;
+      const ls = noTrack ? 0 : ((cs.letterSpacing === 'normal' ? 0 : parseFloat(cs.letterSpacing)) || 0);
+      return { l: g.l, r: g.w - g.r + ls };
+    } catch (e) { return null; }
+  }
+  /* mSeatInk(el, 'L' | 'R'): el's INK onto el's own margin-box edge -- mSeatX's way (512d), through any markup (a word per
+     span): each line's edge glyph, its live box (Range) and its bearing (mGlyph), give the ink's offset from el's own box, so a
+     transform on el or above it cancels out; that offset, taken back as el's margin, puts the ink where the box stood. The
+     EXTREME line's ink is the one seated (seatRowsRight's rule, both sides): the leftmost line of a paragraph -- no line's
+     first letter hangs past the margin -- and the widest line of a right-aligned text (a wrapped caption's short last line
+     would throw its first past it). mSeatJust(el): a JUSTIFIED paragraph's right edge -- its widest full line's ink on the margin (seatRowsRight's rule).
+     Phone only; the first inline value each one overwrote comes back off a phone (mInkOff, a MOB hook). */
+  const mInkWr = new Set();
+  function mInkPut(el, prop, v){
+    if (!el._mInk0) el._mInk0 = {};
+    if (!(prop in el._mInk0)) el._mInk0[prop] = el.style[prop];
+    mInkWr.add(el);
+    if (el.style[prop] !== v) el.style[prop] = v;
+  }
+  function mInkOff(){
+    mInkWr.forEach(el => { const o = el._mInk0 || {}; Object.keys(o).forEach(p => { el.style[p] = o[p]; }); el._mInk0 = null; });
+    mInkWr.clear();
+  }
+  MOB.hooks.push(() => { if (!MOB.on) mInkOff(); });
+  function mInkGlyphs(el, side){   /* every word's first (L) or last (R) glyph: a wrapped line begins and ends on one */
+    const out = [], tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n;
+    while ((n = tw.nextNode())){
+      const tx = n.nodeValue; if (!tx || !tx.trim()) continue;
+      const p = n.parentElement; if (!p || !p.getClientRects().length) continue;
+      const cs = getComputedStyle(p), px = parseFloat(cs.fontSize) || 0; if (!px) continue;
+      const at = [];
+      if (side === 'L'){ for (let i = 0; i < tx.length; i++) if (!/\s/.test(tx[i]) && (i === 0 || /\s/.test(tx[i - 1]))) at.push(i); }
+      else for (let i = 0; i < tx.length; i++) if (!/\s/.test(tx[i]) && (i === tx.length - 1 || /\s/.test(tx[i + 1]))) at.push(i);
+      at.forEach(i => { const rg = document.createRange(); rg.setStart(n, i); rg.setEnd(n, i + 1);
+        const q = rg.getBoundingClientRect(); if (!(q.width > 0)) return;
+        const g = mGlyph(cs, cs.textTransform === 'uppercase' ? tx[i].toUpperCase() : tx[i], px); if (!g) return;
+        out.push({ q, x: q.left + (side === 'L' ? g.l : g.r) }); });
+    }
+    return out;
+  }
+  function mSeatInk(el, side){
+    if (!MOB.on || !el || !el.getClientRects().length) return;
+    const gs = mInkGlyphs(el, side); if (!gs.length) return;
+    const b = el.getBoundingClientRect(), k = el.offsetWidth > 0 ? b.width / el.offsetWidth : 1;
+    if (side === 'L') mInkPut(el, 'marginLeft', (-(Math.min(...gs.map(g => g.x)) - b.left) / k).toFixed(2) + 'px');   /* the leftmost line's ink */
+    else mInkPut(el, 'marginRight', (-(b.right - Math.max(...gs.map(g => g.x))) / k).toFixed(2) + 'px');   /* the widest line's ink (seatRowsRight's rule) */
+  }
+  /* the first letter of each line of el as it is laid out (About's paragraphs: m4Put's 'L' seat reads them all -- every line
+     of a left-aligned paragraph starts on its box's edge, so the least bearing among them is its leftmost ink) */
+  function mLineStarts(el){
+    const first = new Map(), tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n;
+    while ((n = tw.nextNode())){
+      const tx = n.nodeValue; if (!tx || !tx.trim()) continue;
+      for (let i = 0; i < tx.length; i++){
+        if (/\s/.test(tx[i]) || (i > 0 && !/\s/.test(tx[i - 1]))) continue;
+        const rg = document.createRange(); rg.setStart(n, i); rg.setEnd(n, i + 1);
+        const q = rg.getBoundingClientRect(); if (!(q.width > 0)) continue;
+        const key = Math.round(q.top), o = first.get(key);
+        if (!o || q.left < o.x) first.set(key, { x: q.left, ch: tx[i] });
+      }
+    }
+    return [...first.values()].map(o => o.ch);
+  }
+  function mSeatJust(el){
+    if (!MOB.on || !el || !el.getClientRects().length) return;
+    const lines = new Map();
+    /* a word per text node or one node for the whole: the line ends are the glyphs ending a line -- here, by each line's
+       rightmost glyph end (a word's last letter) */
+    const tw = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n;
+    while ((n = tw.nextNode())){
+      const tx = n.nodeValue; if (!tx || !tx.trim()) continue;
+      const p = n.parentElement, cs = getComputedStyle(p), px = parseFloat(cs.fontSize) || 0; if (!px) continue;
+      for (let i = 0; i < tx.length; i++){
+        if (/\s/.test(tx[i]) || (i < tx.length - 1 && !/\s/.test(tx[i + 1]))) continue;
+        const rg = document.createRange(); rg.setStart(n, i); rg.setEnd(n, i + 1);
+        const q = rg.getBoundingClientRect(); if (!(q.width > 0)) continue;
+        const g = mGlyph(cs, cs.textTransform === 'uppercase' ? tx[i].toUpperCase() : tx[i], px); if (!g) continue;
+        const key = Math.round(q.top), x = q.left + g.r;
+        if (!lines.has(key) || x > lines.get(key)) lines.set(key, x);
+      }
+    }
+    const tops = [...lines.keys()].sort((a, c) => a - c); if (tops.length < 2) return;
+    /* a justified line ends its ink 'gap' short of the box, whatever the width: the box reaches past the margin by it */
+    const b = el.getBoundingClientRect(), gap = Math.min(...tops.slice(0, -1).map(t => b.right - lines.get(t)));   /* the last line is not justified */
+    mInkPut(el, 'marginRight', (-gap).toFixed(2) + 'px');
+  }
   /* ---- deck contents. The six case loops, one per case, and nothing else.
      Paths are relative to the HTML and must match the files EXACTLY, including
      capitals -- a mismatch shows as a labelled card rather than failing
@@ -5389,6 +5546,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     let fit = Infinity;
     try {
       const ws = [...c2Title.children], cs = getComputedStyle(c2Title), F = parseFloat(cs.fontSize);
+      const kx = MOB.on ? (mTfK(c2Title, 'x') || 1) : 1;   /* 516c: a phone reads the words in the title's own frame (under an open view the landing page recedes to .8: the fit came out 1.25x) */
       const ls = parseFloat(cs.letterSpacing) || 0, wsp = parseFloat(cs.wordSpacing) || 0;
       const cx = c2Large.cx || (c2Large.cx = document.createElement('canvas').getContext('2d'));
       cx.font = cs.fontWeight + ' ' + F + 'px ' + cs.fontFamily;
@@ -5397,7 +5555,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const t = (w.textContent || '').trim().toUpperCase(); if (!t) return;
         const a = cx.measureText(t[0]), z = cx.measureText(t[t.length - 1]);
         /* the box less the tracking after the last glyph and both outer bearings */
-        ink += w.getBoundingClientRect().width - ls + a.actualBoundingBoxLeft - (z.width - z.actualBoundingBoxRight);
+        /* 516c: a phone's bearings sub-pixel (mGlyph): the canvas box rounds them to whole pixels, so the fit read at one size and
+           then at the size it gave came out .6% apart -- solved again as the page opens, the title would have changed size */
+        const ga = MOB.on ? mGlyph(cs, t[0], F) : null, gz = MOB.on ? mGlyph(cs, t[t.length - 1], F) : null;
+        ink += w.getBoundingClientRect().width / kx - ls + (ga && gz ? -ga.l - (gz.w - gz.r) : a.actualBoundingBoxLeft - (z.width - z.actualBoundingBoxRight));
       });
       const em = (ink + (cx.measureText(' ').width + ls + wsp) * Math.max(0, ws.length - 1)) / F;
       if (F > 0 && em > 0 && isFinite(em)) fit = (innerWidth - 2 * PAD) / em;
@@ -5843,6 +6004,62 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!c2Kb.raf) c2Kb.raf = requestAnimationFrame(c2Clear);
     c2Kb.t = [380, 700].map(ms => setTimeout(() => { c2Kb.n = 0; if (!c2Kb.raf) c2Kb.raf = requestAnimationFrame(c2Clear); }, ms));
   }
+  /* 516c THE CONTACT PAGE'S TOP AND FOOT ON A PHONE (SPEC-516 sec. 5): GET IN TOUCH's cap top one margin under the bar's baseline
+     (every page's first row stands there: the case's PREV / NEXT, About's title rows), SEND's baseline on the bottom margin (the
+     page's bottom row). Measured against the column (it fills the window when it shows), every passing translation taken out
+     (the head's parallax, the rows' entrance): a zero-size inline-block on each baseline, the cap from mGlyph; the corrections are M512:CONTACT's --m-c2-dy / --m-c2-foot. Held while a message is open or
+     the keyboard is up (the desktop's air and c2Clear rule there), and the foot when the column scrolls. */
+  /* 516c: an element's scale on screen along one axis ('x': m11, else m22) -- the product of its own transform's and every
+     ancestor's (the landing page recedes to .8 under an open view); 0 when any of them rotates or skews (nothing is read there) */
+  function mTfK(el, ax){
+    let k = 1;
+    for (let a = el; a && a.nodeType === 1; a = a.parentElement){
+      const t = getComputedStyle(a).transform; if (!t || t === 'none') continue;
+      const m = new DOMMatrixReadOnly(t);
+      if (Math.abs(m.m12) > 1e-6 || Math.abs(m.m21) > 1e-6) return 0;
+      k *= ax === 'x' ? m.m11 : m.m22;
+    }
+    return k;
+  }
+  function c2Seat(){
+    const ct = document.querySelector('.contact'), col = ct && ct.querySelector('.variant.on');
+    if (!ct) return;
+    if (!MOB.on){ ct.style.removeProperty('--m-c2-dy'); ct.style.removeProperty('--m-c2-foot'); return; }
+    if (!col || !col.getClientRects().length || c2Kb.px || col.querySelector('.c2-row.open')) return;
+    /* 516c: the column's OWN frame. Under an open view the landing page recedes (#home: translateY(-30vh) scale(.8)) and the slide
+       waits under the black one: every length is taken back by the scale on and above the column (sc) and the passing
+       translations under it (ty: the head's parallax, the rows' entrance), so a seat taken while the page is hidden (a toolbar,
+       a rotation) is the seat it has at rest (where the column's top is the window's). A rotated or skewed frame is not read. */
+    const sc = mTfK(col); if (!(sc > 0)) return;
+    const base = el => { const q = document.createElement('i'); q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;';
+      el.appendChild(q); const y = q.getBoundingClientRect().bottom; q.remove(); return y; };
+    const ty = el => { let y = 0; for (let a = el; a && a !== col; a = a.parentElement){ const t = getComputedStyle(a).transform; if (t && t !== 'none'){ const m = new DOMMatrixReadOnly(t);
+      if (Math.abs(m.m11 - 1) > 1e-4 || Math.abs(m.m22 - 1) > 1e-4 || Math.abs(m.m12) > 1e-4 || Math.abs(m.m21) > 1e-4) return NaN; y += m.m42; } } return y; };
+    const cr = col.getBoundingClientRect(), t0 = col.querySelector('.c2-title > span'), w1 = document.querySelector('#hdrName .w1'), sd = col.querySelector('.c2-send span');
+    /* AS DRAWN: Chrome puts a line's glyphs on a whole pixel (its baseline rounded -- the bar's 44.22 draws at 44, the title's
+       107.50 at 108) and a cap's height on the device grid. So the bar's baseline is the rounded one, and the title's baseline goes
+       on the whole pixel that brings its drawn cap top one margin under it (the pixel audit read 25.00 at 412 / 430 before) */
+    if (t0 && w1){ const cs = getComputedStyle(t0), g = mGlyph(cs, 'H', parseFloat(cs.fontSize) || 0), dpr = window.devicePixelRatio || 1;
+      const bar = Math.round(base(w1) - document.getElementById('hdr').getBoundingClientRect().top), at = g ? (base(t0) - cr.top) / sc - ty(t0) : NaN;
+      const cur = parseFloat(ct.style.getPropertyValue('--m-c2-dy')) || 0;
+      if (isFinite(at)) ct.style.setProperty('--m-c2-dy', (cur + Math.round(bar + PAD + Math.round(g.a * dpr) / dpr) - at).toFixed(2) + 'px'); }
+    if (sd){
+      /* SEND by its ink, as the form's words are (ldInk's 1000px table left it .5px inside); once the face has landed */
+      if (!document.fonts || document.fonts.status === 'loaded') mSeatInk(sd, 'L');
+      if (col.scrollHeight > col.clientHeight + 1){ ct.style.removeProperty('--m-c2-foot'); return; }
+      const fm = col.querySelector('.c2-form'), mb = parseFloat(getComputedStyle(fm).marginBottom) || 0, y = (base(sd) - cr.top) / sc - ty(sd);
+      if (isFinite(y)) ct.style.setProperty('--m-c2-foot', Math.max(0, mb - (cr.height / sc - PAD - y)).toFixed(2) + 'px');
+    }
+  }
+  let c2SeatR = 0;
+  const c2SeatSoon = () => { cancelAnimationFrame(c2SeatR); c2SeatR = requestAnimationFrame(() => { c2SeatR = requestAnimationFrame(c2Seat); }); };
+  addEventListener('resize', c2SeatSoon); MOB.hooks.push(c2SeatSoon);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(c2SeatSoon);
+  /* 516c: and as the page OPENS (goContact; paint, as the slide arrives) -- again once its form has come in -- and when the title's
+     size has landed (it eases .5s: a pass during it read a size on the way). A phone only. */
+  function c2SeatOpen(){ if (!MOB.on || !c2SeatOpen.go) return; c2SeatOpen.go(); clearTimeout(c2SeatOpen.t); c2SeatOpen.t = setTimeout(c2SeatOpen.go, 950); }
+  c2SeatOpen.go = c2SeatSoon;
+  if (c2Title) c2Title.addEventListener('transitionend', e => { if (MOB.on && e.target === c2Title && e.propertyName === 'font-size') c2SeatSoon(); });
   { const fm = document.getElementById('c2Form');
     if (fm){ fm.addEventListener('focusin', c2Soon); fm.addEventListener('focusout', c2Soon); fm.addEventListener('input', c2Soon); }
     if (window.visualViewport){ visualViewport.addEventListener('resize', c2Soon); visualViewport.addEventListener('scroll', c2Soon); }
@@ -5963,6 +6180,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        again, so it plays whether you scrolled here or used the menu. */
     if (!contactIn && q > 0.25){
       contactIn = true;
+      c2SeatOpen();   /* 516c: the contact page's seats taken again as it arrives (a phone only) */
       const fm = document.querySelector('.contact .variant.on .c2-form');
       if (fm){ fm.classList.remove('play'); void fm.offsetWidth; fm.classList.add('play'); }
     } else if (contactIn && q < 0.08){
@@ -6313,6 +6531,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (snap){ page = 2; pageT8 = 2; pv8 = 0; pageTo = null; pageRunQ = null; restLeft = 0; }
     else pageTo = 2;
     paint();
+    if (MOB.on){ c2F = c2Large(); c2Apply(); c2SeatOpen(); }   /* 516c: a phone's title size and seat solved again as the page opens (a toolbar or a rotation under an open view solved both in a receded frame) */
   }
   /* V8 lands its runs here: the slide is in place, the hold is armed, the
      film starts. Shared by the wheel's run (commit8) and the menu's (run8). */
@@ -7129,6 +7348,19 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     st.querySelectorAll('.ent-row').forEach(peekBind);
   }
   ideasBuild();
+  /* 516c: THE BLOG LIST'S CAPTIONS ON A PHONE by their ink -- the date on the left margin, the tag on the right (mSeatInk; given
+     back off a phone) */
+  function mBlogSeat(){
+    if (!MOB.on) return;
+    const st = document.getElementById('blogStack'); if (!st) return;
+    st.querySelectorAll('.ent-row .cap.tl').forEach(e => mSeatInk(e, 'L'));
+    st.querySelectorAll('.ent-row .cap.br').forEach(e => mSeatInk(e, 'R'));
+  }
+  let mBlogR = 0;
+  const mBlogSoon = () => { cancelAnimationFrame(mBlogR); mBlogR = requestAnimationFrame(() => { mBlogR = requestAnimationFrame(mBlogSeat); }); };
+  addEventListener('resize', mBlogSoon); MOB.hooks.push(mBlogSoon);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(mBlogSoon);
+  mBlogSoon();
 
   function trailPeek(dt){
     if (!peekOn) { lean += (0 - lean) * (1 - Math.exp(-dt * 8)); return; }
@@ -7756,6 +7988,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     ldFull = F >= LD.NAME_MIN;
     if (!ldFull) F = fit(false);
     ldName.style.fontSize = F.toFixed(1) + 'px';
+    /* 516c: on a phone the name's outer bearings at the size it is DRAWN (ldInk reads 1000px, DM Sans' largest optical size:
+       BALINT stood .5px inside the margin) -- in em, as ever, so they ride the flight's size */
+    if (MOB.on){ const a = mInkPx(ldWords[0], ldWords[0].textContent.charAt(0)), b = mInkPx(ldWords[1], ldWords[1].textContent.slice(-1)), fz = parseFloat(getComputedStyle(ldWords[0]).fontSize) || F;   /* the size it is drawn at (the phone's rule, not F) */
+      if (a) ldWords[0].style.marginLeft = (-a.l / fz).toFixed(4) + 'em'; if (b) ldWords[1].style.marginRight = (-b.r / fz).toFixed(4) + 'em'; }
     /* Box bottom on the midline, so the name grows upward from it. Written as
        `top` because the flight interpolates to the masthead's `top`, and both
        ends of a transition have to be the same kind of value. */
@@ -8006,6 +8242,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      served from the map. seatSoon flushes before each pass, so a measurement
      is never carried across a font load or a resize. */
   function inkPx(refEl, ch, noTrack){
+    if (MOB.on){ const q = mInkPx(refEl, ch, noTrack); if (q) return q; }   /* 516c: a phone's bearings, sub-pixel at the rendered size */
     let cs0 = null;
     try {
       /* 507: the style object has to be read before the memo key can even be
@@ -8222,6 +8459,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!isFinite(rMin)) return;
     const v = (-(k || 1) * rMin).toFixed(2) + 'px';
     if (el._seatR !== v){ el._seatR = v; el.style.marginRight = v; }
+    /* 516c: on a phone EACH row's ink on the margin -- the stack seats on its widest row, every other row's own margin takes
+       back what its ink leaves over that (a row is drawn in the stack's own units); off a phone a row's margin is lifted */
+    for (const row of el.children){
+      let w = '';
+      if (MOB.on){ const t = (row.textContent || '').trim(), p = t ? inkPx(row, t[t.length - 1]) : null; if (p) w = (-(p.r - rMin)).toFixed(2) + 'px'; }
+      if ((row._seatRr || '') !== w){ row._seatRr = w; row.style.marginRight = w; }
+    }
   }
   function seatFlex(box){
     if (!box) return;
@@ -8244,6 +8488,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function seatVert(box, side){
     try {
       const sp = box && box.querySelector('span'); if (!sp) return;
+      if (MOB.on && mSeatVert(box, sp, side)) return;   /* 516c */
       const cs = getComputedStyle(sp);
       const fz = parseFloat(cs.fontSize) || 0; if (!fz) return;
       const lh = parseFloat(cs.lineHeight) || fz;
@@ -8257,6 +8502,33 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const inset = half + (m.fontBoundingBoxAscent - m.actualBoundingBoxAscent);
       box.style[side === 'left' ? 'marginLeft' : 'marginRight'] = (-inset).toFixed(2) + 'px';
     } catch (e) {}
+  }
+  /* 516c: A SIDE WORD ON A PHONE, BY ITS LIVE INK. vertical-rl turns each letter a quarter: its content box runs across the line,
+     its ascent side facing the right (the left word, turned 180deg, the left). The ascent the LAYOUT gives the face (Chrome
+     rounds the face's metrics) is read off a horizontal probe in the same face -- its baseline less its glyph box's top -- and
+     each letter's own ink over its baseline is mGlyph's: that edge's distance from the box is the margin. */
+  function mSeatVert(box, sp, side){
+    const cs = getComputedStyle(sp), px = parseFloat(cs.fontSize) || 0, n = [...sp.childNodes].find(x => x.nodeType === 3 && x.nodeValue.trim());
+    if (!px || !n) return false;
+    const pr = document.createElement('span');
+    pr.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;writing-mode:horizontal-tb;white-space:nowrap;transform:none;letter-spacing:0;';
+    pr.style.fontFamily = cs.fontFamily; pr.style.fontSize = cs.fontSize; pr.style.fontWeight = cs.fontWeight; pr.style.fontStyle = cs.fontStyle; pr.style.lineHeight = cs.lineHeight;
+    pr.textContent = 'H'; const z = document.createElement('i'); z.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline;'; pr.appendChild(z);
+    box.appendChild(pr);
+    const rh = document.createRange(); rh.selectNodeContents(pr.firstChild);
+    const A = z.getBoundingClientRect().bottom - rh.getBoundingClientRect().top; pr.remove();
+    if (!(A > 0)) return false;
+    const tx = n.nodeValue, up = cs.textTransform === 'uppercase'; let e = side === 'left' ? Infinity : -Infinity;
+    for (let i = 0; i < tx.length; i++){
+      if (/\s/.test(tx[i])) continue;
+      const rg = document.createRange(); rg.setStart(n, i); rg.setEnd(n, i + 1);
+      const q = rg.getBoundingClientRect(), g = mGlyph(cs, up ? tx[i].toUpperCase() : tx[i], px); if (!g || !(q.height > 0)) continue;
+      if (side === 'left') e = Math.min(e, q.left + A - g.a); else e = Math.max(e, q.right - A + g.a);
+    }
+    if (!isFinite(e)) return false;
+    const b = box.getBoundingClientRect();
+    box.style[side === 'left' ? 'marginLeft' : 'marginRight'] = (side === 'left' ? -(e - b.left) : -(b.right - e)).toFixed(2) + 'px';
+    return true;
   }
   function seatAll(){
     seatVert(document.getElementById('vsSwL'), 'left');
@@ -10842,7 +11114,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        o.ink: the box the ink is read from, if not el (FLAGSHIP / WORK: the word, which carries the desktop's seat margin) */
     function m4Ink(el, o){
       const tx = o.ref || el, cs = getComputedStyle(tx), t = (tx.textContent || '').trim();
-      const fs = parseFloat(cs.fontSize) || 0, cap = a4Cap(parseFloat(cs.fontWeight) >= 900 ? 1000 : 700) * fs;
+      const fs = parseFloat(cs.fontSize) || 0, gH = mGlyph(cs, 'H', fs), cap = gH ? gH.a : a4Cap(parseFloat(cs.fontWeight) >= 900 ? 1000 : 700) * fs;   /* 516c: the cap at its own optical size */
       const r = (o.ink || el).getBoundingClientRect();
       let l = Infinity, rr = Infinity;
       [].concat(o.fc || t.charAt(0)).forEach(ch => { const p = inkPx(tx, ch); l = Math.min(l, p ? p.l : 0); });
@@ -11002,11 +11274,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const k1 = m4Q('#a4Unit4 .a4-bgk.k1'), apP = m4Q('#a4Unit3 .a4-ap p'), mB = m4Q('#a4Unit .a4-mids.ml');
       if (!k1 || !apP || !mB) return;
       const csN = getComputedStyle(apP), N = parseFloat(csN.fontSize) || .5454 * S, B = S / 2, cK = a4Cap(1000);
-      m4G = { vw, H, M, S, B, N, W: vw - 2 * M, capS: cK * S, cB: a4Cap(700), gk: A4M_GK,
+      const mCapAt = x => { const g = mGlyphF('normal 1000 ' + x + 'px ' + getComputedStyle(view).fontFamily, 'H', x); return g ? g.a : cK * x; };   /* 516c: a SUBTITLE cap at its own optical size */
+      m4G = { vw, H, M, S, B, N, W: vw - 2 * M, capS: mCapAt(S), cB: a4Cap(700), gk: A4M_GK,
               g: parseFloat(getComputedStyle(k1).lineHeight) || .8843 * S,
               pN: parseFloat(csN.lineHeight) || 1.13 * N, pB: parseFloat(getComputedStyle(mB).lineHeight) || 1.13 * B };
       m4G.CP = A4M_CPAD * S;
-      m4G.capB = cK * Sb;   /* 515a: the bar's cap, at the site's S (About's own type may be capped smaller) */
+      m4G.capB = mCapAt(Sb);   /* 515a: the bar's cap, at the site's S (About's own type may be capped smaller); 516c: its own, measured */
       m4G.capY = 2 * M + m4G.capB; m4G.Zt = m4G.capY + m4G.capS; m4G.CH = m4G.Zt + M / 2; m4G.Z0 = m4G.Zt + M; m4G.Z1 = H - M;   /* 514d: the title rows' line at rest -- one margin under the bar's baseline; 516a: Zt its baseline, the top of the space below it */
       m4G.CF = M + m4G.capB + M / 2; m4G.L = H / A4M_IN;   /* 513b: the chrome's foot (the bar's), a transition's scroll */
       const sl = ['.a4-sl1', '.a4-sl2', '.a4-sl3', '.a4-sl4', '.a4m-sl5'].map(m4Q);
@@ -11127,8 +11400,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       m4Edge(ml, 'L'); m4Edge(mr, 'R');
       const con = m4Put(bw, 'L', M, 0), pe = m4Put(ml, 'B', M, con.cap + g);
       const ps = [q('.a4-ap p.ap1'), q('.a4-ap p.ap2')];
-      const a1 = m4Put(ps[0], 'B', M, 0), slitY = a1.b1 + CP, slitH = (A4_V.slitB - A4_V.slitT) / 20 * S;   /* 513b: the desktop's thin band -- the design's slit (11.7) on the design's 20px SUBTITLE */
-      const a2 = m4Put(ps[1], 'B', M, slitY + slitH + CP);
+      const a1 = m4Put(ps[0], 'L', M, 0, { fc:mLineStarts(ps[0]) }), slitY = a1.b1 + CP, slitH = (A4_V.slitB - A4_V.slitT) / 20 * S;   /* 513b: the desktop's thin band -- the design's slit (11.7) on the design's 20px SUBTITLE */
+      const a2 = m4Put(ps[1], 'L', M, slitY + slitH + CP, { fc:mLineStarts(ps[1]) });   /* 516c: both by their leftmost line's ink */
       /* 513b THE SLIT, the desktop's (bandScale's VISION band, place()): the design card (A4_CW x A4_CH), its pitch (A4_SP)
          and its lens (A4_P) scaled down as ONE by the unit law -- the phone's measure over the design sheet's -- and seen
          through the band, its box (the cards centre on the band's middle, as the desktop's clip does) */
@@ -11148,7 +11421,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const kk = ['k1', 'k2', 'k3'].map((c, i) => m4Put(q('.a4-bgk.' + c), 'L', M, i * g));
       let y = 0, last = null;
       const bgp = [...pin.querySelectorAll('.a4-bgp')];
-      bgp.forEach(p => { last = m4Put(p, 'B', M, y, { ref:p.querySelector('p') }); y = last.b1 + pN + (pN - cB * N); });
+      bgp.forEach(p => { last = m4Put(p, 'L', M, y, { ref:p.querySelector('p'), fc:mLineStarts(p.querySelector('p')) }); y = last.b1 + pN + (pN - cB * N); });   /* 516c: by its leftmost line's ink */
       /* THE SCHOOLS, one row (his mockup): each mark beside its caption (three BODY(CAPS) lines), cMBA alone; the first mark's
          ink on the left margin, cMBA's on the right, the middle pair centred between; the marks as tall as a caption, or as
          tall as the row leaves them (never under A4M_GH_MIN of it) -- the type holds its size */
@@ -11533,6 +11806,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     w1.style.marginLeft  = (-hdrBl * hdrS0).toFixed(1) + 'px';
     w1.style.marginRight = (-(hdrEmW1 - (hdrEmB1 + HDR_TRK - hdrRbB)) * hdrS0).toFixed(1) + 'px';
     w2.style.marginRight = (-(hdrEmW2 - (hdrEmB2 + HDR_TRK - hdrTrD)) * hdrS0).toFixed(1) + 'px';
+    if (MOB.on){ const b = mInkPx(w1, (w1.textContent || 'B').trim().charAt(0)); if (b) w1.style.marginLeft = (-b.l).toFixed(2) + 'px'; }   /* 516c: a phone's B by its ink at the size it is drawn */
+    /* 516c: and its cap top ON the top margin -- its live baseline (a zero-size inline-block on it) less B's ink height at its
+       size; what is left is written as the bar's own offset (--m-hdy, read by M512:HEADER only) */
+    if (MOB.on){ const cs = getComputedStyle(w1), g = mGlyph(cs, 'B', parseFloat(cs.fontSize) || 0), q = document.createElement('i');
+      q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; w1.appendChild(q);
+      const y = q.getBoundingClientRect().bottom - hdr.getBoundingClientRect().top; q.remove();
+      const cur = parseFloat(hdrName.style.getPropertyValue('--m-hdy')) || 0;
+      if (g && isFinite(y)) hdrName.style.setProperty('--m-hdy', (cur + (PAD - (y - g.a))).toFixed(2) + 'px'); }
+    else hdrName.style.removeProperty('--m-hdy');
     hdrH = hdr.offsetHeight;               // at rest: B -- D at the BIG size
     hdrHf = hdr.getBoundingClientRect().height;   /* 511c2: unrounded, for the deck's composed-against header */
     document.documentElement.style.setProperty('--hdr-h', hdrH + 'px');
@@ -12072,7 +12354,24 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const mTravel = () => Math.max(1, mVH() - 2 * PAD - .7 * (MOB.S || M_S0));
   const mEaseIO = u => u < .5 ? 8 * u * u * u * u : 1 - Math.pow(-2 * u + 2, 4) / 2;   /* the house curve, cubic-bezier(.76,0,.24,1) */
   const mEaseOut = u => 1 - Math.pow(1 - u, 3);                                          /* a release keeps the finger's speed */
+  /* 516c: THE SLIDE'S WORDS BY THEIR INK on its edges -- MENU and 01-04's numbers on the left margin, their words on the right,
+     05-08 the other way round (a landscape phone: each column's edges), the case titles on SELECTED WORKS' edge (seatEdge reads
+     a phone's bearings sub-pixel); seated as the slide sets out, and when the case titles are built */
+  function mnuSeat(){
+    /* MENU's cap top on the top margin (its live baseline less M's ink height), 01-04 moved with it: they stand three
+       pitches under it */
+    const lb = mMenu.querySelector('.m-lbl'), tp = mMenu.querySelector('.m-top');
+    if (lb && tp){ lb.style.top = tp.style.top = '';
+      const cs = getComputedStyle(lb), g = mGlyph(cs, 'M', parseFloat(cs.fontSize) || 0), q = document.createElement('i');
+      q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; lb.appendChild(q);
+      const y = q.getBoundingClientRect().bottom - mMenu.getBoundingClientRect().top; q.remove();
+      if (g && isFinite(y)){ const d = PAD - (y - g.a);
+        lb.style.top = (parseFloat(cs.top) + d).toFixed(2) + 'px'; tp.style.top = (parseFloat(getComputedStyle(tp).top) + d).toFixed(2) + 'px'; } }
+    mMenu.querySelectorAll('.m-lbl, .m-top .m-no, .m-bot .m-it').forEach(e => seatEdge(e, 'left'));
+    mMenu.querySelectorAll('.m-top .m-it, .m-bot .m-no, .m-list button').forEach(e => seatEdge(e, 'right'));
+  }
   function mnuMeasure(){
+    mnuSeat();
     MNU.h = hdr.offsetHeight;
     MNU.rows = [...mMenu.querySelectorAll('.m-r')].map(el => ({ el, bot: el.getBoundingClientRect().bottom }));
   }
@@ -12116,6 +12415,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     [...pk.querySelectorAll('button')].forEach((b, i) => { const x = document.createElement('button');
       x.type = 'button'; x.textContent = b.textContent; x.dataset.key = b.dataset.key; x.style.setProperty('--d', (i * 60) + 'ms'); inn.appendChild(x); });
     mList.innerHTML = ''; mList.appendChild(inn);
+    inn.querySelectorAll('button').forEach(e => seatEdge(e, 'right'));   /* 516c */
   }
   function mnuWorks(on, instant){
     if (on && !mList.children.length) mnuList();
@@ -14473,6 +14773,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     setFont(w, px, italic);
     const m = cx.measureText(text);
     if (m.actualBoundingBoxLeft === undefined) return { l:0.07 * px, r:0.07 * px, w:m.width };
+    if (MOB.on){ const g = mGlyphF(cx.font, text.charAt(0), px); if (g) return { l:g.l, r:m.width - m.actualBoundingBoxRight, w:m.width }; }   /* 516c: Chrome rounds actualBoundingBoxLeft to whole px */
     return { l:-m.actualBoundingBoxLeft, r:m.width - m.actualBoundingBoxRight, w:m.width };
   }
   /* where the cap-top and the baseline sit inside a line box of height lh */
@@ -14528,7 +14829,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function inkX(el, side){
     const cs = getComputedStyle(el);
     const px = parseFloat(cs.fontSize), w = cs.fontWeight, it = cs.fontStyle === 'italic';
-    const text = el.textContent.trim(); if (!text) return;
+    let text = el.textContent.trim(); if (!text) return;
+    if (MOB.on && cs.textTransform === 'uppercase') text = text.toUpperCase();   /* 516c: the letter as it is drawn */
     if (side === 'right'){
       const b = bear(text[text.length - 1], w, px, it);
       /* the trailing letter-space is an advance with no ink; it goes too */
@@ -14573,7 +14875,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        words SHOW at -- auto would pick DM Sans' opsz for F (SPEC-511 sec. 2) */
     { const oz = Math.min(40, Math.max(9, Math.min(F, (typeof hdrS0 === 'number' && c3S0()) || F))).toFixed(2);
       sp.forEach(e => { e.style.fontVariationSettings = "'opsz' " + oz; }); }
-    sp[0].style.marginLeft = (-ldInk(words[0], 1000, TR).left * F).toFixed(1) + 'px';
+    /* 516c: on a phone the first letter's bearing at the optical size the words are PINNED to (oz, above): the glyph drawn at
+       that size, scaled to F (ldInk's canvas has DM Sans' largest optical size, the desktop's) */
+    const brandL = () => { if (MOB.on && sp[0]){ const cs = getComputedStyle(sp[0]), oz = Math.min(40, Math.max(9, Math.min(F, (typeof hdrS0 === 'number' && c3S0()) || F))),
+        t = String(words[0] || '').trim(), g = t && mGlyphF(cs.fontStyle + ' ' + cs.fontWeight + ' ' + oz + 'px ' + cs.fontFamily, t.charAt(0).toUpperCase(), oz);
+        if (g) return g.l * F / oz; } return ldInk(words[0], 1000, TR).left * F; };
+    sp[0].style.marginLeft = (-brandL()).toFixed(MOB.on ? 2 : 1) + 'px';
     if (sp[1]) sp[1].style.marginRight = (-ldInk(words[1], 1000, TR).right * F).toFixed(1) + 'px';
     const lhK = up ? (dial('--t-sub-lh') || .8843) : .78, v = vtrim(1000, F, F * lhK);   /* 516b: a post's wrapped rows at the stacked SUBTITLE leading */
     el.style.marginTop = (-v.t).toFixed(1) + 'px';
@@ -14587,7 +14894,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     brandBuiltC4 = C4;
     hs.setProperty('--c3-brand-a', v.t.toFixed(2) + 'px');
     hs.setProperty('--c3-brand-cap', brandFull.toFixed(2) + 'px');
-    hs.setProperty('--c3-brand-l', (ldInk(words[0], 1000, TR).left * F).toFixed(2) + 'px');
+    hs.setProperty('--c3-brand-l', brandL().toFixed(2) + 'px');
     hs.setProperty('--c3-brand-r', (sp[1] ? ldInk(words[1], 1000, TR).right * F : 0).toFixed(2) + 'px');
   }
   /* 515a: THE TITLE'S SIZE ON THE PAGE -- the header's small size (hdrS0), as ever; on a phone's POST, capped at the blog's S
@@ -15984,19 +16291,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* 512d: a span's edge glyph onto its box's margin, by the LIVE glyph: its Range box on the page, and its
      outline's extent from the face at 1000px (the size at which the rigs read ink). The margin is the ink's offset
      from the span's own box, so a transform on the span (the entrance's slide) cancels out. */
-  let mSeatCv = null;
   function mSeatX(el, side){
     const n = [...el.childNodes].find(x => x.nodeType === 3 && x.nodeValue.trim()); if (!n) return;
     const tx = n.nodeValue, i = side === 'left' ? tx.search(/\S/) : tx.replace(/\s+$/, '').length - 1; if (i < 0) return;
     const rg = document.createRange(); rg.setStart(n, i); rg.setEnd(n, i + 1);
     const q = rg.getBoundingClientRect(), b = el.getBoundingClientRect(), cs = getComputedStyle(el), px = parseFloat(cs.fontSize);
     if (!(q.width > 0) || !(px > 0)) return;
-    const cv = mSeatCv || (mSeatCv = document.createElement('canvas').getContext('2d')); if (!cv) return;
-    cv.font = cs.fontStyle + ' ' + cs.fontWeight + ' 1000px ' + cs.fontFamily;
-    const ch = cs.textTransform === 'uppercase' ? tx[i].toUpperCase() : tx[i], m = cv.measureText(ch);
-    if (m.actualBoundingBoxRight === undefined) return;
-    if (side === 'left') el.style.marginLeft = (-((q.left - m.actualBoundingBoxLeft / 1000 * px) - b.left)).toFixed(2) + 'px';
-    else el.style.marginRight = ((q.left + m.actualBoundingBoxRight / 1000 * px) - b.right).toFixed(2) + 'px';
+    const g = mGlyph(cs, cs.textTransform === 'uppercase' ? tx[i].toUpperCase() : tx[i], px); if (!g) return;   /* 516c: at its rendered size (the 1000px metric missed the phone's optical size) */
+    if (side === 'left') el.style.marginLeft = (-((q.left + g.l) - b.left)).toFixed(2) + 'px';
+    else el.style.marginRight = ((q.left + g.r) - b.right).toFixed(2) + 'px';
   }
   /* 512d: THE INTRO'S ENTRANCE ON A PHONE (SPEC-512 sec. G). The desktop's one trigger (#c3Intro.in and its
      wall-clock --d cascade) ran every text in while most were still below a phone's fold. Here each text -- the
@@ -16261,6 +16564,30 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      P2, that pixel shows. Each register is read here off a live element: the first line's baseline (a zero-size
      inline-block at its start) less M_CAPK em (DM Sans' cap height) from the box top, and the box's foot less the
      last baseline. M512:CASE reads them; off a phone they are removed (and nothing reads them there). */
+  /* 516c: THE CASE AND POST PAGE BY INK ON A PHONE (SPEC-516 sec. 5): the margin words the engine leaves unseated or seats on
+     its own model -- the intro's subtitles (MY ROLE, SUMMARY, CREDITS ...), the credits' roles and names, a quote's name, a
+     stat's lines, a caption's right part -- by their live ink (mSeatInk); the justified BODY(CAPS) paragraph's right edge on
+     the margin (mSeatJust). Run in layout(), before the heights are read (a justified paragraph's width is its right seat). */
+  function mCaseSeat(){
+    if (!MOB.on) return;
+    $('#c3Intro').querySelectorAll('.c3-it, .c3-cred .cr .pos').forEach(e => mSeatInk(e, 'L'));
+    $('#c3Intro').querySelectorAll('.c3-cred .cr .nm').forEach(e => mSeatInk(e, 'R'));
+    $('#c3Details').querySelectorAll('.cell.quote .qn span, .stat .st-lines p, .c3-cap .cr').forEach(e => mSeatInk(e, 'R'));
+    const cb = $('#c3Contrib'); if (cb && getComputedStyle(cb).textAlign === 'justify') mSeatJust(cb);
+    /* a caption wrapped onto more rows than one (M512:CASE): its picture comes down by them */
+    $('#c3Details').querySelectorAll('.cell.media').forEach(c => { const cp = c.querySelector('.c3-cap'), cl = cp && cp.querySelector('.cl');
+      const x = cp && cl ? cp.getBoundingClientRect().height - cl.getBoundingClientRect().height : 0;
+      if (x > .5) c.style.setProperty('--m-cap-x', x.toFixed(2) + 'px'); else c.style.removeProperty('--m-cap-x'); });
+    /* the running copy by its leftmost line's live ink (the engine's inkX measured its first letter once, at the build) */
+    document.querySelectorAll('#c3Details .cell.text .tx p, #c3Details .cell.quote .qt, #c3Details .stat .st-plat, #c3Details .c3-cap .cl, #c3Summary, #c3Lede, #c3Contrib').forEach(e => mSeatInk(e, 'L'));
+    /* SCROLL DOWN FOR CASE / POST: its baseline on the bottom margin, measured (the --ink-b model missed Chrome's rounding) */
+    const hn = $('#c3Hint');
+    if (hn && hn.getClientRects().length){ const q = document.createElement('i');
+      q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; hn.appendChild(q);
+      const y = q.getBoundingClientRect().bottom; q.remove();
+      const cur = parseFloat(hn.style.getPropertyValue('--m-hint-dy')) || 0;
+      if (isFinite(y)) hn.style.setProperty('--m-hint-dy', (cur + (innerHeight - PAD - y)).toFixed(2) + 'px'); }
+  }
   const M_CAPK = 0.7;
   function mTrims(){
     const st = root.style, names = ['--m-t3', '--m-b3', '--m-t1', '--m-b1', '--m-tn', '--m-bn'];
@@ -16383,6 +16710,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (chosen.case !== 4) stripBuild($('#c3Strip0'), CASE.subtitle, +1);   /* 404: no strip in V4 (the zero-period guard stays as the belt) */
     layoutDetails();
     mTrims();   /* 512d: a phone's registers, read live */
+    mCaseSeat();   /* 516c: the margin words by their live ink (before anything reads the page's heights) */
     videoLayout();
     mGapFix();   /* 514c: the title's live cap top onto the hero's gap under the film (once; it re-lays the film and the stage) */
     mCatchHold = true; mCatch(window.scrollY);   /* 514c: the ranges, the words' places and the flip's table read the page with no catch-up lead */
