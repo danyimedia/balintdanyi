@@ -3901,14 +3901,12 @@
      cap, portrait and landscape) and writes it inline on <html>; 20px is only the value before that solve.
      BODY(CAPS) is half of it (the 2 : 1 ratio), NOCAPS BODY x --body-k as on the desktop. The desktop tokens are
      re-pointed here, so every existing rule that reads --pad / --t-sub / --t-body / --t-nocaps follows.
-     --m-title-k is About's TITLE tier (his question 1, 512g: TITLE = --m-title-k x SUBTITLE; M512:ABOUT derives
-     --m-title from it). 513a: a phone token, so the SUBTITLE solve measures About's TITLE rows from any page. */
+     516a: About's TITLE tier (--m-title-k, 512g-515a) is gone -- his mockups set About in the phone's classes alone. */
   html.mob{
     --m-pad:24px;
     --m-sub:20px;
     --m-body:calc(var(--m-sub) / 2);
     --m-nocaps:calc(var(--m-body) * var(--body-k));
-    --m-title-k:2;
     --pad:var(--m-pad);
     --t-sub:var(--m-sub);
     --t-body:var(--m-body);
@@ -3922,7 +3920,6 @@
     --t-sub:var(--m-sub); --t-body:var(--m-body); --t-nocaps:var(--m-nocaps);
     --t-title:min(calc(var(--t-sub) / var(--t-fit)), calc((100vw - 2 * var(--pad)) * .0584));
     --t-sub-row:max(var(--t-body), calc(var(--t-title) * var(--t-fit))); --big:var(--t-title); --ui-size:var(--t-body);
-    --m-title:calc(var(--m-title-k) * var(--m-sub));
   }
   html.mob{ --a4-nav-h:calc(var(--m-sub-a, var(--m-sub)) * 52 / 21); }
   /* NO HOVER ON A PHONE (sec. E): taps do what clicks do. The OPEN CASE chip and the corner cursor never show
@@ -3936,7 +3933,6 @@
   html.mob .m-probe{ position:fixed; left:0; top:0; visibility:hidden; pointer-events:none; white-space:nowrap; }
   html.mob .m-probe .m-ps{ font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); text-transform:uppercase; }
   html.mob .m-probe .m-pb{ font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase; }
-  html.mob .m-probe .m-pt{ font-weight:1000; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase; font-variation-settings:normal; font-optical-sizing:auto; }   /* 513a: TITLE, as About's TITLE rows wear it */
   /* THE LOADER PARAGRAPH (#ldCopy) drops to BODY(CAPS); the rest of the loader is unchanged */
   html.mob #ldCopy p{ font-size:var(--m-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh); }
 
@@ -4245,54 +4241,57 @@
   }
 
   /* M512:ABOUT */
-  /* 512g: ABOUT ON A PORTRAIT PHONE (typo512/ABOUT-MOBILE-DESIGN.md, the judged synthesis). The About engine's phone branch
-     (AB4: m4Enter / m4Leave) puts .a4m on <html> on a PORTRAIT phone once About is built; a landscape phone keeps the desktop
-     journey under the phone header, as 512f left it. The same DOM, restyled: the view's own (native) scroll carries the four
-     sheets in the desktop's order and colours -- INTRO, ROLE and APPROACH pinned stages (sticky, one MEASURED screen tall,
-     --a4m-h, never 100vh), BACKGROUND flowing -- every line placed by ink in JS.
-     THE TYPE: a TITLE tier on About only, --m-title = --m-title-k x SUBTITLE (his question 1; 2 is the doc's answer, 1 gives
-     the two classes; 513a: the dial lives with the phone's tokens in M512:BASE), following the site's SUBTITLE solve,
-     which About's tight rows now join (513a). His question 4 is --a4m-cp-align (the
-     INTRO statement: left, the phone's text rule; center is the desktop's).
-     513b (his notes, SPEC-513): each slide carries its OWN title row at its top edge (0n  NAME, no rule between) and moves
-     with it -- the page-level section row is gone; the #a4Nav spans are only the tap-to-index. THE SLIDE TRANSITION: the
-     outgoing slide recedes on a SLOW parallax and its content fades as the desktop's does, the incoming one rises a little
-     FASTER than the finger, led by its title row, its items coming in one by one -- JS (m4Frame) writes each sheet's
-     transform and each pin's opacity inline with priority (the rules here stay !important against the desktop journey's
-     inline leftovers). The chrome's foot is the bar's alone. */
+  /* 512g: ABOUT ON A PORTRAIT PHONE. The About engine's phone branch (AB4: m4Enter / m4Leave) puts .a4m on <html> on a PORTRAIT
+     phone once About is built; a landscape phone keeps the desktop journey under the phone header. The same DOM, restyled: the
+     view's own (native) scroll carries the sheets in the desktop's order and colours as pinned stages (sticky, one MEASURED
+     screen tall, --a4m-h, never 100vh) -- every line placed by ink in JS. 513b / 514d: each slide carries its own title row
+     (0n  NAME, its rule the slide's progress); the outgoing slide recedes slowly and fades as the desktop's, the incoming one
+     rises led by its title row, its items coming in one by one -- JS (m4Frame) writes each sheet's transform and each pin's
+     opacity inline with priority. The chrome's foot is the bar's alone.
+     516a: HIS MOCKUPS (SPEC-516, typo512/about516/). The phone's classes only -- SUBTITLE, BODY(CAPS), NOCAPS; the TITLE tier
+     is gone. Apart from INTRO every slide is built round a VERTICALLY CENTRED element with a SUBTITLE paragraph above it (left
+     margin) and one below it (right margin), both held to it by one padding (JS). FIVE sheets: INTRO, ROLE, APPROACH,
+     BACKGROUND and CONTACT (the phone's own fifth, .a4m-sl5, built by JS -- it replaces the end row). */
   html.mob.a4m{
-    --m-title:calc(var(--m-title-k) * var(--m-sub));
-    --a4m-cp-align:left;
     --a4m-ch:calc(1.5 * var(--m-pad) + .7 * var(--m-sub));   /* 513b: the chrome's foot, the bar's alone -- B's cap (on M) and half a margin; the title rows ride their slides */
   }
   html.mob.a4m #viewAbout4{ padding-top:0; overflow-x:hidden; --a4-k:1 !important; }
   html.mob.a4m #viewAbout4 > .a4-page, html.mob.a4m #viewAbout4 > .a4-foot, html.mob.a4m #a4GalSlot, html.mob.a4m #a4Belt2{ display:none; }
   /* THE SHEETS: stages in the view's scroll, each rising over the one before (JS writes their heights: hold + 1 screen + the
      transition's scroll; and their parallax, inline important) */
-  html.mob.a4m #viewAbout4 > .a4-sl1, html.mob.a4m #viewAbout4 > .a4-sl2, html.mob.a4m #viewAbout4 > .a4-sl3, html.mob.a4m #viewAbout4 > .a4-sl4{
+  html.mob.a4m #viewAbout4 > .a4-sl1, html.mob.a4m #viewAbout4 > .a4-sl2, html.mob.a4m #viewAbout4 > .a4-sl3, html.mob.a4m #viewAbout4 > .a4-sl4, html.mob.a4m #viewAbout4 > .a4m-sl5{
     position:relative; inset:auto; flex:none; width:100%; transform:none !important; will-change:auto;
   }
   html.mob.a4m #viewAbout4 > .a4-sl1{ order:1; z-index:1; }
   html.mob.a4m #viewAbout4 > .a4-sl2{ order:2; z-index:2; margin-top:calc(-1 * var(--a4m-h)); }
   html.mob.a4m #viewAbout4 > .a4-sl3{ order:3; z-index:3; margin-top:calc(-1 * var(--a4m-h)); }
   html.mob.a4m #viewAbout4 > .a4-sl4{ order:4; z-index:4; margin-top:calc(-1 * var(--a4m-h)); }
-  /* the pins: one screen, sticky (an outgoing pin's content fades: JS, inline important); BACKGROUND's content box flows */
-  html.mob.a4m #a4Sl1 .a4-s1, html.mob.a4m #a4Unit, html.mob.a4m #a4Unit3{
+  html.mob.a4m #viewAbout4 > .a4m-sl5{ order:5; z-index:5; margin-top:calc(-1 * var(--a4m-h)); background:#F5F5F5; color:#000; }
+  /* the pins: one screen, sticky -- 516a: all five (a pin taller than the screen holds on its foot: JS writes its height and
+     a negative top); an outgoing pin's content fades (JS, inline important) */
+  html.mob.a4m #a4Sl1 .a4-s1, html.mob.a4m #a4Unit, html.mob.a4m #a4Unit3, html.mob.a4m #a4Unit4, html.mob.a4m .a4m-u5{
     position:sticky; top:0; left:auto; right:auto; width:100%; height:var(--a4m-h); overflow:hidden; display:block; padding:0;
     transform:none !important; opacity:1 !important; will-change:auto;
   }
-  html.mob.a4m #a4Unit4{ position:relative; left:auto; top:auto; width:100%; transform:none !important; opacity:1 !important; will-change:auto; }
   /* EVERY LINE absolute in its pin; JS writes left / top by ink (m4Put) */
   html.mob.a4m #viewAbout4 .a4-row3{ position:absolute; left:0; right:auto; top:0; bottom:auto; width:100%; height:0; }
   html.mob.a4m #viewAbout4 .a4-row3 .a4-big{ position:absolute; width:max-content; white-space:nowrap; }   /* 514d: CREATIVE LEAD, one SUBTITLE line */
   html.mob.a4m #viewAbout4 .a4-row3 .a4-mid{ right:auto; bottom:auto; white-space:nowrap; }
   html.mob.a4m #viewAbout4 .a4-row3 .a4-mid br:nth-of-type(2){ display:none; }
-  html.mob.a4m #a4Cp{ position:absolute; transform:none; max-width:none; text-align:var(--a4m-cp-align); text-wrap:pretty; transition:none; }
+  /* 516a INTRO: the statement's first line (SUBTITLE, centred) stands over the corridor; the rest of it is ONE paragraph under
+     the corridor, NOCAPS in sentence case, centred (his call) -- .l2 and .l3 run on as one */
+  html.mob.a4m #a4Cp{ position:absolute; left:0; top:0; transform:none; max-width:none; text-align:center; text-wrap:balance; transition:none;
+    font-size:var(--m-nocaps); font-weight:var(--ui-weight); letter-spacing:normal; word-spacing:normal; line-height:var(--sm-lh); text-transform:none;
+    font-variation-settings:normal; font-optical-sizing:auto; }
   html.mob.a4m #a4Cp br{ display:none; }
-  html.mob.a4m #a4Cp .l1, html.mob.a4m #a4Cp .l2, html.mob.a4m #a4Cp .l3{ display:block; }
-  html.mob.a4m #a4Cp .l2, html.mob.a4m #a4Cp .l3{ margin-top:calc(.5 * var(--m-sub)); }
+  html.mob.a4m #a4Cp .l1{ position:absolute; left:0; top:0; width:100%; display:block; text-transform:uppercase; text-wrap:wrap; }
+  html.mob.a4m #a4Cp .l2::after{ content:' '; }
+  html.mob.a4m #a4Cp .l2, html.mob.a4m #a4Cp .l3, html.mob.a4m #a4Cp .w, html.mob.a4m #a4Cp .dots{
+    font:inherit; letter-spacing:inherit; word-spacing:inherit; text-transform:inherit; }
   html.mob.a4m #a4Unit .a4-lbig, html.mob.a4m #a4Unit .a4-mids, html.mob.a4m #a4Unit3 .a4-mids, html.mob.a4m #a4Unit4 .a4-bgk{ right:auto; transform:none; }
   html.mob.a4m #a4Unit .a4-rw2{ left:0; right:auto; top:0; }
+  html.mob.a4m #a4Unit .a4-p2r{ display:none; }   /* 516a: FOR is dropped on the phone (his call) */
+  html.mob.a4m #a4Unit3 .a4-mids.mr2{ text-align:right; }   /* 516a: CULTURE / TO EFFECTIVENESS on the right margin */
   html.mob.a4m #a4Unit3 .a4-brk{ width:0; height:0; }
   html.mob.a4m #a4Unit3 .a4-brk .bwi{ opacity:1; transform:none; transition:none; }
   html.mob.a4m #a4Unit3 .a4-ap{ left:0; right:auto; width:100%; }
@@ -4301,55 +4300,51 @@
   html.mob.a4m #a4Unit4 .a4-rw4 .w:last-child{ position:absolute; }
   html.mob.a4m #a4Unit4 .a4-bgp{ width:calc(100% - 2 * var(--m-pad)); }
   html.mob.a4m #a4Unit4 .a4-bgc{ display:block; right:auto; width:0; height:0; transform:none; }
-  html.mob.a4m #a4Unit4 .a4-bgc .lg{ position:absolute; transform:scale(var(--a4m-mk, 1)); transform-origin:0 0; }
+  html.mob.a4m #a4Unit4 .a4-bgc .lg{ position:absolute; transform:scale(var(--a4m-mk, 1)); transform-origin:0 0; }   /* 516a: each mark its own scale (JS) */
   html.mob.a4m #a4Unit4 .a4-bgc .t{ position:absolute; }
-  /* THE TYPE (sec. 2). TITLE only where the desktop sets TITLE -- LEADING ... DELIVERY; FLAGSHIP WORK FOR; CONNECTING; WHY
-     ARE THEY WATCHING -- in its desktop style, at its own optical size; the rest the site's phone classes. 514d (his notes):
-     INTRO's bottom row takes the hero bottom row's hierarchy -- CREATIVE LEAD one SUBTITLE line, FOR / BRAND FILM two
-     BODY(CAPS) lines at the hero subtitle's leading (--t-sub-lh), both baselines on the bottom margin (JS) */
-  html.mob.a4m #viewAbout4 .a4-lbig, html.mob.a4m #viewAbout4 .a4-brk .bw{
-    font-size:var(--m-title) !important; font-variation-settings:normal; font-optical-sizing:auto;
-  }
-  html.mob.a4m #viewAbout4 .a4-row3 .a4-big, html.mob.a4m #viewAbout4 .a4-mids, html.mob.a4m #viewAbout4 .a4-bgk, html.mob.a4m #a4Cp, html.mob.a4m #a4Nav span{
+  /* THE TYPE (516a: the phone's classes only). SUBTITLE: the title rows, INTRO's first line, every top and bottom paragraph
+     (LEADING / VIDEO, FROM BRIEF / TO DELIVERY, CONNECTING / PEOPLE / TO THE BRAND, CULTURE / TO EFFECTIVENESS, 12 YEARS .. ASKING,
+     WHY ARE THEY / WATCHING), CREATIVE LEAD, CONTACT's labels and the index. BODY(CAPS): FOR / BRAND FILM (the hero subtitle's
+     leading), ROLE's labels round the belt and the schools' captions (BODY(CAPS)'s own leading). NOCAPS: INTRO's paragraph and
+     the running copy */
+  html.mob.a4m #viewAbout4 .a4-lbig, html.mob.a4m #viewAbout4 .a4-brk .bw, html.mob.a4m #viewAbout4 .a4-row3 .a4-big, html.mob.a4m #a4Unit3 .a4-mids, html.mob.a4m #viewAbout4 .a4-bgk, html.mob.a4m #a4Cp .l1, html.mob.a4m .a4m-ct, html.mob.a4m #a4Nav span{
     font-size:var(--m-sub) !important; font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
     font-variation-settings:normal; font-optical-sizing:auto;
   }
   html.mob.a4m #viewAbout4 .a4-row3 .a4-mid{ font-size:var(--m-body) !important; font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s);
     line-height:var(--t-sub-lh); font-variation-settings:normal; font-optical-sizing:auto; }
-  /* 514d (his notes): INTRO's statement is ONE class -- its three rows and every word in them the statement's SUBTITLE,
-     inherited whole (the first row's plain words and the chained rows' word boxes alike); and About opts out of iOS's text
-     autosizing, which may enlarge a plain row of text but not words set in their own boxes */
+  html.mob.a4m #a4Unit .a4-mids, html.mob.a4m #a4Unit .a4-p2l, html.mob.a4m #a4Unit .a4-p2c{ font-size:var(--m-body) !important; font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s);
+    line-height:var(--sm-lh); font-variation-settings:normal; font-optical-sizing:auto; }
+  /* 514d: About opts out of iOS's text autosizing, which may enlarge a plain row of text but not words set in their own boxes */
   html.mob.a4m #viewAbout4{ -webkit-text-size-adjust:100%; text-size-adjust:100%; }
-  html.mob.a4m #a4Cp .l1, html.mob.a4m #a4Cp .l2, html.mob.a4m #a4Cp .l3, html.mob.a4m #a4Cp .w, html.mob.a4m #a4Cp .dots{
-    font:inherit; letter-spacing:inherit; word-spacing:inherit; text-transform:inherit; }
   html.mob.a4m #viewAbout4 .a4-bgc .t{ font-size:var(--m-body); font-variation-settings:normal; font-optical-sizing:auto; }
   html.mob.a4m #viewAbout4 .a4-ap p, html.mob.a4m #viewAbout4 .a4-bgp p{ font-size:var(--m-nocaps); font-variation-settings:normal; font-optical-sizing:auto; }
-  /* THE CORRIDORS (INTRO, BACKGROUND), moved into their sheets: margin to margin, .7 W tall; JS writes the lens (perspective
-     1.5 W, card depth .2 W, pitch W / 20). 513b THE SLIT (#a4GalV) is the DESKTOP'S: its own cards through its own lens
-     (JS m4Slit: the design card, pitch and perspective scaled down as one), the thin band its box */
+  /* THE CORRIDORS (516a: the DESKTOP's build -- its cards, its 3D stacking, its spacing, its lens and INTRO's train, on the
+     desktop's own scale; JS may only scale their HEIGHT down): INTRO's in its sheet, BACKGROUND's moved to CONTACT. THE SLIT
+     (#a4GalV) is the desktop's, through its own lens scaled by the unit law, the thin band its box */
   html.mob.a4m #viewAbout4 .a4-gal{ position:absolute; right:auto; z-index:auto; visibility:inherit; }
-  /* THE NINE LOGOS (from a2Data): ink-cropped white alphas, painted black on paper -- 513b: the desktop's belt, margin to margin */
-  html.mob.a4m .a4m-lg{ position:absolute; left:0; top:0; width:100%; height:0; }
-  html.mob.a4m .a4m-lg.a4m-belt{ left:var(--m-pad); width:calc(100% - 2 * var(--m-pad)); overflow:hidden; }
-  html.mob.a4m .a4m-mk{ position:absolute; overflow:hidden; }
+  /* THE NINE LOGOS (from a2Data): ink-cropped white alphas, painted black on paper -- the desktop's belt, margin to margin;
+     516a: one link of ROLE's chain, then its logos one by one (JS) */
+  html.mob.a4m .a4m-lg{ position:absolute; left:var(--m-pad); top:0; width:calc(100% - 2 * var(--m-pad)); height:0; overflow:hidden; }
+  html.mob.a4m .a4m-mk{ position:absolute; overflow:hidden; opacity:0; }
   html.mob.a4m .a4m-mk img{ position:absolute; display:block; max-width:none; filter:brightness(0); }
-  /* 513b THE TITLE ROWS (each slide's own, at its top edge) and THE END ROW (05  CONTACT): 0n  NAME, number left, name right,
-     SUBTITLE (the end row's rule is the dial A4M_END_RULE). 514d: a title row's rule is its slide's progress -- JS seats it
-     and scales it from the number. A title row's tap opens the index; the end row's is the router's contact go (data-go),
-     and a finger's tap goes at once (JS). The INTRO row takes the boot's fade */
-  html.mob.a4m .a4m-end, html.mob.a4m .a4m-tr{ position:absolute; left:0; width:100%; pointer-events:auto; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  /* 513b THE TITLE ROWS (each slide's own, at its top edge): 0n  NAME, number left, name right, SUBTITLE; 514d: its rule is its
+     slide's progress -- JS seats it and scales it from the number. A title row's tap opens the index. The INTRO row takes the
+     boot's fade */
+  html.mob.a4m .a4m-tr{ position:absolute; left:0; width:100%; pointer-events:auto; cursor:pointer; -webkit-tap-highlight-color:transparent;
     font-size:var(--m-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
     text-transform:uppercase; white-space:nowrap; }
-  html.mob.a4m .a4m-end span, html.mob.a4m .a4m-tr span{ position:absolute; }
-  html.mob.a4m .a4m-end > i{ position:absolute; height:1px; background:currentColor; }
+  html.mob.a4m .a4m-tr span{ position:absolute; }
   html.mob.a4m .a4m-tr > i{ position:absolute; height:1px; background:currentColor; transform-origin:0 50%; transform:scaleX(0); }
-  html.mob.a4m .a4m-end{ touch-action:manipulation; }
   html.mob.a4m #a4Unit3 .a4m-tr{ color:#F5F5F5; }   /* APPROACH's pin is .a4-unit (#000, declared after .u3): the row takes its sheet's ink */
   html.mob.a4m body.a4boot #a4Sl1 .a4m-tr{ opacity:0; transition:opacity .3s ease; }
   html.mob.a4m body.a4boot #a4Sl1 .a4m-tr.on{ opacity:1; }
-  /* BACKGROUND FLOWS: each line comes in (the site's fade + blur, .55s) as it enters -- the case pages' law */
-  html.mob.a4m #viewAbout4 .a4m-rv{ opacity:0; filter:blur(8px); transition:opacity .55s ease var(--d, 0ms), filter .55s ease var(--d, 0ms); }
-  html.mob.a4m #viewAbout4 .a4m-rv.a4m-on{ opacity:1; filter:none; }
+  /* 516a 05 CONTACT's labels (SUBTITLE): INSTAGRAM / LINKEDIN over the corridor, EMAIL / VIMEO under it, UK & WORLDWIDE / 2026 on
+     the bottom margin. The social links are the site's; EMAIL is the router's contact go (a finger's tap goes at once: JS).
+     A label is inert until its chain shows it (m4Chain gives it the pointer past half its window) */
+  html.mob.a4m .a4m-ct{ position:absolute; left:0; top:0; width:max-content; white-space:nowrap; text-transform:uppercase; color:inherit; text-decoration:none;
+    opacity:0; pointer-events:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+  html.mob.a4m .a4m-go{ cursor:pointer; }
   /* THE CHROME: the 512a bar unchanged; the band behind it is the sheet's colour at .72 with an 8px blur, from the top to the
      chrome's foot (513b: the bar's; solid, and deeper, while the index is open) */
   html.mob.a4m body.aboutopen.about4 .hdr::before{ bottom:auto; height:var(--a4m-bh, var(--a4m-ch)); background:rgba(0,0,0,var(--a4m-ba, .72));
@@ -9559,14 +9554,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const q = s => [...document.querySelectorAll(s)];
       const g2 = q('#a4Sl2 .a4-lbig .w.g2'), gm = q('#a4Sl2 .a4-mids .w'), g3 = q('#a4Sl2 .w.g3');
       /* 411: LEADING and VIDEO stand printed (out of the sequence). The
-         reading order runs from the second row, and the belt arrives as
-         NINE items of the same chain -- one per logo, filled each frame
-         from the frozen left-to-right assessment (beltEls/beltOrd). */
+         reading order runs from the second row. 516a: the belt arrives as
+         ONE item of the chain -- its trigger -- and its logos then come in
+         one by one (beltRun, in the order frozen at the trigger); the
+         chain keeps the scroll the nine scrubbed logos bought (the eight
+         empty links after the trigger are its hold). */
       Q1 = [...q('#a4Cp .l2 .w'), ...q('#a4Cp .l3 .w')].map(w => [[w],3]);
       Q1M = seqMeta(Q1.map(it => it[1]));
       Q2 = [ [[g2[0]],13.5], [[g2[1]],13.5], [[g2[2]],13.5], [[g2[3]],13.5],
              ...gm.map(w => [[w],4.5]), [[g3[0]],13.5], [[g3[1]],13.5], [[g3[2]],13.5],
-             ...Array.from({ length: 9 }, () => [[],4.5]) ];   /* 425: ROLE's words at 1.5x weight (his dial) -- the slide reads half again as slow */
+             [[],4.5], ...Array.from({ length: 8 }, () => [[],4.5]) ];   /* 425: ROLE's words at 1.5x weight (his dial) -- the slide reads half again as slow; 516a: the belt is ONE link (his rule), the first of these -- its logos then come in one by one (beltRun); the eight after it carry nothing: the HOLD the entrance plays over, so ROLE keeps 515a's length and every word its window */
       Q2M = seqMeta(Q2.map(it => it[1]));
       const v1 = q('#a4Sl3 .ml2 .w.gv1'), v1b = q('#a4Sl3 .mr2 .w.gv1');
       /* 411/416: the two groups AND the paragraph word by word -- every
@@ -9701,7 +9698,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         im.src = encodeURI(A4_GAL + 'G' + String(n).padStart(2, '0') + '.jpeg');
       }
     }, 2500));
-    function place(){
+    function place(only){   /* 516a: only -- the bands to run (a phone's two corridors); the desktop runs all */
       /* the magazine's spread, straightened: a chevron track -- both edges
          near, the centre receding (z = -|x| * CK) -- each card tilted
          toward the spine and FLIPPING through it as it passes (tanh keeps
@@ -9713,7 +9710,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const halfVis4 = (innerWidth - 2 * PAD) / 2;   /* 501: the projected clip's half-width, for the two swap zones and the release gate */
       const _gV = document.getElementById('a4GalV'), _gB = document.getElementById('a4GalB');
       const hidV = _gV && _gV.style.visibility !== 'visible', hidB = _gB && _gB.style.visibility !== 'visible';   /* 501: band() drives these inline; the base sheet hides both */
+      const _gI = document.getElementById('a4Gal'), hidI = !!_gI && _gI.style.visibility === 'hidden';   /* 516a: a phone hides its INTRO band inline once the slide is covered (the desktop never does) */
       cards.forEach((c, i) => {
+        if (only && only.indexOf(c.parentElement) < 0) return;
         /* 503: the row is the band's own -- spacing and the shared drift
            take its scale, as the card box and the lens do, so each band is
            a true uniform scale of the one design. */
@@ -9815,7 +9814,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            must never skip a frame) but skip the DOM entirely -- the per-frame
            write load drops from 168 cards to the visible bands'. A pending
            swap lands at once: nothing shows. */
-        if ((c.parentElement === _gV && hidV) || (c.parentElement === _gB && hidB)){
+        if ((c.parentElement === _gV && hidV) || (c.parentElement === _gB && hidB) || (c.parentElement === _gI && hidI)){
           if (c._dirty){ c._dirty = false; a4Img(c, c._vi); }
           return;
         }
@@ -10008,6 +10007,28 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       });
     }
     let beltOrd = null;   /* 411: the reveal's frozen left-to-right order */
+    /* 516a THE BELT IS ONE LINK (SPEC-516 sec. 3 -- phones AND desktop): its chain reaches it as ONE item, the trigger, and
+       from there its logos come in ONE BY ONE in the order they stand (frozen at the trigger), A4_BELT_STAG ms apart, each
+       over A4_BELT_DUR ms, the site's fade + blur (bl px: the desktop scrub's 4, the phone's 8); off the trigger they go
+       together. On a clock, so reversible at any moment: each logo's value runs toward its target at one rate. st: the
+       belt's own state (its trigger time, its last frame; idle once every logo is out) */
+    const A4_BELT_STAG = 140, A4_BELT_DUR = 550;
+    const beltSt = {};
+    function beltRun(st, on, els, now, bl){
+      const dt = st.t ? Math.min(100, Math.max(0, now - st.t)) : 0; st.t = now;
+      if (on && !st.on) st.t0 = now;
+      st.on = on;
+      let idle = true;
+      els.forEach((el, j) => {
+        const go = on && now - st.t0 >= j * A4_BELT_STAG;
+        const v = Math.max(0, Math.min(1, (el._bv || 0) + (go ? 1 : on ? 0 : -1) * dt / A4_BELT_DUR));
+        if (v > 0) idle = false;
+        el._bv = v;
+        const e = v * v * (3 - 2 * v), o = e.toFixed(3);
+        if (el._bo !== o){ el._bo = o; el.style.opacity = o; el.style.filter = e >= 1 ? 'none' : 'blur(' + (bl * (1 - e)).toFixed(2) + 'px)'; }
+      });
+      st.idle = idle;
+    }
     function beltEls(){
       const inn = document.getElementById('a4B2In');
       return [...inn.children].filter(el => el._w !== undefined)
@@ -10075,6 +10096,32 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         el.style.transform = 'translate3d(' + (x * kw).toFixed(1) + 'px,0,0)';
         el.style.left = '0px';
       });
+    }
+    /* 423: THE TRAIN'S SNAPSHOT (516a: a function of its own, so a phone's INTRO corridor enters exactly as the desktop's;
+       the lines are tick's, unchanged -- see the train's law there) */
+    function a4Train(gal){
+      const ic2 = [...gal.children];
+      if (ic2.length){
+        const spT = A4_SP * gK4 * kB1, ringT = ic2.length * spT, halfT = ringT / 2;   /* 503: the train reads the INTRO band's own row */
+        const halfVis = (innerWidth - 2 * PAD) / 2;
+        const rows = ic2.map((c, i) => ({ c, x: mod4(i * spT - cur * kB1 + halfT, ringT) - halfT }));
+        /* 508: the train is the body the 56-card ring always had; slots a
+           grown ring adds past its right end trail behind the last car
+           on the tail's displacement, so the entrance reads the same at
+           every width and nothing is left standing in the park. */
+        const parkX = A4_N * spT / 2;
+        const train = rows.filter(r => r.x >= -halfVis - 20 && r.x < parkX).sort((a, b) => a.x - b.x);
+        rows.forEach(r => { if (r.x < -halfVis - 20){ r.c._D = 0; r.c._hideL = true; } else r.c._hideL = false; });
+        const M = train.length;
+        let D = train.length ? ((halfVis + 340) - train[0].x) : 0;   /* clear of the lens's projected face: the head starts truly OFF the right edge */
+        train.forEach((r, k) => {
+          r.c._D = D;
+          const m = 4 - 3 * (k / Math.max(1, M - 2));
+          D += spT * (m - 1) + 0;   /* the NEXT card's extra: gap_k(0) = m_k * sp */
+        });
+        gal._Dtail = D;   /* 508: the displacement a car appended behind the tail takes (m has reached 1, so the gap stays one pitch) */
+        rows.forEach(r => { if (r.x >= parkX) r.c._D = D; });
+      }
     }
     function tick(now){
       raf = 0;
@@ -10197,28 +10244,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            beyond the left edge stay hidden until the train has landed
            (they belong to the ring's wrap, not the entrance). */
         if (!swSnap){
-          const ic2 = [...gal.children];
-          if (ic2.length){
-            const spT = A4_SP * gK4 * kB1, ringT = ic2.length * spT, halfT = ringT / 2;   /* 503: the train reads the INTRO band's own row */
-            const halfVis = (innerWidth - 2 * PAD) / 2;
-            const rows = ic2.map((c, i) => ({ c, x: mod4(i * spT - cur * kB1 + halfT, ringT) - halfT }));
-            /* 508: the train is the body the 56-card ring always had; slots a
-               grown ring adds past its right end trail behind the last car
-               on the tail's displacement, so the entrance reads the same at
-               every width and nothing is left standing in the park. */
-            const parkX = A4_N * spT / 2;
-            const train = rows.filter(r => r.x >= -halfVis - 20 && r.x < parkX).sort((a, b) => a.x - b.x);
-            rows.forEach(r => { if (r.x < -halfVis - 20){ r.c._D = 0; r.c._hideL = true; } else r.c._hideL = false; });
-            const M = train.length;
-            let D = train.length ? ((halfVis + 340) - train[0].x) : 0;   /* clear of the lens's projected face: the head starts truly OFF the right edge */
-            train.forEach((r, k) => {
-              r.c._D = D;
-              const m = 4 - 3 * (k / Math.max(1, M - 2));
-              D += spT * (m - 1) + 0;   /* the NEXT card's extra: gap_k(0) = m_k * sp */
-            });
-            gal._Dtail = D;   /* 508: the displacement a car appended behind the tail takes (m has reached 1, so the gap stays one pitch) */
-            rows.forEach(r => { if (r.x >= parkX) r.c._D = D; });
-          }
+          a4Train(gal);
           if (swOn) swSnap = true;
         }
         if (!swOn && swP === 0){
@@ -10266,15 +10292,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         document.getElementById('a4Unit3').style.opacity = damp(e4 / vh);
         /* ---- the journey nav: each traveller rides ITS slide's drive ---- */
         navDrive(e1 / vh, x2 / vh, e4 / vh);
-        /* 411: the belt's nine. Their order is ASSESSED the moment the
-           reveal first touches them -- each logo's on-screen x right then --
-           and FROZEN for the pass, so the drifting belt cannot shuffle a
-           half-revealed row; released once the reveal has fully left. */
-        const qB = (Math.min(1, q2) / .97) * Q2M.end - Q2M.st[Q2.length - 9];   /* the first logo's window on the unit line */
-        if (qB > 0 && !beltOrd && beltRing) beltOrd = beltEls();
-        if (qB <= 0) beltOrd = null;
-        (beltOrd || (beltRing ? beltEls() : [])).forEach((el, k) => { const s = Q2[Q2.length - 9 + k]; if (s) s[0] = [el]; });
+        /* 411: the belt's order is ASSESSED the moment the reveal first
+           touches it -- each logo's on-screen x right then -- and FROZEN for
+           the pass, so the drifting belt cannot shuffle a half-revealed row;
+           released once the logos have all gone again. 516a (his rule): the
+           belt is ONE link of the chain -- the trigger -- and once it is
+           reached its logos come in one by one (beltRun). */
         scrubSeq(Q2, Q2M, q2);
+        const bOn = +(Q2[Q2.length - 9]._eS || 0) > 0;   /* the belt's link reached (where 515a's first logo began; the eight links after it are its hold) */
+        if (bOn && !beltOrd && beltRing) beltOrd = beltEls();
+        beltRun(beltSt, bOn, beltOrd || [], now, 4);
+        if (!bOn && beltSt.idle) beltOrd = null;
         scrubSeq(Q3, Q3M, q3);
         scrubSeq(Q4, Q4M, q4);
         /* 417: the case row's AUTOMATED entrance -- the trigger fires it,
@@ -10647,6 +10675,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          Dirty cards are re-dressed here, before the first painted frame. */
       drift4 = 0; ovfT = 0; ovfC = 0;
       swP = 0; swE = 0; swDir = 0; swOn = false; swSnap = false;
+      if (m4On){ m4Boot = performance.now(); m4Drift = 0; for (const k in m4BeltS) delete m4BeltS[k]; }   /* 516a: a phone's INTRO comes in with the slide, every opening */
       cards.forEach(c => { c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false;
         const u = a4U(c); if (u !== c._vi){ a4Img(c, u); c._dirty = false; } });   /* 509: dressed for the REWOUND belt -- the old counts belonged to the last visit's */
       /* 507: NEVER gate the loop on a possibly-stale handle. requestAnimationFrame
@@ -10666,81 +10695,99 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* ==== 512g: ABOUT ON A PORTRAIT PHONE (typo512/ABOUT-MOBILE-DESIGN.md, the judged synthesis) ========================
        THE SAME DOM, restyled (M512:ABOUT) and placed by ink with the site's own tools (inkPx, a4Cap, a4Base): no second
        About subtree and no copy of its text. On a portrait phone with About built, m4Enter puts .a4m on <html> and the
-       desktop journey stands down -- solve / place / the unit scale (layout()), the wheel spring, the train's books and the
-       travelling nav words (tick), the belt's loop (hidden). Every inline style this branch writes is recorded (m4St) and
-       lifted on the way back (m4Leave), where the desktop's books are reset as open() resets them; the next desktop layout
-       and frame write their own. A LANDSCAPE phone keeps the desktop journey under the phone header, as 512f left it.
-       THE SHEETS: INTRO, ROLE and APPROACH are pinned stages in the view's native scroll -- each held while the thumb runs
-       its chain, then the next rises over it for one screen (the desktop's card-over-card law, no hijack); BACKGROUND flows
-       and ends on 05 ---- CONTACT. ONE motion primitive, the site's fade + blur: scrubbed on the pinned sheets (a link owns
-       a window of 1.6 x its weight; the filter only inside it), triggered on the flowing one (.a4m-rv as it passes 88%).
-       THE NAV (#a4Nav) was the section row under B - D; 513b (his notes): each slide carries its own title row, and #a4Nav
-       is only the index a title row's tap opens.
-       HIS OPEN QUESTIONS (the doc's sec. 8), each ONE dial, set to the doc's recommendation: (1) the TITLE tier -- CSS
-       --m-title-k; (2) A4M_ROLE; (3) A4M_LOGOS; (4) the statement's alignment -- CSS --a4m-cp-align; (5) A4M_CORRIDORS;
-       (6) ABOUT expanding in the menu slide -- not built (it would touch 512a's menu). */
-    const A4M_HOLD = [2, 1, .8];   /* INTRO, ROLE, APPROACH: the holds, in screens (the motion map: 7.9 screens at 390 x 844) */
-    const A4M_ROLE = 'split';      /* Q2: 'split' = the menu composition -- LEADING .. SOCIALS hung from the zone top, FLAGSHIP WORK FOR + the logos stood on the bottom margin, the void between; 'centre' = one block centred in the zone */
-    const A4M_LOGOS = 'belt';      /* Q3 -- 513b, his answer: 'belt' = the desktop's belt, one row running margin to margin, all nine, looping seamlessly; 'grid' = 512g's still 3 x 3 on the three anchors */
-    const A4M_CORRIDORS = 2;       /* Q5: 2 = INTRO and BACKGROUND, as on the desktop; 1 = INTRO only */
+       desktop journey stands down -- solve / place / the unit scale (layout()), the wheel spring, the travelling nav words
+       (tick), the belt's loop (hidden). Every inline style this branch writes is recorded (m4St) and lifted on the way back
+       (m4Leave), where the desktop's books are reset as open() resets them; the next desktop layout and frame write their
+       own. A LANDSCAPE phone keeps the desktop journey under the phone header, as 512f left it.
+       THE SHEETS are pinned stages in the view's native scroll -- each held while the thumb runs its chain, then the next
+       rises over it (the desktop's card-over-card law, no hijack). 513b / 514d (his notes): each slide carries its own title
+       row (0n  NAME, its rule the slide's progress); #a4Nav is only the index a title row's tap opens.
+       516a: HIS MOCKUPS (SPEC-516 sec. 1-3, typo512/about516/), translated into principles:
+       - THE CLASSES are the phone's alone -- SUBTITLE, BODY(CAPS), NOCAPS (the TITLE tier is gone).
+       - THE COMPOSITION: apart from INTRO every slide is built round ONE element VERTICALLY CENTRED in the space below its
+         title row (its baseline .. the bottom margin), with a SUBTITLE paragraph above it on the left margin and one below it
+         on the right margin (right-aligned), each held to it by ONE padding, P (A4M_PAD S; the same on ROLE, APPROACH and
+         BACKGROUND, breathing down to A4M_PAD_MIN S when the tallest of them needs it). Labels and captions round a centre
+         (ROLE's round the belt, the slit's paragraphs, the schools under the copy, CONTACT's round its corridor, INTRO's round
+         its corridor) keep the caption padding, CP (A4M_CPAD S). A slide still too tall holds its top and runs on below (E).
+       - INTRO: THE BEST CREATIVE WORK STARTS WITH... (SUBTITLE, centred) over the corridor; the corridor in the middle; the
+         rest of the statement ONE centred NOCAPS paragraph in sentence case under it; CREATIVE LEAD | FOR / BRAND FILM on the
+         bottom margin (514d). It all comes in WITH THE SLIDE: the corridor's train fires A4M_TRAIN_AT after the opening, the
+         paragraph's words one by one from A4M_P0.
+       - ROLE: LEADING / VIDEO; the belt with BRAND FILMS / CONTENT STRATEGY / SOCIALS over it (BODY(CAPS), right) and FLAGSHIP
+         / WORK under it (BODY(CAPS), left -- FOR dropped); FROM BRIEF / TO DELIVERY. APPROACH: CONNECTING / PEOPLE / TO THE
+         BRAND; paragraph 1, the slit, paragraph 2; CULTURE / TO EFFECTIVENESS. BACKGROUND: 12 YEARS IN ADVERTISING / TAUGHT ME /
+         IT'S WORTH ASKING; the three paragraphs and the schools in ONE row; WHY ARE THEY / WATCHING. CONTACT (the phone's own
+         fifth sheet, .a4m-sl5): INSTAGRAM / LINKEDIN, the corridor, EMAIL / VIMEO, UK & WORLDWIDE / 2026 on the bottom margin.
+       - THE CORRIDORS are the DESKTOP's build (sec. 2): its cards, 3D stacking, spacing and lens at the desktop's scale
+         (A4M_GK), INTRO's entrance the desktop's train (a4Train + place()) -- only their height may be scaled down.
+       - THE BELT is ONE link of ROLE's chain; reached, its logos come in one by one (beltRun -- the desktop's too, sec. 3). */
+    const A4M_HOLD = [.5, 1, .8, 1, .3];   /* 516a: INTRO, ROLE, APPROACH, BACKGROUND, CONTACT -- the holds, in screens (INTRO's content comes in with the slide, so its hold is a short dwell; CONTACT's lets its labels land before the page ends) */
     /* 513b: HIS NOTES (SPEC-513 "About on phones"), as dials. THE SLIDE TRANSITION, at every boundary: the incoming slide
        rises A4M_IN x as fast as the finger (514d, his notes: both speeds halved -- it now rises a little slower than the
        finger, still three times as fast as the outgoing one recedes, and covers it, led by its title row), the outgoing one
        recedes A4M_OUT x (a slow parallax) while its content fades as the desktop's outgoing card does; the incoming items
        come in one by one from the moment it is A4M_LEAD risen. THE BELT: logos A4M_BELT_H S tall (x their registry scale),
-       A4M_BELT_GAP S apart (the desktop's air is 192px). The end row's rule: A4M_END_RULE (0 = none, as the title rows) */
+       A4M_BELT_GAP S apart (the desktop's air is 192px) */
     const A4M_IN = .6, A4M_OUT = .2, A4M_LEAD = .4;   /* 514d: 1.2 / .4 halved (his notes) */
     const A4M_BELT_H = 1.4, A4M_BELT_GAP = 1.6;
-    const A4M_END_RULE = 0;
-    /* 514d: HIS 514 NOTES, as dials. A4M_ROLE_LIFT: the share of ROLE's void that goes UNDER FLAGSHIP WORK FOR + the belt
-       (0 = 513b's stand on the bottom margin; .5 = the lower group centred in the room left under the hung one). A4M_HR:
-       the header's B - D rule fades over the first A4M_HR of a screen. A4M_RULE_GAP: a title row's rule stands this many
-       S clear of its number and its name (the end row's air, as the header's own rule) */
-    const A4M_ROLE_LIFT = .5, A4M_HR = .12, A4M_RULE_GAP = .8;
+    /* 514d: A4M_HR: the header's B - D rule fades over the first A4M_HR of a screen. A4M_RULE_GAP: a title row's rule stands
+       this many S clear of its number and its name */
+    const A4M_HR = .12, A4M_RULE_GAP = .8;
+    /* 516a: THE PADDINGS (in S) -- P, a slide's paragraphs to its centre element (his mockups: 2.4 - 4.2 S on a 667px
+       iPhone view), at most A4M_PAD, at least A4M_PAD_MIN; CP, labels and captions to what they caption (.3 - 1 S) */
+    const A4M_PAD = 3.5, A4M_PAD_MIN = 1, A4M_CPAD = .75;
+    /* 516a: THE CORRIDORS' SCALE of the desktop's band (1 = the desktop's own: 295 x 223 cards, 38 apart, the 800px lens; the
+       desktop's law, kB1, gives 1 on every portrait phone); the least share of its height a slide may scale it to */
+    const A4M_GK = 1, A4M_GH_MIN = .5;
+    /* 516a: INTRO AT ITS OPENING (ms): the corridor's train fires at A4M_TRAIN_AT; the paragraph's words from A4M_P0, A4M_STAG
+       apart, each over A4M_DUR (the site's fade + blur) */
+    const A4M_TRAIN_AT = 0, A4M_P0 = 900, A4M_STAG = 45, A4M_DUR = 550;
+    /* 516a: HIS COPY for the phone (" / " a line break, never shown): CONTACT's labels that are not the site's links, and the
+       schools' captions as his mockup breaks them (the desktop keeps its own) */
+    const A4M_CONTACT = { email:'Email', base:'UK & Worldwide', year:'2026' };
+    const A4M_BGC = ['BSc / Film and Media / Specialist', 'Master (Joint) / Film and TV / Sociology'];
     const A4M_LG4 = { 'METUlogo.png':[13,24,421,412,48], 'UoGlogo.png':[68,11,317,409,48], 'cMBAlogo.png':[6,7,317,149,26] };   /* build()'s school-mark ink boxes: x, y, w, h, the desktop ink height */
     const m4Clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
     const m4OnPhone = () => MOB.on && !MOB.land;
     const m4Q = s => view.querySelector(s);
-    /* 515a: ABOUT LEAVES THE SITE'S SOLVE (SPEC-515 item 2: his redesign is coming). Its rows below now feed MOB.arows, About's
-       LOCAL cap: MOB.aS = min(the site's S, the fit of these rows), written as --m-sub-a, from which About's view and its nav
-       re-derive every phone token (M512:ABOUT) -- so a bigger site SUBTITLE never overruns About, and TITLE = --m-title-k x
-       that. The rows themselves are unchanged.
-       513a: ABOUT JOINS THE SUBTITLE SOLVE (SPEC-513: About grows with the SUBTITLE -- TITLE = --m-title-k x it -- so its
-       tight rows join the solve, and nothing on About may overrun or collide at any phone size). The rows are read from
-       About's own DOM (its words, in the phone's lines). ON A PORTRAIT PHONE (the a4m composition): the three TITLE spreads
-       (LEADING | VIDEO, FROM | BRIEF, TO | DELIVERY) with at least A4M_AIR TITLE of air, so a pair never reads as a phrase
-       (a TITLE word space is about a third of one); INTRO's bottom row (514d: the hero row's -- CREATIVE LEAD in SUBTITLE |
-       FOR / BRAND FILM in BODY) with a title's air (M_GAP); every TITLE and SUBTITLE line alone;
-       the schools' captions (BODY, 2.2 S in, as m4Bg seats them); the section row and the end row (0n ---- NAME, the
-       least hairline M_RULE). ON A LANDSCAPE PHONE About keeps the desktop journey under the phone header, and its nav is
-       the tight row: the five words in one row with the travellers' gaps and BACKGROUND's hold (navMeasure / navDrive:
-       30 and 90, drawn round 21px words). */
-    const A4M_AIR = 1;   /* the least air in a TITLE spread, in TITLE */
+    /* 515a: ABOUT LEAVES THE SITE'S SOLVE (SPEC-515 item 2). Its rows below feed MOB.arows, About's LOCAL cap: MOB.aS = min(the
+       site's S, the fit of these rows), written as --m-sub-a, from which About's view and its nav re-derive every phone token
+       (M512:BASE). 516a: the rows as his mockups draw them -- on a PORTRAIT phone every line alone (SUBTITLE, or BODY(CAPS));
+       INTRO's bottom row and CONTACT's three rows pair-wise with a title's air (M_GAP); the title rows with the least hairline
+       (M_RULE); the schools' row with its marks at their least (A4M_GH_MIN of the captions); INTRO's statement and the
+       paragraphs wrap (not rows). ON A LANDSCAPE PHONE About keeps the desktop journey under the phone header, and its nav is
+       the tight row: the five words in one row with the travellers' gaps and BACKGROUND's hold (navMeasure / navDrive: 30 and
+       90, drawn round 21px words). */
     const m4Lines = el => { const o = ['']; if (el) el.childNodes.forEach(n => { if (n.nodeName === 'BR') o.push(''); else o[o.length - 1] += n.textContent; });
       return o.map(t => t.replace(/\s+/g, ' ').trim()).filter(Boolean); };
+    const m4Foot = t => [...view.querySelectorAll('.a4-foot a')].find(a => a.textContent.trim().toLowerCase() === t);
     MOB.arows.push(W => {
       if (!MOB.on) return [];
-      const S = W.S, T = W.k * S, R = [], add = (what, w) => R.push({ what:'about ' + what, w });
+      const S = W.S, R = [], add = (what, w) => R.push({ what:'about ' + what, w });
       const nav = [...document.querySelectorAll('#a4Nav span')].map(e => e.textContent.trim()).filter(Boolean);
       if (!m4OnPhone()){
         if (nav.length) add('nav (landscape)', nav.reduce((a, t) => a + W(t), 0) + (4 * 30 + 90) / 21 * S);
         return R;
       }
-      const tx = s => (m4Q(s) ? m4Q(s).textContent : '').replace(/\s+/g, ' ').trim();
-      const rw = [...view.querySelectorAll('#a4Unit .a4-rw2 .w')].map(e => e.textContent.trim());
-      [[tx('#a4Unit .a4-lbig.s1l'), tx('#a4Unit .a4-lbig.s1r')], [rw[0], rw[1]], [rw[2], rw[3]]].forEach(([a, b]) => { if (a && b) add(a + ' | ' + b, W.T(a) + A4M_AIR * T + W.T(b)); });
+      const tx = s => (m4Q(s) ? m4Q(s).textContent : '').replace(/\s+/g, ' ').trim(), ws = s => [...view.querySelectorAll(s)].map(e => e.textContent.trim());
       const big = tx('.a4-row3 .a4-big'), mid = m4Lines(m4Q('.a4-row3 .a4-mid')), ml = [mid[0], mid.slice(1).join(' ')];
       if (big && ml[0]) add(big + ' | ' + ml.join(' / '), W(big) + M_GAP * S + Math.max(W(ml[0], 1), W(ml[1], 1)));   /* 514d: the hero row's hierarchy */
-      const ws = [...view.querySelectorAll('#a4Unit4 .a4-rw4 .w')].map(e => e.textContent.trim());
-      [tx('#a4Unit .a4-p2l'), tx('#a4Unit .a4-p2c'), tx('#a4Unit .a4-p2r'), tx('#a4Unit3 .a4-brk .bw'), ws.slice(0, -1).join(' '), ws[ws.length - 1]]
-        .forEach(t => { if (t) add(t, W.T(t)); });
-      view.querySelectorAll('.a4-mids, .a4-bgk').forEach(e => m4Lines(e).forEach(t => add(t, W(t))));
-      view.querySelectorAll('.a4-bgc .t').forEach(e => m4Lines(e).forEach(t => add(t, 2.2 * S + W(t, 1))));
+      const rw = ws('#a4Unit .a4-rw2 .w'), r4 = ws('#a4Unit4 .a4-rw4 .w');
+      [tx('#a4Unit .a4-lbig.s1l'), tx('#a4Unit .a4-lbig.s1r'), rw.slice(0, 2).join(' '), rw.slice(2).join(' '), tx('#a4Unit3 .a4-brk .bw'), r4.slice(0, -1).join(' '), r4[r4.length - 1]]
+        .forEach(t => { if (t) add(t, W(t)); });
+      view.querySelectorAll('#a4Unit3 .a4-mids, .a4-bgk').forEach(e => m4Lines(e).forEach(t => add(t, W(t))));
+      ['.a4-mids.ml', '.a4-mids.mc', '.a4-mids.mr', '.a4-p2l', '.a4-p2c'].forEach(c => m4Lines(m4Q('#a4Unit ' + c)).forEach(t => add(t, W(t, 1))));
+      const cw = A4M_BGC.map(c => Math.max(0, ...c.split(' / ').map(t => W(t, 1)))), ar = Object.keys(A4M_LG4).reduce((a, k) => a + A4M_LG4[k][2] / A4M_LG4[k][3], 0);
+      add('schools row', cw[0] + cw[1] + (2 * .6 + 2) * S / 2 + A4M_GH_MIN * ar * (.7 + 2 * 1.13) * S / 2);   /* the captions, their air, the least marks */
       nav.forEach((t, i) => add(String(i + 1).padStart(2, '0') + ' ' + t, W(String(i + 1).padStart(2, '0')) + M_RULE * S + W(t)));
+      const lk = t => ((m4Foot(t) || {}).textContent || t).trim();
+      [[lk('instagram'), lk('linkedin')], [A4M_CONTACT.email, lk('vimeo')], [A4M_CONTACT.base, A4M_CONTACT.year]].forEach(([a, b]) => add(a + ' | ' + b, W(a) + M_GAP * S + W(b)));
       return R;
     });
-    let m4On = false, m4G = null, m4Pin = null, m4T = 0, m4Drift = 0, m4Ch = null, m4BgU = [];
+    let m4On = false, m4G = null, m4Pin = null, m4T = 0, m4Drift = 0, m4Ch = null, m4Boot = 0;
     const m4Nav = { open:false, o0:0, sc0:0, top0:0, capY:0 };   /* 513b: the index (a title row's tap) */
+    const m4BeltS = {};   /* 516a: ROLE's belt, its one-by-one clock (beltRun) */
     const m4Wrote = new Set();
     /* an inline style this branch owns: written only on a change (el._m4, the values -- dropped at every layout), recorded
        (el._m4p, the properties), lifted in m4Leave */
@@ -10763,10 +10810,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (last) el.appendChild(q); else el.insertBefore(q, el.firstChild);
       const y = q.getBoundingClientRect().bottom; q.remove(); return y;
     }
-    /* an element's INK in window px: left / right x (the side bearings of its edge letters), its box left, the first cap
-       top, the first and last baselines (live, a4Base). o.ref: the element that carries the type, if not el itself; o.ink:
-       the box the ink is read from, if not el (FLAGSHIP / FOR: the word, which carries the desktop's seat margin inside
-       its row -- read off the row, the seat missed it) */
+    /* an element's INK in window px: left / right x (the side bearings of its edge letters), its box left and right, the
+       first cap top, the first and last baselines (live, a4Base). o.ref: the element that carries the type, if not el itself;
+       o.ink: the box the ink is read from, if not el (FLAGSHIP / WORK: the word, which carries the desktop's seat margin) */
     function m4Ink(el, o){
       const tx = o.ref || el, cs = getComputedStyle(tx), t = (tx.textContent || '').trim();
       const fs = parseFloat(cs.fontSize) || 0, cap = a4Cap(parseFloat(cs.fontWeight) >= 900 ? 1000 : 700) * fs;
@@ -10775,59 +10821,80 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       [].concat(o.fc || t.charAt(0)).forEach(ch => { const p = inkPx(tx, ch); l = Math.min(l, p ? p.l : 0); });
       [].concat(o.lc || t.charAt(t.length - 1)).forEach(ch => { const p = inkPx(tx, ch); rr = Math.min(rr, p ? p.r : 0); });
       const b0 = m4Base(tx), b1 = m4Base(tx, true);
-      return { l: r.left + l, r: r.right - rr, bl: r.left, cap: b0 - cap, b0, b1 };
+      return { l: r.left + l, r: r.right - rr, bl: r.left, br: r.right, cap: b0 - cap, b0, b1 };
     }
     /* THE SEAT (the prototype's line(), on the site's ink): a = 'L' left ink on x, 'R' right ink on x, 'C' ink centred on
-       x, 'B' the box's left on x (a wrapped block); y = the first cap top, or with o.last the LAST baseline. Coordinates
-       are the current pin's (m4Pin); returns the placed ink in them */
+       x, 'B' the box's left on x, 'E' the box's right on x (516a: a stack whose edge words took back their bearings, m4Edge);
+       y = the first cap top, or with o.last the LAST baseline. Coordinates are the current pin's (m4Pin); returns the placed
+       ink in them */
     function m4Put(el, a, x, y, o){
       o = o || {};
       m4St(el, 'left', '0px'); m4St(el, 'top', '0px');
       const k = m4Ink(el, o), P = m4Pin;
-      const ix = a === 'L' ? k.l : a === 'R' ? k.r : a === 'B' ? k.bl : (k.l + k.r) / 2;
+      const ix = a === 'L' ? k.l : a === 'R' ? k.r : a === 'B' ? k.bl : a === 'E' ? k.br : (k.l + k.r) / 2;
       const dx = P.x + x - ix, dy = P.y + y - (o.last ? k.b1 : k.cap);
       m4St(el, 'left', dx.toFixed(2) + 'px'); m4St(el, 'top', dy.toFixed(2) + 'px');
       const X = dx - P.x, Y = dy - P.y;
       return { l: k.l + X, r: k.r + X, cap: k.cap + Y, b0: k.b0 + Y, b1: k.b1 + Y };
     }
-    const m4Shift = (els, dy) => els.forEach(e => m4St(e, 'top', (parseFloat(e.style.top) + dy).toFixed(2) + 'px'));
-    /* A CORRIDOR (FAITHFUL's lens): the band margin to margin, perspective 1.5 W, card depth .2 W, pitch W / 20 */
-    function m4Band(host, x, y, w, h){
+    const m4Shift = (els, dy) => els.forEach(e => { if (e) m4St(e, 'top', (parseFloat(e.style.top) + dy).toFixed(2) + 'px'); });
+    /* 516a: a stack's lines seated by INK: each line's edge word (the first of a line on the left, the last on the right)
+       takes its edge letter's bearing back as a margin, so the box's edge IS the ink's on every line */
+    function m4Edge(el, side){
+      if (!el) return;
+      const ed = []; let first = true, prev = null;
+      el.childNodes.forEach(n => { if (n.nodeName === 'BR'){ if (prev && side === 'R') ed.push(prev); prev = null; first = true; }
+        else if (n.nodeType === 1 && n.classList.contains('w')){ if (first && side === 'L') ed.push(n); first = false; prev = n; } });
+      if (prev && side === 'R') ed.push(prev);
+      ed.forEach(w => { const t = w.textContent.trim(), p = inkPx(w, side === 'L' ? t.charAt(0) : t.charAt(t.length - 1));
+        m4St(w, side === 'L' ? 'marginLeft' : 'marginRight', (p ? -(side === 'L' ? p.l : p.r) : 0).toFixed(2) + 'px'); });
+    }
+    /* 516a: a word set beside the next one in its own box (FROM | BRIEF, TO | DELIVERY): one word space apart, on its cap */
+    function m4Sp(el){
+      const q = document.createElement('span'); q.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;white-space:pre;';
+      el.appendChild(q); q.textContent = 'H H'; const a = q.getBoundingClientRect().width; q.textContent = 'HH'; const b = q.getBoundingClientRect().width; q.remove();
+      return a - b;
+    }
+    function m4Before(a, b, sp){
+      m4St(a, 'top', b.style.top); m4St(a, 'left', '0px');
+      const ra = a.getBoundingClientRect(), rb = b.getBoundingClientRect();
+      m4St(a, 'left', (rb.left - sp - ra.right).toFixed(2) + 'px');
+    }
+    /* 516a A CORRIDOR, the DESKTOP's band (bandScale's put(), at A4M_GK): its box margin to margin, its card, lens and pitch
+       the desktop's x k; a height under the band's scales the CARD's height alone (his "scaling the HEIGHT down is fine") */
+    function m4Gal(host, x, y, w, h){
+      const k = m4G.gk;
       m4St(host, 'display', ''); m4St(host, 'left', x.toFixed(2) + 'px'); m4St(host, 'top', y.toFixed(2) + 'px');
       m4St(host, 'width', w.toFixed(2) + 'px'); m4St(host, 'height', h.toFixed(2) + 'px'); m4St(host, 'clipPath', 'none'); m4St(host, 'zIndex', 'auto');
-      m4St(host, '--a4-p', (1.5 * w).toFixed(2) + 'px'); m4St(host, '--a4-cw', (.2 * w).toFixed(2) + 'px'); m4St(host, '--a4-ch', h.toFixed(2) + 'px');
-      host._m4g = { w, h, y, sp: w / 20, d: .2 * w }; host._m4ok = false;
+      m4St(host, '--a4-p', (A4_P * k).toFixed(2) + 'px'); m4St(host, '--a4-cw', (A4_CW * k).toFixed(2) + 'px');
+      m4St(host, '--a4-ch', (A4_CH * k * Math.min(1, h / (bandH4 * k))).toFixed(2) + 'px');
+      host._m4g = { y, h };
     }
-    /* edge-on cards through the one lens; a card's frame is its place on the unrolled belt (509: his frames in sequence),
-       changed only where the lens shows nothing; train > 0 displaces the cars to the right, later ones trailing */
-    function m4Place(host, cur, train){
-      const g = host._m4g; if (!g) return;
-      const cs = host.children, n = cs.length, ring = n * g.sp, half = ring / 2, lim = g.w / 2 + g.d, dz = (-g.d / 2).toFixed(2);
-      for (let i = 0; i < n; i++){
-        const c = cs[i]; if (c._li === undefined) continue;
-        const xm = mod4(c._li * g.sp - cur + half, ring) - half;
-        const x = train > 0 ? xm + train * (g.w * .9 + (xm + half) * .9) : xm;
-        const on = Math.abs(x) < lim, u = Math.round((xm + cur) / g.sp);
-        if (u !== c._vi && (!on || !host._m4ok)) a4Img(c, u);
-        const vz = on ? '' : 'hidden';
-        if (c._m4v !== vz){ c._m4v = vz; c.style.visibility = vz; }
-        if (!on) continue;
-        const tf = 'translate3d(' + x.toFixed(2) + 'px,0,' + dz + 'px) rotateY(' + (x < 0 ? 90 : -90) + 'deg)';
-        if (c._m4t !== tf){ c._m4t = tf; c.style.transform = tf; }
-      }
-      host._m4ok = true;
-    }
-    /* the runtime nodes (no text of their own but the nav's CONTACT): the slit's 31 slivers, the nine logos, the end row;
-       the corridors move into their sheets. Undone on the way back */
+    /* the runtime nodes: each slide's title row, the nine logos, 516a CONTACT's sheet (its labels from the site's corner
+       links and his copy); the corridors move into their sheets; the schools' captions take his lines. Undone on the way back */
     function m4Nodes(on){
       const gals = ['a4Gal', 'a4GalV', 'a4GalB'].map(id => document.getElementById(id));
       const mid = m4Q('.a4-row3 .a4-mid');
       if (on){
-        const pins = [m4Q('#a4Sl1 .a4-s1'), document.getElementById('a4Unit3'), document.getElementById('a4Unit4')];
+        let s5 = m4Q(':scope > .a4m-sl5');
+        if (!s5){
+          s5 = document.createElement('div'); s5.className = 'a4m-sl5';
+          const u5 = document.createElement('div'); u5.className = 'a4m-u5'; s5.appendChild(u5);
+          [['ig', 'instagram'], ['li', 'linkedin'], ['em', null, A4M_CONTACT.email], ['vm', 'vimeo'], ['bs', null, A4M_CONTACT.base], ['yr', null, A4M_CONTACT.year]].forEach(([k, f, t]) => {
+            const src = f && m4Foot(f), e = document.createElement(src ? 'a' : 'span');
+            e.className = 'a4m-ct'; e.dataset.m4 = k; e.textContent = src ? src.textContent.trim() : t;
+            if (src){ e.href = src.href; e.target = '_blank'; e.rel = 'noopener'; }
+            if (k === 'em'){ e.classList.add('a4m-go'); e.dataset.go = 'contact'; e.setAttribute('role', 'link'); }   /* EMAIL: the site's contact form page (GET IN TOUCH) */
+            if (k === 'em'){ e.tabIndex = 0; e.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); m4Go(); } }); }   /* 516a: and on the keyboard, by the same go */
+            u5.appendChild(e);
+          });
+          view.appendChild(s5);
+        }
+        const pins = [m4Q('#a4Sl1 .a4-s1'), document.getElementById('a4Unit3'), s5.firstChild];
         gals.forEach((g, i) => { if (g && pins[i] && g.parentNode !== pins[i]) pins[i].appendChild(g); });
-        /* 513b: each slide's own title row (0n  NAME, the nav's words), first in its pin (INTRO, ROLE, APPROACH, BACKGROUND) */
+        /* 513b: each slide's own title row (0n  NAME, the nav's words), first in its pin (INTRO .. CONTACT) */
         const names = [...document.querySelectorAll('#a4Nav span')].map(e => e.textContent);
-        [pins[0], document.getElementById('a4Unit'), pins[1], pins[2]].forEach((p, k) => {
+        [pins[0], document.getElementById('a4Unit'), pins[1], document.getElementById('a4Unit4'), pins[2]].forEach((p, k) => {
           if (!p || p.querySelector(':scope > .a4m-tr')) return;
           const r = document.createElement('div'); r.className = 'a4m-tr';
           const n = document.createElement('span'), w = document.createElement('span');
@@ -10844,26 +10911,23 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
             d.appendChild(im); box.appendChild(d); });
           unit.appendChild(box);
         }
-        const u4 = document.getElementById('a4Unit4'), ct = document.querySelector('#a4Nav span.ct');
-        if (u4 && !u4.querySelector('.a4m-end')){
-          const e = document.createElement('div'); e.className = 'a4m-end'; e.dataset.go = 'contact';
-          const n = document.createElement('span'), r = document.createElement('i'), w = document.createElement('span');
-          n.textContent = String(document.querySelectorAll('#a4Nav span').length).padStart(2, '0'); w.textContent = ct ? ct.textContent : '';
-          e.appendChild(n); e.appendChild(r); e.appendChild(w); u4.appendChild(e);
-        }
+        view.querySelectorAll('#a4Unit4 .a4-bgc .t').forEach((t, i) => { if (t._m4h !== undefined || !A4M_BGC[i]) return;
+          t._m4h = t.innerHTML; t.textContent = '';
+          A4M_BGC[i].split(' / ').forEach((x, j) => { if (j) t.appendChild(document.createElement('br')); t.appendChild(document.createTextNode(x)); }); });
         const br = mid && mid.querySelectorAll('br')[1];   /* FOR / BRAND FILM: the second break is hidden, a space stands in */
         if (br && !mid._m4sp){ mid._m4sp = document.createTextNode(' '); br.after(mid._m4sp); }
       } else {
-        view.querySelectorAll('.a4m-lg, .a4m-end, .a4m-tr').forEach(e => e.remove());
         const foot = m4Q('.a4-foot');
         gals.forEach(g => { if (g && g.parentNode !== view){ if (foot) view.insertBefore(g, foot); else view.appendChild(g); } });
+        view.querySelectorAll('.a4m-lg, .a4m-tr, .a4m-sl5').forEach(e => e.remove());
+        view.querySelectorAll('#a4Unit4 .a4-bgc .t').forEach(t => { if (t._m4h !== undefined){ t.innerHTML = t._m4h; t._m4h = undefined; } });
         if (mid && mid._m4sp){ mid._m4sp.remove(); mid._m4sp = null; }
-        view.querySelectorAll('.a4m-rv').forEach(e => e.classList.remove('a4m-rv', 'a4m-on'));
       }
     }
     /* inline word states lifted, both ways: the desktop's scrub and the phone's chains each write their own */
     function m4Quiet(){
-      view.querySelectorAll('.w, .a4-bgc, #a4Cp, #a4Cp .dots').forEach(e => { e.style.opacity = ''; e.style.filter = ''; });
+      view.querySelectorAll('.w, .a4-bgc, #a4Cp, #a4Cp .dots, .a4m-ct, .a4m-mk').forEach(e => { e.style.opacity = ''; e.style.filter = ''; });
+      view.querySelectorAll('.a4m-ct').forEach(e => { e.style.pointerEvents = ''; });   /* 516a: inert again until its chain shows it */
       [Q1, Q2, Q3, Q4].forEach(Q => Q.forEach(it => { it._eS = it._bS = undefined; }));
       if (m4Ch) Object.keys(m4Ch).forEach(k => m4Ch[k].items.forEach(it => { it.k = -1; }));
     }
@@ -10872,7 +10936,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         m4On = true; document.documentElement.classList.add('a4m');
         document.body.classList.remove('a4nl'); swOn = false; view.classList.remove('a4-floor', 'v4c');
         m4Nodes(true); m4Quiet();
-        cards.forEach(c => { c.style.zIndex = ''; c._m4t = c._m4v = c._m4z = undefined; });
+        /* 516a: INTRO comes in with its slide -- its clock from now, the corridor's train from nothing (the desktop's books, as
+           open() resets them) */
+        m4Boot = performance.now(); m4Drift = 0; cur = 0; swP = 0; swE = 0; swDir = 0; swSnap = false;
+        cards.forEach(c => { c.style.zIndex = ''; c._m4t = c._m4v = c._m4z = undefined; c._tf = c._v = c._zi = undefined;
+          c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false; const u = a4U(c); if (u !== c._vi){ a4Img(c, u); c._dirty = false; } });
+        Object.keys(m4BeltS).forEach(k => { delete m4BeltS[k]; });
       }
       m4Nav.open = false;
       m4Layout();
@@ -10894,7 +10963,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false; const u = a4U(c); if (u !== c._vi){ a4Img(c, u); c._dirty = false; } });
       swSnap = false; navW = null; m4G = null;
     }
-    /* ---- THE LAYOUT, from the tokens (all measured live): M = --m-pad, S = the SUBTITLE solve, T = --m-title ---- */
+    /* ---- THE LAYOUT, from the tokens (all measured live): M = --m-pad, S = the SUBTITLE (About's: the site's unless its
+       local cap binds), B = S / 2, N = NOCAPS ---- */
     function m4Layout(){
       if (!m4On || !active()) return;
       m4Wrote.forEach(el => { el._m4 = null; });   /* write everything afresh: another pass may have written in between */
@@ -10902,161 +10972,185 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const M = padPx(), Sb = MOB.S || parseFloat(getComputedStyle(R).getPropertyValue('--m-sub')) || 20, S = Math.min(Sb, MOB.aS || Sb);   /* 515a: About's S (its local cap); Sb the bar's, the site's */
       m4St(view, '--a4m-h', H + 'px');
       a4Seat();   /* the desktop's edge margins, re-seated at the PHONE's type: a rotation or a desktop visit leaves them at its own */
-      const big = m4Q('#a4Unit .a4-lbig.s1l'), apP = m4Q('#a4Unit3 .a4-ap p'), k1 = m4Q('#a4Unit4 .a4-bgk.k1');   /* 514d: TITLE read off LEADING (CREATIVE LEAD is SUBTITLE now) */
-      if (!big || !apP || !k1) return;
-      const csT = getComputedStyle(big), csN = getComputedStyle(apP);
-      const T = parseFloat(csT.fontSize) || 2 * S, N = parseFloat(csN.fontSize) || .5454 * S, B = S / 2, cK = a4Cap(1000);
-      m4G = { vw, H, M, S, T, B, N, W: vw - 2 * M, G: 1.5 * S, capS: cK * S, capT: cK * T, cB: a4Cap(700),
-              pT: parseFloat(csT.lineHeight) || .78 * T, g: parseFloat(getComputedStyle(k1).lineHeight) || .8843 * S,
-              pN: parseFloat(csN.lineHeight) || 1.13 * N, pB: 1.13 * B };
+      const k1 = m4Q('#a4Unit4 .a4-bgk.k1'), apP = m4Q('#a4Unit3 .a4-ap p'), mB = m4Q('#a4Unit .a4-mids.ml');
+      if (!k1 || !apP || !mB) return;
+      const csN = getComputedStyle(apP), N = parseFloat(csN.fontSize) || .5454 * S, B = S / 2, cK = a4Cap(1000);
+      m4G = { vw, H, M, S, B, N, W: vw - 2 * M, capS: cK * S, cB: a4Cap(700), gk: A4M_GK,
+              g: parseFloat(getComputedStyle(k1).lineHeight) || .8843 * S,
+              pN: parseFloat(csN.lineHeight) || 1.13 * N, pB: parseFloat(getComputedStyle(mB).lineHeight) || 1.13 * B };
+      m4G.CP = A4M_CPAD * S;
       m4G.capB = cK * Sb;   /* 515a: the bar's cap, at the site's S (About's own type may be capped smaller) */
-      m4G.capY = 2 * M + m4G.capB; m4G.CH = m4G.capY + m4G.capS + M / 2; m4G.Z0 = m4G.CH + M; m4G.Z1 = H - M;   /* 514d: the title rows' line at rest -- one margin under the bar's baseline (B's cap on M) */
+      m4G.capY = 2 * M + m4G.capB; m4G.Zt = m4G.capY + m4G.capS; m4G.CH = m4G.Zt + M / 2; m4G.Z0 = m4G.Zt + M; m4G.Z1 = H - M;   /* 514d: the title rows' line at rest -- one margin under the bar's baseline; 516a: Zt its baseline, the top of the space below it */
       m4G.CF = M + m4G.capB + M / 2; m4G.L = H / A4M_IN;   /* 513b: the chrome's foot (the bar's), a transition's scroll */
-      const sl = ['.a4-sl1', '.a4-sl2', '.a4-sl3', '.a4-sl4'].map(m4Q);
-      m4G.sl = sl; m4G.pins = [m4Q('#a4Sl1 .a4-s1'), document.getElementById('a4Unit'), document.getElementById('a4Unit3'), document.getElementById('a4Unit4')];
-      A4M_HOLD.forEach((h, i) => m4St(sl[i], 'height', ((h + 1) * H + m4G.L).toFixed(2) + 'px'));   /* 513b: held for its hold, then pinned through the next one's rise (L) */
-      m4Intro(); m4Role(); m4Approach(); m4Bg(sl[3]); m4Titles();
+      const sl = ['.a4-sl1', '.a4-sl2', '.a4-sl3', '.a4-sl4', '.a4m-sl5'].map(m4Q);
+      m4G.sl = sl; m4G.pins = [m4Q('#a4Sl1 .a4-s1'), document.getElementById('a4Unit'), document.getElementById('a4Unit3'), document.getElementById('a4Unit4'), m4Q('.a4m-u5')];
+      if (sl.some(e => !e) || m4G.pins.some(e => !e)) return;
+      m4G.E = [0, 0, 0, 0, 0];
+      /* the corridors on the desktop's own scale (place() reads kB1 / kBB), each ring grown to reach past the phone's clip */
+      kB1 = kBB = m4G.gk;
+      a4Ring(document.getElementById('a4Gal'), m4G.gk); a4Ring(document.getElementById('a4GalB'), m4G.gk);
+      m4G.E[0] = m4Intro(); m4G.E[4] = m4Contact();
+      /* 516a ONE PADDING for ROLE, APPROACH and BACKGROUND: the dial, or the most the tallest of them leaves with its centre
+         element centred, never under A4M_PAD_MIN */
+      const C = (m4G.Zt + m4G.Z1) / 2, G = [m4Role(), m4Approach(), m4Bg()];
+      const pm = Math.min(...G.map(s => Math.min(C - s.mid.h / 2 - s.top.h - m4G.Z0, m4G.Z1 - C - s.mid.h / 2 - s.bot.h)));
+      const P = m4G.P = Math.max(A4M_PAD_MIN * S, Math.min(A4M_PAD * S, pm));
+      G.forEach((s, i) => { m4G.E[i + 1] = m4Seat3(s, P, C); });
+      m4Titles();
+      /* 513b: each sheet held for its hold, then pinned through the next one's rise (L); 516a: a pin taller than the screen
+         (E) holds on its foot -- its sheet longer by E */
+      sl.forEach((e, i) => { const E = m4G.E[i], last = i === sl.length - 1;
+        m4St(e, 'height', ((A4M_HOLD[i] + 1) * H + E + (last ? 0 : m4G.L)).toFixed(2) + 'px');
+        m4St(m4G.pins[i], 'height', E > 0 ? (H + E).toFixed(2) + 'px' : ''); m4St(m4G.pins[i], 'top', E > 0 ? (-E).toFixed(2) + 'px' : ''); });
       m4G.tops = sl.map(e => e.offsetTop);
-      m4NavLayout(); m4Chains(); m4BgUnits();
+      const mx = Math.max(0, view.scrollHeight - H);
+      m4G.rest = m4G.tops.map((t, i) => i ? Math.min(mx, t + m4G.E[i] + .9 * A4M_HOLD[i] * H) : 0);   /* a slide at rest: arrived, its items in */
+      m4NavLayout(); m4Chains();
       m4Frame(performance.now());
     }
-    /* 01 INTRO: the bottom row (514d: his hero bottom row's hierarchy) -- CREATIVE LEAD, one SUBTITLE line, its baseline on
-       Z1; FOR / BRAND FILM, two BODY(CAPS) lines on the right margin, on the same baseline. The statement, left, margin to margin, three
-       short paragraphs .5 S apart, the FINISHED block centred on C between the zone top and CREATIVE's cap (nothing
-       re-centres); the corridor takes its place, centred on the same C */
+    /* 516a: a centre-element slide seated -- its centre element centred on C (the space below the title row), its paragraphs
+       P above and below it; a top over Z0 moves the whole down, and what then runs under the bottom margin is the slide's E */
+    function m4Seat3(s, P, C){
+      const { Z0, Z1 } = m4G;
+      let ym = C - s.mid.h / 2, yt = ym - P - s.top.h;
+      if (yt < Z0){ ym += Z0 - yt; yt = Z0; }
+      const yb = ym + s.mid.h + P;
+      m4Shift(s.top.els, yt); m4Shift(s.mid.els, ym); m4Shift(s.bot.els, yb);
+      return Math.max(0, yb + s.bot.h - Z1);
+    }
+    /* 01 INTRO: CREATIVE LEAD | FOR / BRAND FILM on the bottom margin (514d); the corridor centred in the space below the title
+       row (the desktop's band, its height scaled down only if the slide needs it); the statement's first line over it and
+       its paragraph under it, CP clear of it */
     function m4Intro(){
-      const { vw, M, W, Z0, Z1 } = m4G; m4Pin = m4O(m4Q('#a4Sl1 .a4-s1'));
+      const { vw, M, W, CP, Zt, Z0, Z1 } = m4G, pin = m4Q('#a4Sl1 .a4-s1'); m4Pin = m4O(pin);
       const cre = m4Put(m4Q('.a4-row3 .a4-big'), 'L', M, Z1, { last:true });
       m4Put(m4Q('.a4-row3 .a4-mid'), 'R', vw - M, Z1, { last:true, lc:['R', 'M'] });
-      const cp = document.getElementById('a4Cp'); m4St(cp, 'width', W.toFixed(2) + 'px');
-      const st = m4Put(cp, 'B', M, 0), l3 = cp.querySelector('.l3');
-      const C = (Z0 + cre.cap) / 2, b1 = l3 ? m4Base(l3, true) - m4Pin.y : st.b1;   /* the LAST LINE's baseline: a probe on #a4Cp itself stands on a line of its own under the block .l3 */
-      m4Shift([cp], C - (st.cap + b1) / 2);
-      const hi = Math.round(.7 * W);
-      m4Band(document.getElementById('a4Gal'), M, C - hi / 2, W, hi);
-      m4G.C = C;
+      const cp = document.getElementById('a4Cp'), l1 = cp.querySelector('.l1'), l3 = cp.querySelector('.l3');
+      m4St(cp, 'width', W.toFixed(2) + 'px');
+      const pa = m4Put(cp, 'B', M, 0), pb1 = l3 ? m4Base(l3, true) - m4Pin.y : pa.b1, hB = pb1 - pa.cap;   /* the paragraph: its cap .. its LAST line's baseline */
+      const st = l1 ? m4Put(l1, 'B', M, 0) : { cap:0, b1:0 }, hT = st.b1 - st.cap;
+      const room = (cre.cap - M) - Z0, h0 = bandH4 * m4G.gk;
+      const hb = Math.max(A4M_GH_MIN * h0, Math.min(h0, room - hT - hB - 2 * CP));
+      let yb = (Zt + Z1) / 2 - hb / 2;
+      yb = Math.max(yb, Z0 + hT + CP); yb = Math.min(yb, Math.max(Z0 + hT + CP, cre.cap - M - hB - CP - hb));
+      const yP = yb + hb + CP; m4Shift([cp], yP - pa.cap);
+      if (l1) m4Shift([l1], (yb - CP - hT) - (st.cap + yP - pa.cap));
+      m4Gal(document.getElementById('a4Gal'), M, yb, W, hb);
+      m4G.gal = [+yb.toFixed(2), +hb.toFixed(2)];
+      return Math.max(0, yP + hB - (cre.cap - M));
     }
-    /* 02 ROLE, the menu composition: HUNG from Z0 the three TITLE spread pairs and the SUBTITLE cascade on the desktop's
-       anchors; STOOD on Z1 the nine logos (3 x 3 on the same anchors) under FLAGSHIP / WORK / FOR; the void between */
+    /* 05 CONTACT (516a, the phone's own): UK & WORLDWIDE | 2026 on the bottom margin; the corridor (BACKGROUND's) centred as
+       INTRO's; INSTAGRAM | LINKEDIN on it, EMAIL | VIMEO under it, CP clear */
+    function m4Contact(){
+      const { vw, M, W, CP, capS, Zt, Z0, Z1 } = m4G, pin = m4Q('.a4m-u5'); m4Pin = m4O(pin);
+      const lb = k => pin.querySelector('[data-m4="' + k + '"]');
+      const bs = m4Put(lb('bs'), 'L', M, Z1, { last:true }); m4Put(lb('yr'), 'R', vw - M, Z1, { last:true });
+      const room = (bs.cap - M) - Z0, h0 = bandH4 * m4G.gk;
+      const hb = Math.max(A4M_GH_MIN * h0, Math.min(h0, room - 2 * capS - 2 * CP));
+      let yb = (Zt + Z1) / 2 - hb / 2;
+      yb = Math.max(yb, Z0 + capS + CP); yb = Math.min(yb, Math.max(Z0 + capS + CP, bs.cap - M - capS - CP - hb));
+      m4Put(lb('ig'), 'L', M, yb - CP, { last:true }); m4Put(lb('li'), 'R', vw - M, yb - CP, { last:true });
+      const em = m4Put(lb('em'), 'L', M, yb + hb + CP); m4Put(lb('vm'), 'R', vw - M, yb + hb + CP);
+      m4Gal(document.getElementById('a4GalB'), M, yb, W, hb);
+      m4G.galC = [+yb.toFixed(2), +hb.toFixed(2)];
+      return Math.max(0, em.b0 - (bs.cap - M));
+    }
+    /* 02 ROLE: LEADING / VIDEO (left); the centre -- BRAND FILMS / CONTENT STRATEGY / SOCIALS (BODY(CAPS), right), CP, the belt
+       (margin to margin), CP, FLAGSHIP / WORK (BODY(CAPS), left); FROM BRIEF / TO DELIVERY (right). Laid out from 0 per group;
+       m4Seat3 seats them. Each group: its elements, its height (cap .. last baseline) */
     function m4Role(){
-      const { vw, M, S, G, g, pT, capT, Z0, Z1 } = m4G, pin = document.getElementById('a4Unit'); m4Pin = m4O(pin);
+      const { vw, M, S, g, pB, CP } = m4G, pin = document.getElementById('a4Unit'); m4Pin = m4O(pin);
       const q = s => pin.querySelector(s), rw = [...pin.querySelectorAll('.a4-rw2 .w')];
       m4St(q('.a4-rw2'), 'left', '0px'); m4St(q('.a4-rw2'), 'top', '0px');
-      const mm = [q('.a4-mids.ml'), q('.a4-mids.mc'), q('.a4-mids.mr')], p2 = [q('.a4-p2l'), q('.a4-p2c'), q('.a4-p2r')];
-      const hung = y0 => {
-        m4Put(q('.a4-lbig.s1l'), 'L', M, y0); m4Put(q('.a4-lbig.s1r'), 'R', vw - M, y0);
-        m4Put(rw[0], 'L', M, y0 + pT); m4Put(rw[1], 'R', vw - M, y0 + pT); m4Put(rw[2], 'L', M, y0 + 2 * pT);
-        const s1 = m4Put(rw[3], 'R', vw - M, y0 + 2 * pT).b0 + G;
-        m4Put(mm[0], 'L', M, s1); m4Put(mm[1], 'C', vw / 2, s1 + g);
-        return m4Put(mm[2], 'R', vw - M, s1 + 2 * g).b0;
-      };
-      const LH = (A4M_LOGOS === 'belt' ? A4M_BELT_H : 1.2) * S, rg = S, lgH = A4M_LOGOS === 'belt' ? LH : 3 * LH + 2 * rg, sH = 2 * pT + capT + G + lgH;
-      const stood = lTop => {
-        const fc = lTop - G - capT;
-        const fl = m4Put(p2[0], 'L', M, fc - 2 * pT, { ink:p2[0].querySelector('.w') }); m4Put(p2[1], 'C', vw / 2, fc - pT); m4Put(p2[2], 'R', vw - M, fc, { ink:p2[2].querySelector('.w') });
-        m4Logos(lTop, LH, rg);
-        return fl.cap;
-      };
-      if (A4M_ROLE === 'centre'){
-        const h0 = hung(0) - 0 + G + sH, y0 = Z0 + Math.max(0, (Z1 - Z0 - h0) / 2);
-        const e = hung(y0); stood(e + G + sH - lgH);
-        m4G.roleVoid = G;
-      } else {
-        const e = hung(Z0), v0 = Math.max(0, Z1 - sH - e); m4G.roleVoid = stood(Z1 - lgH - A4M_ROLE_LIFT * v0) - e;   /* 514d: FLAGSHIP WORK FOR + the belt lifted (his notes) */
-      }
+      const t1 = m4Put(q('.a4-lbig.s1l'), 'L', M, 0), t2 = m4Put(q('.a4-lbig.s1r'), 'L', M, t1.cap + g);
+      const mm = [q('.a4-mids.ml'), q('.a4-mids.mc'), q('.a4-mids.mr')], p2 = [q('.a4-p2l'), q('.a4-p2c')];
+      const m0 = m4Put(mm[0], 'R', vw - M, 0); m4Put(mm[1], 'R', vw - M, pB); const m2 = m4Put(mm[2], 'R', vw - M, 2 * pB);
+      const LH = A4M_BELT_H * S, bT = m2.b0 + CP; m4Logos(bT, LH);
+      const f1 = m4Put(p2[0], 'L', M, bT + LH + CP, { ink:p2[0].querySelector('.w') }), f2 = m4Put(p2[1], 'L', M, f1.cap + pB, { ink:p2[1].querySelector('.w') });
+      const sp = rw.length === 4 ? m4Sp(rw[1]) : 0;
+      const r1 = m4Put(rw[1], 'R', vw - M, 0); m4Before(rw[0], rw[1], sp);
+      const r3 = m4Put(rw[3], 'R', vw - M, r1.cap + g); m4Before(rw[2], rw[3], sp);
+      return { top:{ els:[q('.a4-lbig.s1l'), q('.a4-lbig.s1r')], h: t2.b0 - t1.cap },
+               mid:{ els:[...mm, q('.a4m-lg'), ...p2], h: f2.b0 - m0.cap },
+               bot:{ els:rw, h: r3.b0 - r1.cap } };
     }
-    /* the nine: each cropped to its registry ink box, ink height LH x the registry scale (the desktop belt's law). 513b THE
-       BELT (his answer: the desktop's): one row in the registry's order reversed, as the desktop lays it, A4M_BELT_GAP S
-       apart, looping seamlessly margin to margin (the frame runs it). 'grid' (512g): 3 x 3 on the three anchors, a logo
-       never wider than W / 4, rows 1.2 S tall and S apart */
-    function m4Logos(top, LH, rg){
+    /* the nine, one row in the registry's order reversed (the desktop's belt): each cropped to its registry ink box, ink
+       height LH x its registry scale, A4M_BELT_GAP S apart, looping seamlessly margin to margin (the frame runs it) */
+    function m4Logos(top, LH){
       const box = document.querySelector('#a4Unit .a4m-lg'); if (!box || !m4G) return;
-      const { vw, M, W, S } = m4G, belt = A4M_LOGOS === 'belt', gap = A4M_BELT_GAP * S, ds = [...box.children];
+      const gap = A4M_BELT_GAP * m4G.S, ds = [...box.children];
       let x = 0;
-      (belt ? ds.slice().reverse() : ds).forEach(d => {
-        const i = ds.indexOf(d), lg = d._lg, k = lg.ink, im = d.firstChild, nw = im.naturalWidth || 1000, nh = im.naturalHeight || 1000;
-        const kw = k.w * nw, kh = k.h * nh;
-        let h = LH * (lg.scale || 1); if (!belt && kw / kh * h > W / 4) h = W / 4 * kh / kw;
-        const wd = kw / kh * h, s = h / kh, a = i % 3, row = Math.floor(i / 3);
-        const xx = belt ? x : a === 0 ? M : a === 2 ? vw - M - wd : vw / 2 - wd / 2;
-        const yy = belt ? (LH - h) / 2 : top + row * (LH + rg) + (LH - h) / 2;
-        d._m4x = d._m4bx = xx; d._m4w = wd; d._m4tf = undefined; x += wd + gap;
-        if (!belt) d.style.transform = '';
-        m4St(d, 'left', xx.toFixed(2) + 'px'); m4St(d, 'top', yy.toFixed(2) + 'px'); m4St(d, 'width', wd.toFixed(2) + 'px'); m4St(d, 'height', h.toFixed(2) + 'px');
+      ds.slice().reverse().forEach(d => {
+        const lg = d._lg, k = lg.ink, im = d.firstChild, nw = im.naturalWidth || 1000, nh = im.naturalHeight || 1000;
+        const kw = k.w * nw, kh = k.h * nh, h = LH * (lg.scale || 1), wd = kw / kh * h, s = h / kh;
+        d._m4x = d._m4bx = x; d._m4w = wd; d._m4tf = undefined; x += wd + gap;
+        m4St(d, 'left', d._m4x.toFixed(2) + 'px'); m4St(d, 'top', ((LH - h) / 2).toFixed(2) + 'px'); m4St(d, 'width', wd.toFixed(2) + 'px'); m4St(d, 'height', h.toFixed(2) + 'px');
         m4St(im, 'width', (nw * s).toFixed(2) + 'px'); m4St(im, 'height', (nh * s).toFixed(2) + 'px');
         m4St(im, 'left', (-k.x * nw * s).toFixed(2) + 'px'); m4St(im, 'top', (-k.y * nh * s).toFixed(2) + 'px');
       });
       box._m4ring = x; box._m4gap = gap;
-      box.classList.toggle('a4m-belt', belt);
-      if (belt){ m4St(box, 'top', top.toFixed(2) + 'px'); m4St(box, 'height', LH.toFixed(2) + 'px'); }
+      m4St(box, 'top', top.toFixed(2) + 'px'); m4St(box, 'height', LH.toFixed(2) + 'px');
     }
-    /* 03 APPROACH, a free block centred in the zone: CONNECTING (TITLE); G, PEOPLE / TO THE BRAND on the left; one empty
-       SUBTITLE line, CULTURE / TO EFFECTIVENESS in a column ending on the right margin (the diagonal is the connection);
-       G, the slit; G, the two NOCAPS paragraphs, one blank line apart */
+    /* 03 APPROACH: CONNECTING / PEOPLE / TO THE BRAND (left); the centre -- paragraph 1, CP, the desktop's slit, CP, paragraph 2
+       (NOCAPS, margin to margin); CULTURE / TO EFFECTIVENESS (right) */
     function m4Approach(){
-      const { vw, M, S, W, G, g, pN, N, cB, Z0, Z1 } = m4G, pin = document.getElementById('a4Unit3'); m4Pin = m4O(pin);
+      const { vw, M, S, W, g, CP } = m4G, pin = document.getElementById('a4Unit3'); m4Pin = m4O(pin);
       const q = s => pin.querySelector(s), bw = q('.a4-brk.b1 .bw'), ml = q('.a4-mids.ml2'), mr = q('.a4-mids.mr2');
       m4St(q('.a4-brk.b1'), 'left', '0px'); m4St(q('.a4-brk.b1'), 'top', '0px'); m4St(q('.a4-ap'), 'top', '0px');
+      m4Edge(ml, 'L'); m4Edge(mr, 'R');
+      const con = m4Put(bw, 'L', M, 0), pe = m4Put(ml, 'B', M, con.cap + g);
       const ps = [q('.a4-ap p.ap1'), q('.a4-ap p.ap2')];
-      const con = m4Put(bw, 'L', M, 0);
-      const pe = m4Put(ml, 'L', M, con.b0 + G);
-      const cu = m4Put(mr, 'R', vw - M, pe.cap + 3 * g, { lc:['S'] });
-      const slitY = cu.b1 + G, slitH = (A4_V.slitB - A4_V.slitT) / 20 * S;   /* 513b: the desktop's thin band -- the design's slit (11.7) on the design's 20px SUBTITLE */
-      const a1 = m4Put(ps[0], 'B', M, slitY + slitH + G);
-      const a2 = m4Put(ps[1], 'B', M, a1.b1 + pN + (pN - cB * N));
-      const dy = (Z0 + Z1) / 2 - (con.cap + a2.b1) / 2;
-      m4Shift([bw, ml, mr, ps[0], ps[1]], dy);
+      const a1 = m4Put(ps[0], 'B', M, 0), slitY = a1.b1 + CP, slitH = (A4_V.slitB - A4_V.slitT) / 20 * S;   /* 513b: the desktop's thin band -- the design's slit (11.7) on the design's 20px SUBTITLE */
+      const a2 = m4Put(ps[1], 'B', M, slitY + slitH + CP);
       /* 513b THE SLIT, the desktop's (bandScale's VISION band, place()): the design card (A4_CW x A4_CH), its pitch (A4_SP)
          and its lens (A4_P) scaled down as ONE by the unit law -- the phone's measure over the design sheet's -- and seen
          through the band, its box (the cards centre on the band's middle, as the desktop's clip does) */
       const gv = document.getElementById('a4GalV'), kV = W / (A4_UD.w - 2 * A4_UM);
-      m4St(gv, 'left', M + 'px'); m4St(gv, 'top', (slitY + dy).toFixed(2) + 'px'); m4St(gv, 'width', W.toFixed(2) + 'px');
+      m4St(gv, 'left', M + 'px'); m4St(gv, 'top', slitY.toFixed(2) + 'px'); m4St(gv, 'width', W.toFixed(2) + 'px');
       m4St(gv, 'height', slitH.toFixed(2) + 'px'); m4St(gv, 'zIndex', 'auto');
       m4St(gv, '--a4-p', (A4_P * kV).toFixed(2) + 'px'); m4St(gv, '--a4-cw', (A4_CW * kV).toFixed(2) + 'px'); m4St(gv, '--a4-ch', (A4_CH * kV).toFixed(2) + 'px');
       gv._m4s = { w: W, h: slitH, k: kV, sp: A4_SP * kV }; gv._m4ok = false;
+      const cu = m4Put(mr, 'E', vw - M, 0);
+      return { top:{ els:[bw, ml], h: pe.b1 - con.cap }, mid:{ els:[ps[0], ps[1], gv], h: a2.b1 - a1.cap }, bot:{ els:[mr], h: cu.b1 - cu.cap } };
     }
-    /* 04 BACKGROUND flows: the kicker hung from Z0; WHY ARE THEY / WATCHING (TITLE) on the right margin, .5 S under it; G,
-       the three paragraphs; G, the corridor; G, the schools as one column; the end row on the sheet's bottom margin */
-    function m4Bg(sl4){
-      const { vw, M, S, W, G, g, pT, pN, N, cB, B, pB, H, capS, Z0 } = m4G, pin = document.getElementById('a4Unit4'); m4Pin = m4O(pin);
+    /* 04 BACKGROUND: 12 YEARS IN ADVERTISING / TAUGHT ME / IT'S WORTH ASKING (left); the centre -- the three paragraphs (NOCAPS,
+       a line apart), CP, the schools in ONE row; WHY ARE THEY / WATCHING (right, his: no question mark) */
+    function m4Bg(){
+      const { vw, M, W, g, pN, N, cB, B, pB, CP } = m4G, pin = document.getElementById('a4Unit4'); m4Pin = m4O(pin);
       const q = s => pin.querySelector(s);
-      const k = ['k1', 'k2', 'k3'].map((c, i) => m4Put(q('.a4-bgk.' + c), 'L', M, Z0 + i * g));
-      const rw = q('.a4-rw4'), ws = [...rw.querySelectorAll('.w')];
-      const t1 = m4Put(rw, 'R', vw - M, k[2].b0 + .5 * S, { lc:['Y'] });
-      const t2 = m4Put(ws[ws.length - 1], 'R', vw - M, t1.cap + pT);
-      let y = t2.b0 + G, last = t2;
-      [...pin.querySelectorAll('.a4-bgp')].forEach(p => { last = m4Put(p, 'B', M, y, { ref:p.querySelector('p') }); y = last.b1 + pN + (pN - cB * N); });
-      let yy = last.b1 + G;
-      const gb = document.getElementById('a4GalB');
-      if (A4M_CORRIDORS >= 2){ const hb = Math.round(.7 * W); m4Band(gb, M, yy, W, hb); yy += hb + G; }
-      else { m4St(gb, 'display', 'none'); gb._m4g = null; }
-      /* the schools: the mark three BODY lines tall (cMBA 26 / 48 of it), its left ink on the margin; the caption, three
-         BODY lines, in one column 2.2 S in, centred on the mark; rows S apart (cMBA has no caption, as on the desktop) */
-      const LH = cB * B + 2 * pB, f = LH / 48;
-      m4St(view, '--a4m-mk', f.toFixed(5));
-      [...pin.querySelectorAll('.a4-bgc')].forEach(c => {
-        m4St(c, 'left', '0px'); m4St(c, 'top', '0px'); m4St(c, 'opacity', '1'); m4St(c, 'filter', 'none');
-        const lg = c.querySelector('.lg'), im = c.querySelector('.bglg'), kk = A4M_LG4[im && im.dataset.lg] || [0, 0, 1, 1, 48], s = kk[4] / kk[3], h = kk[4] * f;
-        m4St(lg, 'left', (M - kk[0] * s * f).toFixed(2) + 'px'); m4St(lg, 'top', yy.toFixed(2) + 'px');
-        const t = c.querySelector('.t'); if (t) m4Put(t, 'L', M + 2.2 * S, yy + (h - LH) / 2);
-        yy += h + S;
+      const kk = ['k1', 'k2', 'k3'].map((c, i) => m4Put(q('.a4-bgk.' + c), 'L', M, i * g));
+      let y = 0, last = null;
+      const bgp = [...pin.querySelectorAll('.a4-bgp')];
+      bgp.forEach(p => { last = m4Put(p, 'B', M, y, { ref:p.querySelector('p') }); y = last.b1 + pN + (pN - cB * N); });
+      /* THE SCHOOLS, one row (his mockup): each mark beside its caption (three BODY(CAPS) lines), cMBA alone; the first mark's
+         ink on the left margin, cMBA's on the right, the middle pair centred between; the marks as tall as a caption, or as
+         tall as the row leaves them (never under A4M_GH_MIN of it) -- the type holds its size */
+      const yy = last.b1 + CP, LH = cB * B + 2 * pB, g1 = .6 * B, sMin = B;
+      const bgc = [...pin.querySelectorAll('.a4-bgc')].map(c => { const im = c.querySelector('.bglg'), k = A4M_LG4[im && im.dataset.lg] || [0, 0, 1, 1, 48];
+        return { c, lg:c.querySelector('.lg'), t:c.querySelector('.t'), k, a:k[2] / k[3] }; });
+      bgc.forEach(o => { m4St(o.c, 'left', '0px'); m4St(o.c, 'top', '0px'); o.tw = 0;
+        if (o.t){ const p = m4Put(o.t, 'L', 0, yy); o.tw = p.r - p.l; } });
+      const tw = bgc.reduce((a, o) => a + o.tw + (o.t ? g1 : 0), 0), ar = bgc.reduce((a, o) => a + o.a, 0);
+      const h = Math.max(A4M_GH_MIN * LH, Math.min(LH, (W - tw - 2 * sMin) / ar));
+      const gw = bgc.map(o => o.a * h + (o.t ? g1 + o.tw : 0)), spread = (W - gw.reduce((a, b) => a + b, 0)) / Math.max(1, bgc.length - 1);
+      let x = M;
+      bgc.forEach((o, i) => {
+        const s = o.k[4] / o.k[3], f = h / o.k[4];
+        m4St(o.lg, '--a4m-mk', f.toFixed(5)); m4St(o.lg, 'left', (x - o.k[0] * s * f).toFixed(2) + 'px'); m4St(o.lg, 'top', (yy + (LH - h) / 2).toFixed(2) + 'px');
+        if (o.t) m4Put(o.t, 'L', x + o.a * h + g1, yy);
+        x += gw[i] + spread;
       });
-      /* THE END ROW: at least 3 S under the schools, its baseline on the bottom margin of the sheet's last screen */
-      const Hb = Math.max(H, yy - S + 3 * S + capS + M), ey = Hb - M - capS, end = q('.a4m-end');
-      if (end){
-        m4St(end, 'top', (ey - .75 * S).toFixed(2) + 'px'); m4St(end, 'height', (2 * S).toFixed(2) + 'px');
-        const [en, er, ew] = end.children, n = m4Put(en, 'L', M, ey), w = m4Put(ew, 'R', vw - M, ey), x0 = n.r + .8 * S, x1 = w.l - .8 * S;
-        m4St(er, 'left', x0.toFixed(2) + 'px'); m4St(er, 'width', Math.max(0, x1 - x0).toFixed(2) + 'px'); m4St(er, 'top', (.75 * S + capS / 2 - .5).toFixed(2) + 'px');
-        m4St(er, 'visibility', A4M_END_RULE ? '' : 'hidden');   /* 513b: no rule, as the title rows (the dial brings it back) */
-      }
-      m4St(pin, 'height', Hb.toFixed(2) + 'px'); m4St(sl4, 'height', Hb.toFixed(2) + 'px');
-      m4G.bgH = Hb;
+      const rw = q('.a4-rw4'), ws = [...rw.querySelectorAll('.w')];
+      const t1 = m4Put(rw, 'R', vw - M, 0, { lc:['Y'] }), t2 = m4Put(ws[ws.length - 1], 'R', vw - M, t1.cap + g);
+      const mid = [...bgp, ...bgc.map(o => o.lg), ...bgc.map(o => o.t)];
+      return { top:{ els:['k1', 'k2', 'k3'].map(c => q('.a4-bgk.' + c)), h: kk[2].b0 - kk[0].cap },
+               mid:{ els:mid, h: yy + LH }, bot:{ els:[rw], h: t2.b0 - t1.cap } };
     }
     /* 513b THE TITLE ROWS: each slide's own, 0n  NAME -- the number's left ink on the left margin, the name's right ink on
-       the right margin; each rides its slide (INTRO, ROLE and APPROACH on their pins, BACKGROUND's scrolls away with it).
-       514d (his notes): the cap top ONE margin under the slide's top (M in its pin -- the frame docks it on capY, one margin
-       under the bar, while the slide ends its rise behind the chrome), and a rule between the number and the name,
-       A4M_RULE_GAP S clear of each, on the cap's middle -- the frame draws it out with the slide's own progress */
+       the right margin; each rides its slide. 514d (his notes): the cap top ONE margin under the slide's top (M in its pin --
+       the frame docks it on capY, one margin under the bar, while the slide ends its rise behind the chrome), and a rule
+       between the number and the name, A4M_RULE_GAP S clear of each, on the cap's middle -- the frame draws it out with the
+       slide's own progress */
     function m4Titles(){
       const { vw, M, S, capS } = m4G; m4G.trs = [];
       m4G.pins.forEach((pin, k) => {
@@ -11080,80 +11174,45 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const nt = nav.getBoundingClientRect().top, cap0 = m4Base(sp[0]) - nt - a4Cap(1000) * S;
       m4Nav.capY = m4G.capY; m4Nav.top0 = m4Nav.capY - cap0;
     }
-    /* THE CHAINS (the desktop's weights): INTRO the statement's l2 / l3 words, 3 each; ROLE FROM BRIEF TO DELIVERY 13.5,
-       BRAND .. SOCIALS 4.5, FLAGSHIP WORK FOR 13.5, each logo 4.5 (513b: nine links, their logos assigned by the frame in
-       the belt's on-screen order); APPROACH the stack words 3, the slit's opening 6 (513b: read by the frame), the
-       paragraph words 1 */
+    /* THE CHAINS, in reading order, top to bottom (516a): INTRO the paragraph's words on a clock (m4Tm); ROLE BRAND .. SOCIALS
+       3, the belt ONE link (its logos then one by one: beltRun), FLAGSHIP / WORK 3, FROM BRIEF TO DELIVERY 4.5; APPROACH
+       PEOPLE / TO THE BRAND 3, the paragraphs' words 1, CULTURE / TO EFFECTIVENESS 3 (the slit opens with its sheet, as the
+       desktop's hole); BACKGROUND TAUGHT ME / IT'S WORTH ASKING 3, the paragraphs' words 1, each school 3, WHY ARE THEY
+       WATCHING 4.5; CONTACT its six labels 3. The first line of each top paragraph stands printed, as on the desktop */
     function m4Chains(){
       const q = s => [...view.querySelectorAll(s)], L = (els, w, kind) => ({ els, w, kind, k:-1 });
       const mk = items => ({ items, span: items.reduce((a, it) => a + it.w, 0) + .6 * (items.length ? items[items.length - 1].w : 0) });
-      const lg = q('#a4Unit .a4m-mk').map(d => L([d], 4.5, 'logo'));
       m4Ch = {
         intro: mk([...q('#a4Cp .l2 .w'), ...q('#a4Cp .l3 .w')].map(w => L([w], 3))),
-        role: mk([...q('#a4Unit .a4-rw2 .w').map(w => L([w], 13.5)), ...q('#a4Unit .a4-mids .w').map(w => L([w], 4.5)),
-                  ...q('#a4Unit .a4-lbig .w.g3').map(w => L([w], 13.5)), ...lg]),
-        approach: mk([...q('#a4Unit3 .a4-mids .w').map(w => L([w], 3)), L([document.getElementById('a4GalV')], 6, 'open'),
-                      ...q('#a4Unit3 .a4-ap p .w').map(w => L([w], 1))])
+        role: mk([...q('#a4Unit .a4-mids .w').map(w => L([w], 3)), L([], 4.5, 'belt'),
+                  ...q('#a4Unit .a4-p2l .w, #a4Unit .a4-p2c .w').map(w => L([w], 3)), ...q('#a4Unit .a4-rw2 .w').map(w => L([w], 4.5))]),
+        approach: mk([...q('#a4Unit3 .a4-mids.ml2 .w').map(w => L([w], 3)), ...q('#a4Unit3 .a4-ap p .w').map(w => L([w], 1)),
+                      ...q('#a4Unit3 .a4-mids.mr2 .w').map(w => L([w], 3))]),
+        bg: mk([...q('#a4Unit4 .a4-bgk .w').map(w => L([w], 3)), ...q('#a4Unit4 .a4-bgp p .w').map(w => L([w], 1)),
+                ...q('#a4Unit4 .a4-bgc').map(c => L([c], 3)), ...q('#a4Unit4 .a4-rw4 .w').map(w => L([w], 4.5))]),
+        contact: mk(q('.a4m-u5 .a4m-ct').map(e => L([e], 3, 'ct')))
       };
-      m4Ch.role.logos = lg; m4Ch.role.ord = null;
-      m4Ch.role.lg0 = m4Ch.role.items.reduce((a, it) => a + (it.kind === 'logo' ? 0 : it.w), 0);   /* the logos close the chain */
-      m4Ch.approach.slit = m4Ch.approach.items.find(it => it.kind === 'open');
+      m4Ch.role.belt = m4Ch.role.items.find(it => it.kind === 'belt'); m4Ch.role.ord = null;
     }
     function m4Chain(ch, c){
       let acc = 0;
       for (const it of ch.items){
         const k = m4Clamp((c * ch.span - acc) / (it.w * 1.6)); acc += it.w;
         if (k === it.k) continue; it.k = k;
-        if (it.kind === 'open') continue;   /* 513b: the slit's link opens the band's clip -- the frame reads it */
+        if (it.kind === 'belt') continue;   /* 516a: the belt's link is a trigger -- the frame reads it */
         const o = k.toFixed(3), f = k > 0 && k < 1 ? 'blur(' + (8 * (1 - k)).toFixed(2) + 'px)' : 'none';   /* the filter only inside the link's window */
         it.els.forEach(e => { e.style.opacity = o; e.style.filter = f; });
+        if (it.kind === 'ct') it.els.forEach(e => { e.style.pointerEvents = k > .5 ? 'auto' : ''; });   /* 516a: a CONTACT label takes a tap only once it shows */
       }
     }
-    /* BACKGROUND's units, read once per layout (their places in the sheet): every word of a line (the reveal staggers
-       60ms in the kicker, 90ms in the title, 12ms in a paragraph -- by its place in its line), the corridor, each mark
-       and caption, the end row. A word also leaves under the chrome (ex) */
-    function m4BgUnits(){
-      const pin = document.getElementById('a4Unit4'), top = pin.getBoundingClientRect().top, U = [];
-      const words = (els, stag) => {
-        if (!els.length) return;
-        const ref = els[0], fs = parseFloat(getComputedStyle(ref).fontSize) || 0, wt = parseFloat(getComputedStyle(ref).fontWeight) >= 900 ? 1000 : 700;
-        const off = m4Base(ref) - ref.getBoundingClientRect().top - a4Cap(wt) * fs;
-        let ly = null, j = 0;
-        els.forEach(w => { const t = w.getBoundingClientRect().top; if (ly === null || Math.abs(t - ly) > 2){ ly = t; j = 0; }
-          U.push({ el:w, y:t - top + off, rv:true, ex:true, d:j++ * stag }); });
-      };
-      const k1 = pin.querySelector('.a4-bgk.k1');
-      U.push({ el:k1, y:parseFloat(k1.style.top) + 0, rv:false, ex:true, d:0, cap:true });
-      words([...pin.querySelectorAll('.a4-bgk .w')], 60);
-      words([...pin.querySelectorAll('.a4-rw4 .w')], 90);
-      pin.querySelectorAll('.a4-bgp p').forEach(p => words([...p.querySelectorAll('.w')], 12));
-      const gb = document.getElementById('a4GalB'); if (gb && gb._m4g) U.push({ el:gb, y:gb._m4g.y, rv:true, ex:false, d:0 });
-      pin.querySelectorAll('.a4-bgc').forEach(c => { const lg = c.querySelector('.lg'), t = c.querySelector('.t');
-        U.push({ el:lg, y:parseFloat(lg.style.top), rv:true, ex:true, d:0 });
-        if (t) U.push({ el:t, y:t.getBoundingClientRect().top - top, rv:true, ex:true, d:60 }); });
-      const tr = pin.querySelector(':scope > .a4m-tr'); if (tr) U.push({ el:tr, y:m4G.capY, rv:false, ex:true, d:0 });   /* 513b: its title row, printed */
-      const end = pin.querySelector('.a4m-end'); if (end) U.push({ el:end, y:parseFloat(end.style.top) + .75 * m4G.S, rv:true, ex:true, d:0 });
-      /* k1 is printed: its cap from its live baseline */
-      U[0].y = m4Base(k1) - top - a4Cap(1000) * m4G.S;
-      U.forEach(u => { if (u.rv){ u.el.classList.add('a4m-rv'); m4St(u.el, '--d', u.d + 'ms'); } u.on = u.el.classList.contains('a4m-on'); u.k = 1; });
-      m4BgU = U;
-    }
-    function m4BgFrame(sc, bt){   /* 513b: bt = the sheet's DRAWN top (it rises faster than the finger); the chrome's foot is the bar's */
-      const { H } = m4G, CH = m4G.CF, lim = sc >= view.scrollHeight - H - 2 ? H : .88 * H; let n = 0, on = 0;   /* at the end of the scroll the last rows come in where they stand */
-      for (const u of m4BgU){
-        const y = bt + u.y;
-        if (u.rv){ n++;
-          if (!u.on && y < lim){ u.on = true; u.el.classList.add('a4m-on'); }
-          else if (u.on && y > H){ u.on = false; u.el.classList.remove('a4m-on'); }
-          if (u.on) on++; }
-        if (u.ex){   /* sharp until its cap is 6px under the chrome's foot, gone 30px into it: the desktop's blur under its header */
-          const k = m4Clamp((y - (CH - 30)) / 36), ks = k >= 1 ? 1 : +k.toFixed(3);
-          if (ks !== u.k){ u.k = ks;
-            if (ks >= 1){ m4St(u.el, 'opacity', ''); m4St(u.el, 'filter', ''); m4St(u.el, 'transition', ''); }
-            else { m4St(u.el, 'transition', 'none'); m4St(u.el, 'opacity', String(ks)); m4St(u.el, 'filter', 'blur(' + (8 * (1 - ks)).toFixed(2) + 'px)'); } }
-        }
-      }
-      return n ? on / n : 1;
+    /* 516a: a chain on a CLOCK (INTRO at its opening): link j comes in from j x A4M_STAG ms, over A4M_DUR ms */
+    function m4Tm(ch, t){
+      ch.items.forEach((it, j) => {
+        const k = m4Clamp((t - j * A4M_STAG) / A4M_DUR);
+        if (k === it.k) return; it.k = k;
+        const o = k.toFixed(3), f = k > 0 && k < 1 ? 'blur(' + (8 * (1 - k)).toFixed(2) + 'px)' : 'none';
+        it.els.forEach(e => { e.style.opacity = o; e.style.filter = f; });
+      });
     }
     /* 513b THE INDEX, per frame: shut, nothing shows (the slides carry their titles); open, five rows at the menu's pitch
        (1 S) from the title rows' line, row by row (fade + blur .55s, 60ms apart -- the 512a menu's) over the veil, the band
@@ -11196,89 +11255,98 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const g = m4G; if (!g || !g.tops) return;
       const dt = Math.min(100, Math.max(0, now - (m4T || now))); m4T = now;
       m4Drift += A4_DRIFT * dt / 1000;
-      const sc = view.scrollTop, H = g.H, T = g.tops, L = g.L;
+      const sc = view.scrollTop, H = g.H, T = g.tops, L = g.L, E = g.E, n5 = T.length, last = n5 - 1;
       if (m4Nav.open && Math.abs(sc - m4Nav.sc0) > 8) m4Nav.open = false;   /* the index closes on scroll */
-      /* 513b THE SLIDES (his notes). Sheet i's natural top is T[i] - sc (the view's own scroll; INTRO, ROLE and APPROACH
-         hold on their sticky pins). THE INCOMING sheet runs its last L = H / A4M_IN of approach A4M_IN x as fast as the
-         finger -- its natural top y is drawn at A4M_IN x y, so it lands exactly where the native scroll puts it, nothing to
-         hand over; further off it waits just under the screen. THE OUTGOING one recedes A4M_OUT x the finger from the
-         moment the next starts to rise, and its content fades as the desktop's outgoing card does (tick's damp: from dampT
-         of the cover, gone by .55 of the rest). A sheet not yet risen, or wholly covered, is hidden.
+      /* 513b THE SLIDES (his notes). Sheet i's natural top is T[i] - sc (the view's own scroll; each holds on its sticky pin
+         -- 516a: a pin taller than the screen on its foot, -E). THE INCOMING sheet runs its last L = H / A4M_IN of approach
+         A4M_IN x as fast as the finger -- its natural top y is drawn at A4M_IN x y, so it lands exactly where the native scroll
+         puts it, nothing to hand over; further off it waits just under the screen. THE OUTGOING one recedes A4M_OUT x the
+         finger from the moment the next starts to rise, and its content fades as the desktop's outgoing card does (tick's
+         damp: from dampT of the cover, gone by .55 of the rest). A sheet not yet risen, or wholly covered, is hidden.
          vt[i] = its drawn top, u[i] = its rise (0 .. 1) */
-      const vt = [0, 0, 0, 0], u = [1, 0, 0, 0], hid = [];
+      const vt = [], u = [1], hid = [];
       const dampT = Math.min(.7, Math.max(.5, .5 + (1.4 - g.vw / H) / 3));   /* the desktop's law (tick): .7 on any phone */
-      for (let i = 0; i < 4; i++){
+      for (let i = 0; i < n5; i++){
         const yn = T[i] - sc; let dy = 0;
         if (i > 0 && yn > 0){ dy = yn >= L ? H - L : (A4M_IN - 1) * yn; u[i] = m4Clamp(1 - yn / L); }
-        else { if (i > 0) u[i] = 1; if (i < 3) dy = -A4M_OUT * m4Clamp(sc - (T[i] + A4M_HOLD[i] * H), 0, L); }
-        vt[i] = (i < 3 ? Math.max(0, yn) : yn) + dy;
+        else { if (i > 0) u[i] = 1; if (i < last) dy = -A4M_OUT * m4Clamp(sc - (T[i] + E[i] + A4M_HOLD[i] * H), 0, L); }
+        vt[i] = Math.max(-E[i], yn) + dy;
         m4St(g.sl[i], '!transform', 'translate3d(0,' + dy.toFixed(2) + 'px,0)');
       }
-      for (let i = 0; i < 4; i++){
-        hid[i] = vt[i] >= H || (i < 3 && u[i + 1] >= 1);
+      for (let i = 0; i < n5; i++){
+        hid[i] = vt[i] >= H || (i < last && u[i + 1] >= 1);
         m4St(g.sl[i], 'visibility', hid[i] ? 'hidden' : '');
-        if (i < 3) m4St(g.pins[i], '!opacity', (1 - m4Clamp((u[i + 1] - dampT) / ((1 - dampT) * .55))).toFixed(3));
+        if (i < last) m4St(g.pins[i], '!opacity', (1 - m4Clamp((u[i + 1] - dampT) / ((1 - dampT) * .55))).toFixed(3));
       }
-      /* INTRO, q through its hold: the l2 / l3 chain (.02-.40), the statement leaves (.42-.52), the train sweeps in (.45-.85) */
-      const q = m4Clamp(sc / (A4M_HOLD[0] * H));
-      m4Chain(m4Ch.intro, m4Clamp((q - .02) / .38));
-      const out = m4Clamp((q - .42) / .1), cp = document.getElementById('a4Cp');
-      m4St(cp, 'opacity', (1 - out).toFixed(3)); m4St(cp, 'filter', out > 0 && out < 1 ? 'blur(' + (8 * out).toFixed(2) + 'px)' : 'none');
-      const sw = m4Clamp((q - .45) / .4), e = 1 - Math.pow(1 - sw, 3), gal = document.getElementById('a4Gal'), gOn = sw > 0 && !hid[0];
-      m4St(gal, 'visibility', gOn ? '' : 'hidden');
-      if (gOn) m4Place(gal, m4Drift + sc * A4_K, 1 - e);
+      /* 516a INTRO COMES IN WITH ITS SLIDE (his call): the corridor's train fires A4M_TRAIN_AT after the opening -- the
+         desktop's own entrance (its snapshot, a4Train; its 2.2s quintic clock, tick's; place()) -- and the paragraph's words
+         come in one by one from A4M_P0 */
+      const tb = now - m4Boot;
+      if (!swOn && tb >= A4M_TRAIN_AT) swOn = true;
+      swDir += ((swOn ? 1 : -1) - swDir) * Math.min(1, dt / 250);
+      swP = m4Clamp(swP + (dt / 2200) * swDir);
+      swE = swP * swP * swP * (swP * (swP * 6 - 15) + 10);
+      const gal = document.getElementById('a4Gal'), gb = document.getElementById('a4GalB');
+      if (!swSnap){ a4Train(gal); if (swOn) swSnap = true; }
+      m4Tm(m4Ch.intro, tb - A4M_P0);
+      /* THE CORRIDORS, the desktop's: the drift + A4_K x the scroll through its lag (tick's), every card through place() --
+         INTRO's while its sheet shows, CONTACT's while its sheet shows (the desktop's own switches: an inline 'hidden' / a
+         band not 'visible' keeps its books and writes nothing) */
+      const lagF = 1 - Math.pow(1 - A4_LAG, Math.max(1, dt) / 16.7), capF = A4_SP * gK4 * .6;
+      cur += Math.max(-capF, Math.min(capF, (m4Drift + sc * A4_K - cur) * lagF));
+      m4St(gal, 'visibility', hid[0] ? 'hidden' : ''); m4St(gb, 'visibility', hid[4] ? 'hidden' : 'visible');
+      place([gal, gb]);
       /* ROLE's belt runs as the desktop's: the drift + A4_LB_K x the scroll, rightward -- logos rise from under the left
          margin and leave under the right, the ring seamless */
       const bx = document.querySelector('#a4Unit .a4m-lg'), ch = m4Ch.role;
-      if (A4M_LOGOS === 'belt' && bx && bx._m4ring && !hid[1]){
+      if (bx && bx._m4ring && !hid[1]){
         const ring = bx._m4ring, gp = bx._m4gap, s0 = m4Drift + sc * A4_LB_K;
         for (const d of bx.children){ const x = mod4(d._m4x + s0 + d._m4w + gp, ring) - d._m4w - gp; d._m4bx = x;
           const tf = 'translate3d(' + (x - d._m4x).toFixed(2) + 'px,0,0)'; if (d._m4tf !== tf){ d._m4tf = tf; d.style.transform = tf; } }
       }
-      /* ROLE and APPROACH: each chain runs from the sheet A4M_LEAD risen to 85% of its hold, reversible with the thumb. The
-         belt's nine are nine links in the order they stand when the chain first reaches them, frozen for the pass (the
-         desktop's beltOrd), so the running belt never shuffles a half-come row */
-      const stage = i => m4Clamp((sc - (T[i] - (1 - A4M_LEAD) * L)) / ((1 - A4M_LEAD) * L + .85 * A4M_HOLD[i] * H));
-      const cR = stage(1), cA = stage(2);
-      if (A4M_LOGOS === 'belt' && bx && ch.logos.length){
-        const lon = cR * ch.span - ch.lg0 > 0;
-        if (lon && !ch.ord){ ch.ord = [...bx.children].sort((a, b) => a._m4bx - b._m4bx); ch.logos.forEach((it, j) => { it.els = [ch.ord[j]]; it.k = -1; }); }
-        else if (!lon) ch.ord = null;
+      /* THE CHAINS: each runs from its sheet A4M_LEAD risen to 85% of its hold (and its E), reversible with the thumb */
+      const stage = i => m4Clamp((sc - (T[i] - (1 - A4M_LEAD) * L)) / ((1 - A4M_LEAD) * L + E[i] + .85 * A4M_HOLD[i] * H));
+      const cR = stage(1), cA = stage(2), cB = stage(3), cC = stage(4);
+      m4Chain(m4Ch.role, cR); m4Chain(m4Ch.approach, cA); m4Chain(m4Ch.bg, cB); m4Chain(m4Ch.contact, cC);
+      /* 516a THE BELT, ONE LINK (his rule, phones and desktop): reached, its logos come in one by one in the order they stand
+         then (frozen for the pass: the running belt never shuffles a half-come row); left, they go together */
+      if (bx && ch.belt){
+        const on = ch.belt.k > 0;
+        if (on && !ch.ord) ch.ord = [...bx.children].sort((a, b) => a._m4bx - b._m4bx);
+        beltRun(m4BeltS, on, ch.ord || [], now, 8);
+        if (!on && m4BeltS.idle) ch.ord = null;
       }
-      m4Chain(m4Ch.role, cR); m4Chain(m4Ch.approach, cA);
       /* 514d THE TITLE ROWS (his 514 notes): each leads its slide ONE margin under the slide's drawn top, docks on capY (one
          margin under the bar) while the slide ends its rise behind the chrome, and leaves with it; its rule draws out with
-         ITS OWN slide -- INTRO over .85 of its hold, ROLE and APPROACH with their chains, BACKGROUND over its flow to the
-         end -- as a desktop case's section row does with its section. The bar's own B - D rule stands at the very start
-         and fades over the first A4M_HR of a screen */
-      const dk = g.capY - g.M, bg0 = T[3] - (1 - A4M_LEAD) * L;
-      const pr = [m4Clamp(sc / (.85 * A4M_HOLD[0] * H)), cR, cA, m4Clamp((sc - bg0) / Math.max(1, view.scrollHeight - H - bg0))];
+         ITS OWN slide. 516a: every slide's by its own hold, as INTRO's was (514d) -- empty as the slide lands (his mockups:
+         at rest the rule is empty), drawn out as the thumb reads through the hold, full as the next slide starts to rise.
+         The bar's own B - D rule stands at the very start and fades over the first A4M_HR of a screen */
+      const dk = g.capY - g.M;
+      const pr = T.map((t, i) => m4Clamp((sc - t) / (.85 * A4M_HOLD[i] * H + E[i])));
       (g.trs || []).forEach((tr, i) => { if (!tr) return;
         m4St(tr, 'transform', 'translate3d(0,' + m4Clamp(dk - vt[i], 0, dk).toFixed(2) + 'px,0)');
         if (tr.children[2]) m4St(tr.children[2], 'transform', 'scaleX(' + pr[i].toFixed(4) + ')'); });
       m4St(document.getElementById('hdr'), '--a4m-hr', (1 - m4Clamp(sc / (A4M_HR * H))).toFixed(3));
-      /* APPROACH's slit, the desktop's: the band opens from nothing to its height as its link comes and closes as BACKGROUND
-         rises (42 .. 66% of the cover, the desktop's); the ring moves as the desktop's (the drift + A4_K x the scroll) */
-      const gv = document.getElementById('a4GalV'), sk = m4Ch.approach.slit;
+      /* APPROACH's slit, the desktop's: 516a -- no entrance of its own (his call): it opens as the desktop's hole does, with
+         its sheet's cover (40 .. 64%), and closes as BACKGROUND rises (42 .. 66%); the ring moves as the desktop's (the
+         drift + A4_K x the scroll) */
+      const gv = document.getElementById('a4GalV');
       if (gv && gv._m4s){
-        const o = hid[2] ? 0 : m4Clamp(sk ? sk.k : 1) * (1 - m4Clamp((u[3] - .42) / .24)), h = gv._m4s.h;
+        const o = hid[2] ? 0 : m4Clamp((u[2] - .40) / .24) * (1 - m4Clamp((u[3] - .42) / .24)), h = gv._m4s.h;
         m4St(gv, 'visibility', o > 0 ? '' : 'hidden');
         m4St(gv, 'clipPath', o >= 1 ? 'none' : 'inset(' + ((1 - o) * h / 2).toFixed(2) + 'px 0px)');
         if (o > 0) m4Slit(gv, m4Drift + sc * A4_K);
       }
-      /* BACKGROUND: its lines in as they enter (on its drawn top), out under the chrome; its corridor drifting while it shows */
-      m4BgFrame(sc, vt[3]);
-      const gb = document.getElementById('a4GalB');
-      if (gb && gb._m4g){ const y = vt[3] + gb._m4g.y, on = !hid[3] && y < H && y + gb._m4g.h > 0; m4St(gb, 'visibility', on ? '' : 'hidden'); if (on) m4Place(gb, 120 + m4Drift + sc * A4_K, 0); }
-      /* THE CHROME: the scheme flips when a sheet's drawn edge passes the bar's middle */
-      let kc = 0; for (let i = 1; i < 4; i++) if (!hid[i] && vt[i] <= g.CF / 2) kc = i;
-      document.body.classList.toggle('a4r', kc === 1 || kc === 3);
+      /* THE CHROME: the scheme flips when a sheet's drawn edge passes the bar's middle (paper: ROLE, BACKGROUND, CONTACT) */
+      let kc = 0; for (let i = 1; i < n5; i++) if (!hid[i] && vt[i] <= g.CF / 2) kc = i;
+      document.body.classList.toggle('a4r', kc === 1 || kc === 3 || kc === 4);
       m4NavFrame(now);
     }
+    /* the index lands a row on its slide at rest; 516a: 05 CONTACT is a slide now -- EMAIL takes the router's contact go */
     function m4Jump(k){
-      if (k >= 4){ const c = document.querySelector('.hdr .menu [data-go="contact"]'); if (c) c.click(); return; }   /* 05 CONTACT: the router's contact go, as the desktop's */
-      if (m4G && m4G.tops) view.scrollTo({ top: m4G.tops[k], behavior: 'smooth' });
+      if (m4G && m4G.rest) view.scrollTo({ top: m4G.rest[k] || 0, behavior: 'smooth' });
     }
+    function m4Go(){ const c = document.querySelector('.hdr .menu [data-go="contact"]'); if (c) c.click(); }   /* the router's contact go, as the desktop's */
     { const nav = document.getElementById('a4Nav');
       /* the open index is a veil over the page, in .hdr (outside the view's scroll): a DRAG on it is a scroll -- it closes
          the index and carries on as the view's own scroll -- and never the 512a bar's pull-down (mnuDown, on .hdr); its
@@ -11303,15 +11371,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         if (k >= 0) m4Jump(k);
       });
       addEventListener('keydown', e => { if (m4On && m4Nav.open && e.key === 'Escape') m4Nav.open = false; });
-      /* 514d (his notes): 05 CONTACT goes to the contact page on a finger's TAP too -- a touch's pointerdown + pointerup on
-         the end row with no travel (a drag is the view's scroll and cancels) goes at once, by the same contact go; the
-         tap's own click after it is swallowed, so nothing under it lands. A mouse or a key keeps the router's click */
+      /* 514d (his notes): the contact go on a finger's TAP too (516a: CONTACT's EMAIL) -- a touch's pointerdown + pointerup on
+         it with no travel (a drag is the view's scroll and cancels) goes at once, by the same contact go; the tap's own click
+         after it is swallowed, so nothing under it lands. A mouse or a key keeps the router's click */
       const m4Tap = { id:null, x:0, y:0, t:0, sw:0 };
       view.addEventListener('pointerdown', e => { if (!m4On || e.pointerType !== 'touch') return;
-        m4Tap.id = e.target.closest && e.target.closest('.a4m-end') ? e.pointerId : null; m4Tap.x = e.clientX; m4Tap.y = e.clientY; m4Tap.t = performance.now(); }, { passive:true });
+        m4Tap.id = e.target.closest && e.target.closest('.a4m-go') ? e.pointerId : null; m4Tap.x = e.clientX; m4Tap.y = e.clientY; m4Tap.t = performance.now(); }, { passive:true });
       view.addEventListener('pointerup', e => { if (e.pointerId !== m4Tap.id) return; m4Tap.id = null;
         if (!m4On || Math.abs(e.clientX - m4Tap.x) > 10 || Math.abs(e.clientY - m4Tap.y) > 10 || performance.now() - m4Tap.t > 800) return;
-        m4Jump(4); m4Tap.sw = performance.now(); });
+        m4Go(); m4Tap.sw = performance.now(); });
       view.addEventListener('pointercancel', () => { m4Tap.id = null; });
       addEventListener('pointerdown', () => { m4Tap.sw = 0; }, { capture:true, passive:true });
       addEventListener('click', e => { if (m4Tap.sw && performance.now() - m4Tap.sw < 800){ m4Tap.sw = 0; e.stopPropagation(); e.preventDefault(); } }, { capture:true });
@@ -11329,7 +11397,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       cancelAnimationFrame(m4Layout._r); m4Layout._r = requestAnimationFrame(() => m4Layout());
     });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (m4On) m4Layout(); });   /* after the desktop's own fonts pass: the phone's places win */
-    window.__a4m = () => m4G && { on: m4On, S: m4G.S, T: m4G.T, CH: m4G.CH, CF: m4G.CF, capY: m4G.capY, L: m4G.L, IN: A4M_IN, OUT: A4M_OUT, LEAD: A4M_LEAD, Z0: m4G.Z0, Z1: m4G.Z1, W: m4G.W, H: m4G.H, tops: m4G.tops, bgH: m4G.bgH, roleVoid: m4G.roleVoid, screens: +(view.scrollHeight / m4G.H).toFixed(2) };   /* for the rigs: read it, never write it */
+    window.__a4m = () => m4G && { on: m4On, S: m4G.S, CH: m4G.CH, CF: m4G.CF, capY: m4G.capY, Zt: m4G.Zt, L: m4G.L, IN: A4M_IN, OUT: A4M_OUT, LEAD: A4M_LEAD, Z0: m4G.Z0, Z1: m4G.Z1, W: m4G.W, H: m4G.H, P: m4G.P, CP: m4G.CP, gk: m4G.gk, E: m4G.E, gal: m4G.gal, galC: m4G.galC, tops: m4G.tops, rest: m4G.rest, screens: +(view.scrollHeight / m4G.H).toFixed(2) };   /* for the rigs: read it, never write it */
     return { open, layout, active, wheel };
   })();
   ab4Ready = true;
@@ -11798,7 +11866,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* ================= 512 MOBILE: THE SUBTITLE SOLVE AND THE MENU SLIDE (SPEC-512 sec. C, D) =========
      THE SUBTITLE IS ONE SIZE ACROSS THE WHOLE SITE on a given phone, as large as possible: the tightest row
      defines it. Every tight row is measured at a reference size in a probe that wears the members' exact
-     type (SUBTITLE, BODY(CAPS) at half its size, and 513a: About's TITLE at --m-title-k x it), and S is the largest
+     type (SUBTITLE, BODY(CAPS) at half its size; 516a: About's TITLE tier is gone, and its probe), and S is the largest
      size at which ALL of them fit between the margins with their air. 513a: NO CAP (his answer: "let it grow ...
      everywhere, landscape too") -- the tightest row alone defines S, and a row may be VERTICAL: it then returns its
      own ceiling ({ what, s }) instead of a run ({ what, w }). Three passes, so DM Sans' optical size (auto from the
@@ -11836,18 +11904,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!mProbeEl){
       mProbeEl = document.createElement('div'); mProbeEl.className = 'm-probe'; mProbeEl.setAttribute('aria-hidden', 'true');
       mProbeEl.style.cssText = 'position:fixed; left:0; top:0; visibility:hidden; pointer-events:none; white-space:nowrap;';   /* inert in any mode */
-      mProbeEl.innerHTML = '<span class="m-ps"></span><span class="m-pb"></span><span class="m-pt"></span>';
+      mProbeEl.innerHTML = '<span class="m-ps"></span><span class="m-pb"></span>';
     }
     if (!mProbeEl.isConnected) document.body.appendChild(mProbeEl);   /* in the DOM only while a solve measures (mSolve removes it) */
-    const a = mProbeEl.children[0], b = mProbeEl.children[1], t = mProbeEl.children[2];
-    const k = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--m-title-k')) || 2;   /* 513a: About's TITLE tier */
-    a.style.fontSize = S + 'px'; b.style.fontSize = (S / 2) + 'px'; t.style.fontSize = (k * S) + 'px';
+    const a = mProbeEl.children[0], b = mProbeEl.children[1];
+    a.style.fontSize = S + 'px'; b.style.fontSize = (S / 2) + 'px';
     /* the box less its trailing tracking: the ink's run, to within a side bearing */
     const run = (e, x) => { if (!x) return 0; e.textContent = x;
       return e.getBoundingClientRect().width - (parseFloat(getComputedStyle(e).letterSpacing) || 0); };
     const W = (x, body) => run(body ? b : a, x);
-    W.T = x => run(t, x);   /* 513a: TITLE, at --m-title-k x S */
-    W.S = S; W.k = k;
+    W.S = S;
     return W;
   }
   /* THE TIGHT ROWS (SPEC-512 sec. C). Each returns [{ what, w }], w the row's run in px at the probe's S -- or (513a) a
