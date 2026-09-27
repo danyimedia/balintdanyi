@@ -12974,6 +12974,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        The wheel moves the target; page follows it on a spring (frame());
        the run and the menu move page directly. No other easing anywhere. */
     const WALL_N = 10, WALL8_W = 0.70;
+    /* 519a (SPEC-519 1): AN UPRIGHT PHONE'S WALL IS DENSER ("could we make the cards more dense here"). WALL_N was set on the
+       landscape desktop frame, where ten slabs sit about .15 of a card's height apart (1920x1080: 95 / 630); an upright
+       phone's frame is tall and its card small, and the same ten spread to half a card apart (430x932: 90.6 / 183). There
+       M_WALL_N slabs share the SAME wall -- its ends (topC, sc0), scale, eye, pivot and margins are the desktop's formulas,
+       untouched -- so only the pitch between them closes (x .6), and M8 gives the ring the cards that pitch needs. wallStep:
+       the spares' one-by-one fade keeps its PACE up the wall (FADE_STEP per desktop pitch, not per card), so the wall fills
+       in at the same point of the turn. M_RING_H: the phone's ring is counted for a window this tall at most (see M8). The
+       desktop and a landscape phone: WALL_N, FADE_STEP and their own window, as before. */
+    const M_WALL_N = 16, M_RING_H = 600;
+    const wallN = () => MOB.on && !MOB.land ? M_WALL_N : WALL_N;
+    const wallStep = () => FADE_STEP * (WALL_N - 1) / (wallN() - 1);
     const ROT_WHEEL = 700;                     /* px of the track over which the turn reaches ROT_MAIN */
     const ROT_MAIN = 0.90;                     /* how much of the turn is done by then; the rest trickles */
     const PAGE8 = 2.0;                         /* the rest of the track, in windows of wheel */
@@ -13024,7 +13035,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        stretched by the eye's magnification of the slabs below it (~1.15 at
        these depths). Measured against the projected geometry at 600, 689,
        900 and 1080 tall: one to two slabs over what is needed, never under. */
-    const pitchEst = () => Math.max(200, innerHeight - headFoot() - 60) / WALL_N;   /* 501: floor raised 20 -> 200. At a degenerate height (a hidden pane booted at 0x0) the 20px floor made M8 explode -- 432 cards, 432 videos, ~440 aborted requests, measured live. Treating the usable height as at least 200px keeps M8's coverage derivation intact at every real window and bounds the burst; the '8:'+M8() mode key rebuilds on the first honest resize as before. */
+    const pitchEst = (h = innerHeight) => Math.max(200, h - headFoot() - 60) / wallN();   /* 519a: at a given window height, the phone's wall (wallN). 501: floor raised 20 -> 200. At a degenerate height (a hidden pane booted at 0x0) the 20px floor made M8 explode -- 432 cards, 432 videos, ~440 aborted requests, measured live. Treating the usable height as at least 200px keeps M8's coverage derivation intact at every real window and bounds the burst; the '8:'+M8() mode key rebuilds on the first honest resize as before. */
     /* IN SIXES. The rail, the caption, goto() and openCase() all read the
        hero's case as k mod N; the hero CARD is k mod M and its case is that
        mod N. The two agree only when M is a multiple of N -- at 19 or 20
@@ -13036,12 +13047,18 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        the slots BELOW the frame that must still be there at WRAP_AT, when
        re-slotting begins: the deck has lifted liftAtWrap by then, and until
        that moment nothing comes up from the ring to fill in. In sixes. */
+    /* 519a: AN UPRIGHT PHONE'S RING IS COUNTED FOR ITS SHORTEST WINDOW (M_RING_H) -- a Safari toolbar is not a layout (518b).
+       The count only falls as the window grows (a longer pitch, a smaller lift per pitch), so counted at min(window, M_RING_H)
+       it covers every taller window and it is ONE number while the phone stays upright: at the phone's finer pitch its steps
+       fell inside a toolbar's reach (30 <-> 36 at ~745px tall), and a new count rebuilds the deck -- mid-journey, a flash.
+       Elsewhere h is the window, and u8h / (ROT_WHEEL / u8h) are unit8() / J1() exactly. */
     const M8 = () => {
-      const pw = pitchEst();
-      const Lw = LIFT_X * unit8() * Math.pow(0.975 * J1(), LIFT_POW);   // the lift at WRAP_AT
+      const h = MOB.on && !MOB.land ? Math.min(innerHeight, M_RING_H) : innerHeight;
+      const pw = pitchEst(h), u8h = ROT_WHEEL + PAGE8 * h;
+      const Lw = LIFT_X * u8h * Math.pow(0.975 * (ROT_WHEEL / u8h), LIFT_POW);   // the lift at WRAP_AT
       const above = 4 + Math.ceil((headFoot() + 20) / pw);
       const below = Math.ceil(Lw / pw) + 2;
-      return Math.ceil((WALL_N + above + below) / N) * N;
+      return Math.ceil((wallN() + above + below) / N) * N;
     };
     let rot = 0;                               /* the turn, 0..1 -- a function of page, nothing else */
     let vsMoveCl = false;                      /* 485: the vs-move latch -- hover lift stands down while the journey is in motion */
@@ -13841,7 +13858,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          the far one when it is below -- so the wall's ink runs to the foot
          wherever the eye sits */
       const sc0 = eyeS + (wallBot - eyeS) / (eyeS < wallBot ? mag : mf);
-      const pitch = (sc0 - topC) / (WALL_N - 1);
+      const pitch = (sc0 - topC) / (wallN() - 1);   /* 519a (SPEC-519 1): the same wall, an upright phone's denser count */
+      const fStep = wallStep();                        /* 519a: and the spares' fade at the same pace up it */
+      const lean8 = MOB.on && !MOB.land;               /* 519a: and it poses only what can paint (below) */
       const ring = M * pitch;                          // the ring's length on screen
       /* the ring's window on screen: from a slot and a half above the
          header's foot -- where a slab is already out of sight under the
@@ -13914,8 +13933,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         /* the fade: the six real cards none; the ones that extend the stack
            upward from FADE0, nearest first; the ones under the frame from
            FADE_U, nearest first -- off screen, so theirs is free */
-        const t0 = n < N ? -1 : Math.min(FADE_END, i >= 0 ? FADE0 + (i - N) * FADE_STEP : FADE_U + (-i - 1) * FADE_STEP);
+        const t0 = n < N ? -1 : Math.min(FADE_END, i >= 0 ? FADE0 + (i - N) * fStep : FADE_U + (-i - 1) * fStep);   /* 519a: fStep = FADE_STEP but on an upright phone */
         const o = t0 < 0 ? 1 : (introOn ? 0 : Math.min(1, Math.max(0, (e - t0) / Math.min(FADE_W, 1 - t0))));   /* 464: HIS WALL CARDS BACK (the 458 removal overreached -- they are his HERO->SHOWREEL work). Original fade law restored; hard-disabled ONLY until the intro completes */
+        if (lean8 && !(o > 0) && el.style.visibility === 'hidden') continue;   /* 519a: hidden and staying hidden -- nothing of it can paint; the frame that shows it writes it whole */
         el.style.transition = 'none';
         el.style.transform = turn + 'translate3d(0,' + ty.toFixed(1) + 'px,' + tz.toFixed(1) + 'px) scale(' + s.toFixed(4) + ')';
         el.style.opacity = o.toFixed(3);
