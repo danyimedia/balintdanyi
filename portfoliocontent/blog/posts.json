@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "posts": [
+    {
+      "slug": "the-long-middle",
+      "title": "The Long Middle",
+      "date": "2026-02-14",
+      "film": "https://www.youtube.com/watch?v=bLlunZMJL-Y",
+      "intro": "Every project has a stretch where nothing visible happens. The idea has landed, the deadline is still far enough away to ignore, and every version looks worse than the one in your head. MOCK LEDE: this is where most of the decisions that matter get made, and it is the part a portfolio never shows.",
+      "sections": [
+        {
+          "title": "The Start",
+          "body": "A concept lands in an afternoon. Then comes the part nobody photographs: weeks where the thing is neither an idea nor a film, and every version is worse than the one in your head.\n\nMOCK POST. It exists to test the blog post page against real layout: a long paragraph, a short one, and a media cell."
+        },
+        {
+          "title": "The Middle",
+          "body": "The middle is where taste gets applied. Not in the pitch, not in the grade. In the fourth recut, when you take out the shot you built the whole idea around."
+        },
+        {
+          "title": "The End",
+          "body": "Finishing is a decision, not an event. The work is never done; at some point it is due, and what you have made by then is what it is."
+        }
+      ],
+      "mock": true
+    },
+    {
+      "slug": "what-motion-owes",
+      "title": "What Motion Owes",
+      "date": "2026-01-20",
+      "film": "https://www.youtube.com/watch?v=ULXuhxj-WgA",
+      "intro": "Motion design grew up in the edit suite and kept the tools without the reasons. MOCK LEDE: the cut, the hold and the pace are not decoration; they are how a piece of motion says what it means.",
+      "sections": [
+        {
+          "title": "Borrowed Grammar",
+          "body": "A cut is a claim about what matters next. Motion inherited that from editing and mostly uses it to change slides."
+        },
+        {
+          "title": "The Hold",
+          "body": "The most underused tool in motion design is stillness. A held frame is what makes the next move mean anything."
+        }
+      ],
+      "mock": true
+    },
+    {
+      "slug": "working-in-public",
+      "title": "Working In Public",
+      "date": "2025-12-09",
+      "film": "https://www.youtube.com/watch?v=L9KDd96qMUY",
+      "intro": "Posting the work before it is ready sounds generous and is mostly terrifying. MOCK LEDE: what it did to the work, what it cost, and why the rough version is worth showing.",
+      "sections": [
+        {
+          "title": "Before It Is Good",
+          "body": "Posting the rough version invites the obvious note. Taking the obvious note early is cheaper than taking it at the grade."
+        },
+        {
+          "title": "What It Costs",
+          "body": "It costs the story that it arrived finished. That story is worth less than the work it hides."
+        }
+      ],
+      "mock": true
+    }
+  ]
+}
