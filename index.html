@@ -4360,7 +4360,7 @@
   html.mob.a4m #viewAbout4 > .a4-sl2{ order:2; z-index:2; margin-top:calc(-1 * var(--a4m-h)); }
   html.mob.a4m #viewAbout4 > .a4-sl3{ order:3; z-index:3; margin-top:calc(-1 * var(--a4m-h)); }
   html.mob.a4m #viewAbout4 > .a4-sl4{ order:4; z-index:4; margin-top:calc(-1 * var(--a4m-h)); }
-  html.mob.a4m #viewAbout4 > .a4m-sl5{ order:5; z-index:5; margin-top:calc(-1 * var(--a4m-h)); background:#F5F5F5; color:#000; }
+  html.mob.a4m #viewAbout4 > .a4m-sl5{ order:5; z-index:5; margin-top:calc(-1 * var(--a4m-h)); background:#000; color:#F5F5F5; }   /* 519c (SPEC-519 item 5, his "Invert the colours ... of CONTACT slide"): black, off-white type -- the corridor's images unchanged */
   /* the pins: one screen at their sheet's top -- 518c: no longer sticky (their sheet is the stage); a pin taller than the screen
      (E) runs on under its sheet in the sheet's own ground (JS writes its height); an outgoing pin's content fades (JS, inline
      important) */
@@ -4426,13 +4426,22 @@
   html.mob.a4m .a4m-mk img{ position:absolute; display:block; max-width:none; filter:brightness(0); }
   /* 513b THE TITLE ROWS (each slide's own, at its top edge): 0n  NAME, number left, name right, SUBTITLE; 514d: its rule is its
      slide's progress -- JS seats it and scales it from the number. A title row's tap opens the index. The INTRO row takes the
-     boot's fade */
+     boot's fade. 519c: each rides its SHEET, over its pin (a pin's outgoing fade never takes a stuck title with it) */
   html.mob.a4m .a4m-tr{ position:absolute; left:0; width:100%; pointer-events:auto; cursor:pointer; -webkit-tap-highlight-color:transparent;
     font-size:var(--m-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
-    text-transform:uppercase; white-space:nowrap; }
+    text-transform:uppercase; white-space:nowrap; z-index:1; }
   html.mob.a4m .a4m-tr span{ position:absolute; }
   html.mob.a4m .a4m-tr > i{ position:absolute; height:1px; background:currentColor; transform-origin:0 50%; transform:scaleX(0); }
-  html.mob.a4m #a4Unit3 .a4m-tr{ color:#F5F5F5; }   /* APPROACH's pin is .a4-unit (#000, declared after .u3): the row takes its sheet's ink */
+  /* 519c: each row in its sheet's ink (05 CONTACT dark now, SPEC-519 item 5) */
+  html.mob.a4m #viewAbout4 > .a4-sl1 > .a4m-tr, html.mob.a4m #viewAbout4 > .a4-sl3 > .a4m-tr, html.mob.a4m #viewAbout4 > .a4m-sl5 > .a4m-tr{ color:#F5F5F5; }
+  html.mob.a4m #viewAbout4 > .a4-sl2 > .a4m-tr, html.mob.a4m #viewAbout4 > .a4-sl4 > .a4m-tr{ color:#000; }
+  /* 519c (SPEC-519 item 4, his "stick to header just like in CASE STUDY pages"): THE STUCK TITLE CARRIES THE CASE'S GLASS
+     (.a4m-tg, JS) -- the case's veil (.42: --c3-glass-bg on the paper sheets, the same in black on the dark ones) and its blur
+     (--c3-glass-f), from the window's top (--a4m-gt: its box's top under it) to the header group's gap under its baseline
+     (--a4m-gf) -- as a case's pinned section row carries it; the bar's band stands down meanwhile (below: one glass) */
+  html.mob.a4m .a4m-tr.a4m-tg::before{ content:''; position:absolute; left:0; right:0; top:calc(-1 * var(--a4m-gt, 0px)); height:var(--a4m-gf, 0px);
+    background:rgba(0,0,0,.42); -webkit-backdrop-filter:var(--c3-glass-f); backdrop-filter:var(--c3-glass-f); z-index:-1; pointer-events:none; }
+  html.mob.a4m #viewAbout4 > .a4-sl2 > .a4m-tr.a4m-tg::before, html.mob.a4m #viewAbout4 > .a4-sl4 > .a4m-tr.a4m-tg::before{ background:var(--c3-glass-bg); }
   html.mob.a4m body.a4boot #a4Sl1 .a4m-tr{ opacity:0; transition:opacity .3s ease; }
   html.mob.a4m body.a4boot #a4Sl1 .a4m-tr.on{ opacity:1; }
   /* 516a 05 CONTACT's labels (SUBTITLE): INSTAGRAM / LINKEDIN over the corridor, EMAIL / VIMEO under it, UK & WORLDWIDE / 2026 on
@@ -4441,11 +4450,15 @@
   html.mob.a4m .a4m-ct{ position:absolute; left:0; top:0; width:max-content; white-space:nowrap; text-transform:uppercase; color:inherit; text-decoration:none;
     opacity:0; pointer-events:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
   html.mob.a4m .a4m-go{ cursor:pointer; }
-  /* THE CHROME: the 512a bar unchanged; the band behind it is the sheet's colour at .72 with an 8px blur, from the top to the
-     chrome's foot (513b: the bar's; solid, and deeper, while the index is open) */
-  html.mob.a4m body.aboutopen.about4 .hdr::before{ bottom:auto; height:var(--a4m-bh, var(--a4m-ch)); background:rgba(0,0,0,var(--a4m-ba, .72));
-    -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
-  html.mob.a4m body.a4r.aboutopen.about4 .hdr::before{ background:rgba(245,245,245,var(--a4m-ba, .72)); }
+  /* THE CHROME: the 512a bar unchanged; the band behind it in the sheet's colour, from the top to the chrome's foot (513b: the
+     bar's; solid, and deeper, while the index is open). 519c (SPEC-519 item 4): THE CASE'S GLASS -- its veil (.42, in the sheet's
+     colour) and its blur (--c3-glass-f) -- down to THE SLOT (--a4m-hf, JS: the header group's gap under B - D's baseline, where
+     a stuck title's cap stands; a title pushed out goes under it there, as a case's row goes under its head's glass); while a
+     title is stuck it carries the glass itself (.a4m-tg above) and the band stands down (body.a4m-tg: one glass, never two) */
+  html.mob.a4m body.aboutopen.about4 .hdr::before{ bottom:auto; height:var(--a4m-bh, var(--a4m-hf, var(--a4m-ch))); background:rgba(0,0,0,var(--a4m-ba, .42));
+    -webkit-backdrop-filter:var(--c3-glass-f); backdrop-filter:var(--c3-glass-f); }
+  html.mob.a4m body.a4r.aboutopen.about4 .hdr::before{ background:rgba(245,245,245,var(--a4m-ba, .42)); }
+  html.mob.a4m:not(.m-live) body.a4m-tg.aboutopen.about4 .hdr::before{ visibility:hidden; }
   /* 514d (his notes): the bar's own B - D rule stands at the very start of INTRO and fades as the thumb starts (JS writes
      --a4m-hr on .hdr from the scroll); the slides' title rows carry the rule from there. The menu slide brings it back */
   html.mob.a4m:not(.m-live) body.aboutopen.about4 .hdr-name i::before{ opacity:var(--a4m-hr, 1); transition:background .5s ease; }
@@ -11228,6 +11241,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       return R;
     });
     let m4On = false, m4G = null, m4Pin = null, m4T = 0, m4Drift = 0, m4Ch = null, m4Boot = 0;
+    let m4Own = null;   /* 519c: the title row that carries the glass (stuck at the slot), change-gated */
     const m4Nav = { open:false, o0:0, sc0:0, top0:0, capY:0 };   /* 513b: the index (a title row's tap) */
     const m4BeltS = {};   /* 516a: ROLE's belt, its one-by-one clock (beltRun) */
     const m4Wrote = new Set();
@@ -11340,14 +11354,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         let slw = pins[1] && pins[1].querySelector(':scope > .a4m-slw');
         if (pins[1] && !slw){ slw = document.createElement('div'); slw.className = 'a4m-slw'; slw.setAttribute('aria-hidden', 'true'); pins[1].appendChild(slw); }
         gals.forEach((g, i) => { const to = i === 1 ? slw : pins[i]; if (g && to && g.parentNode !== to) to.appendChild(g); });
-        /* 513b: each slide's own title row (0n  NAME, the nav's words), first in its pin (INTRO .. CONTACT) */
+        /* 513b: each slide's own title row (0n  NAME, the nav's words) (INTRO .. CONTACT); 519c: in its SHEET, after its pin --
+           the pin's outgoing fade must never take a stuck title with it (SPEC-519 item 4) */
         const names = [...document.querySelectorAll('#a4Nav span')].map(e => e.textContent);
-        [pins[0], document.getElementById('a4Unit'), pins[1], document.getElementById('a4Unit4'), pins[2]].forEach((p, k) => {
+        [m4Q(':scope > .a4-sl1'), m4Q(':scope > .a4-sl2'), m4Q(':scope > .a4-sl3'), m4Q(':scope > .a4-sl4'), s5].forEach((p, k) => {
           if (!p || p.querySelector(':scope > .a4m-tr')) return;
           const r = document.createElement('div'); r.className = 'a4m-tr';
           const n = document.createElement('span'), w = document.createElement('span');
           n.textContent = String(k + 1).padStart(2, '0'); w.textContent = names[k] || '';
-          r.appendChild(n); r.appendChild(w); r.appendChild(document.createElement('i')); p.insertBefore(r, p.firstChild);   /* 514d: its rule, the slide's progress */
+          r.appendChild(n); r.appendChild(w); r.appendChild(document.createElement('i')); p.appendChild(r);   /* 514d: its rule, the slide's progress */
         });
         const unit = document.getElementById('a4Unit');
         if (unit && !unit.querySelector('.a4m-lg')){
@@ -11400,6 +11415,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       m4On = false; m4Nav.open = false;
       const nav = document.getElementById('a4Nav'); if (nav) nav.classList.remove('a4m-open');
       m4Unset(); m4Nodes(false);
+      if (m4Own){ m4Own.classList.remove('a4m-tg'); m4Own = null; } document.body.classList.remove('a4m-tg');   /* 519c: the glass back to the bar */
       const bwi = [...view.querySelectorAll('.a4-brk .bwi')];   /* CONNECTING's riser: the phone's transform:none must not EASE back */
       bwi.forEach(e => { e.style.transition = 'none'; });         /* (1600ms) while the next desktop layout's apSolve measures it */
       document.documentElement.classList.remove('a4m'); document.body.classList.remove('a4r');
@@ -11431,7 +11447,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
               pN: parseFloat(csN.lineHeight) || 1.13 * N, pB: parseFloat(getComputedStyle(mB).lineHeight) || 1.13 * B };
       m4G.CP = A4M_CPAD * S;
       m4G.capB = mCapAt(Sb);   /* 515a: the bar's cap, at the site's S (About's own type may be capped smaller); 516c: its own, measured */
-      m4G.capY = 2 * M + m4G.capB; m4G.Zt = m4G.capY + m4G.capS; m4G.CH = m4G.Zt + M / 2; m4G.Z0 = m4G.Zt + M; m4G.Z1 = H - M;   /* 514d: the title rows' line at rest -- one margin under the bar's baseline; 516a: Zt its baseline, the top of the space below it */
+      /* 519c (SPEC-519 item 4): THE SLOT, the title rows' line at rest -- a stuck title's cap top THE CASE'S header-group gap
+         under B - D's baseline (m4HG: the case's own rule), its baseline on a whole pixel (the case's: a stuck line draws on the
+         pixel); hg the gap as landed. The glass it carries: from the window's top to hg under its baseline (gf). PG, THE CASE'S
+         HAND-OFF: an arriving title pushes the stuck one from its row padding (--c3-row-pad) plus twice the cap (the case's
+         --c3-push-gap rule) under the stuck one's baseline to its own cap top */
+      const bdB = M + m4G.capB, tb = Math.round(bdB + m4HG(S) + m4G.capS);
+      m4G.capY = tb - m4G.capS; m4G.hg = m4G.capY - bdB; m4G.gf = tb + m4G.hg; m4G.PG = (parseFloat(getComputedStyle(R).getPropertyValue('--c3-row-pad')) || 31.5) + 2 * m4G.capS;
+      m4G.Zt = m4G.capY + m4G.capS; m4G.CH = m4G.Zt + M / 2; m4G.Z0 = m4G.Zt + M; m4G.Z1 = H - M;   /* 516a: Zt the slot's baseline, the top of the space below it */
+      m4St(view, '--a4m-gt', (m4G.capY - .75 * S).toFixed(2) + 'px'); m4St(view, '--a4m-gf', m4G.gf.toFixed(2) + 'px');   /* the stuck row's box top under the window's top; the glass's foot */
+      m4St(document.getElementById('hdr'), '--a4m-hf', m4G.capY.toFixed(2) + 'px');   /* the bar's band ends at the slot */
       m4G.CF = M + m4G.capB + M / 2; m4G.L = H / A4M_IN;   /* 513b: the chrome's foot (the bar's), a transition's scroll */
       m4G.p2 = [null, m4Q('#a4Unit .a4-rw2'), m4Q('#a4Unit3 .a4-mids.mr2'), m4Q('#a4Unit4 .a4-rw4')];   /* 518c: the bottom SUBTITLE paragraphs the frame moves (E5) -- measured unmoved */
       m4G.p2.forEach(e => { if (e) m4St(e, 'transform', 'none'); });
@@ -11653,14 +11678,27 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        slide's own progress */
     function m4Titles(){
       const { vw, M, S, capS } = m4G; m4G.trs = [];
-      m4G.pins.forEach((pin, k) => {
-        const tr = pin && pin.querySelector(':scope > .a4m-tr'); m4G.trs[k] = tr; if (!tr) return;
-        m4Pin = m4O(pin); m4St(tr, 'transform', 'none');
+      m4G.sl.forEach((sh, k) => {   /* 519c: each in its sheet (seated in the sheet's own frame, as the pin's was) */
+        const tr = sh && sh.querySelector(':scope > .a4m-tr'); m4G.trs[k] = tr; if (!tr) return;
+        m4Pin = m4O(sh); m4St(tr, 'transform', 'none');
         m4St(tr, 'top', (M - .75 * S).toFixed(2) + 'px'); m4St(tr, 'height', (2 * S).toFixed(2) + 'px');
         const n = m4Put(tr.children[0], 'L', M, M), w = m4Put(tr.children[1], 'R', vw - M, M), r = tr.children[2];
         if (r){ const x0 = n.r + A4M_RULE_GAP * S, x1 = w.l - A4M_RULE_GAP * S;
           m4St(r, 'left', x0.toFixed(2) + 'px'); m4St(r, 'width', Math.max(0, x1 - x0).toFixed(2) + 'px'); m4St(r, 'top', (.75 * S + capS / 2 - .5).toFixed(2) + 'px'); }
       });
+    }
+    /* 519c: THE CASE'S HEADER-GROUP GAP, by the case's own rule (mHeadSeat, 518b: HIS measure -- --c3-c4-head-gap plus the
+       stuck title's line-box foot under its baseline, on the least whole pixel at most a quarter pixel under it), read at
+       About's S: a probe in the case title's register (its weight and leading, from #c3Brand span -- read, not restated; it need
+       not be on the screen). 10 on every upright phone at the reverted sizes, as the case pages land it */
+    function m4HG(S){
+      const R = document.documentElement, t = document.querySelector('#c3Brand span'), cs = t ? getComputedStyle(t) : null;
+      const lr = cs ? parseFloat(cs.lineHeight) / parseFloat(cs.fontSize) : NaN, fw = cs ? cs.fontWeight : '1000';
+      const q = document.createElement('span');
+      q.style.cssText = 'position:absolute;left:0;top:0;visibility:hidden;white-space:nowrap;margin:0;padding:0;border:0;font-weight:' + fw + ';font-size:' + S + 'px;line-height:' + (lr > .3 && lr < 3 ? lr : .78) + ';';
+      q.textContent = 'H'; view.appendChild(q);
+      const foot = q.getBoundingClientRect().bottom - m4Base(q, true); q.remove();
+      return Math.ceil((parseFloat(getComputedStyle(R).getPropertyValue('--c3-c4-head-gap')) || 8.4) + foot - .25);
     }
     /* the index's places (513b: #a4Nav shows only as the index): every name's right ink on the right margin (a right-aligned
        box, its trailing bearing taken back), the number's left ink on the left margin, row 01's cap top on the title rows'
@@ -11863,16 +11901,25 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         beltRun(m4BeltS, on, ch.ord || [], now, 8);
         if (!on && m4BeltS.idle) ch.ord = null;
       }
-      /* 514d THE TITLE ROWS (his 514 notes): each leads its slide ONE margin under the slide's drawn top, docks on capY (one
-         margin under the bar) while the slide ends its rise behind the chrome, and leaves with it -- 518c: written in the SAME
-         frame, from the same number, as its slide. Its rule draws out with ITS OWN slide: 518c (no holds to read through) its
+      /* 514d THE TITLE ROWS (his 514 notes): each leads its slide ONE margin under the slide's drawn top -- 518c: written in the
+         SAME frame, from the same number, as its slide. 519c (SPEC-519 item 4, his words: "make the slide titles stick to header
+         just like in CASE STUDY pages / subtitles. Use the same padding for the titles to 'push each other out of position' (new
+         pushing the old out of position)"): THE CASE'S STICK AND HAND-OFF. A title rides its slide until its cap top reaches THE
+         SLOT (capY) and sticks there -- through its slide's arrival, its run-on (E) and its recession -- until the next slide's
+         title, rising, comes within the case's push padding (PG under its baseline) and pushes it up and out under the bar's
+         glass: ty[i] = min(max(its slide's place, the slot), the next one's ty - PG - its cap) -- one function of the frame's one
+         number, the same forwards and back. The one at the slot carries the glass (.a4m-tg; the bar's band stands down,
+         body.a4m-tg), never while the index is open. Its rule draws out with ITS OWN slide: 518c (no holds to read through) its
          rise, full as the next one starts to rise; INTRO's, which never rises, with ROLE's rise over it. The bar's own B - D
          rule stands at the very start and fades over the first A4M_HR of a screen */
-      const dk = g.capY - g.M;
-      const pr = r.map((x, i) => i ? m4Clamp(x / (H + E[i])) : u[1]);
+      const pr = r.map((x, i) => i ? m4Clamp(x / (H + E[i])) : u[1]), ty = g.ty = [];
+      for (let i = n5 - 1, yN = Infinity; i >= 0; i--) yN = ty[i] = Math.min(Math.max(vt[i] + g.M, g.capY), yN - g.PG - g.capS);
+      let own = null;
       (g.trs || []).forEach((tr, i) => { if (!tr) return;
-        m4St(tr, 'transform', 'translate3d(0,' + m4Clamp(dk - vt[i], 0, dk).toFixed(2) + 'px,0)');
-        if (tr.children[2]) m4St(tr.children[2], 'transform', 'scaleX(' + pr[i].toFixed(4) + ')'); });
+        m4St(tr, 'transform', 'translate3d(0,' + (ty[i] - vt[i] - g.M).toFixed(2) + 'px,0)');
+        if (tr.children[2]) m4St(tr.children[2], 'transform', 'scaleX(' + pr[i].toFixed(4) + ')');
+        if (!own && !hid[i] && !m4Nav.open && Math.abs(ty[i] - g.capY) < .5) own = tr; });
+      if (m4Own !== own){ if (m4Own) m4Own.classList.remove('a4m-tg'); if (own) own.classList.add('a4m-tg'); m4Own = own; document.body.classList.toggle('a4m-tg', !!own); }
       m4St(document.getElementById('hdr'), '--a4m-hr', (1 - m4Clamp(jx / (A4M_HR * H))).toFixed(3));
       /* APPROACH's slit, the desktop's (the drift + A4_K x the journey moves its ring). 518c (SPEC-518 E4, his screenshot 3:
          the strip vanished halfway through APPROACH -> BACKGROUND): no clip-path ever (on iOS the 3D band went the moment one
@@ -11884,9 +11931,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         m4St(gv, 'visibility', o > 0 ? '' : 'hidden');
         if (o > 0) m4Slit(gv, m4Drift + jx * A4_K);
       }
-      /* THE CHROME: the scheme flips when a sheet's drawn edge passes the bar's middle (paper: ROLE, BACKGROUND, CONTACT) */
+      /* THE CHROME: the scheme flips when a sheet's drawn edge passes the bar's middle (paper: ROLE and BACKGROUND; 519c: CONTACT
+         is black now -- SPEC-519 item 5) */
       let kc = 0; for (let i = 1; i < n5; i++) if (!hid[i] && vt[i] <= g.CF / 2) kc = i;
-      document.body.classList.toggle('a4r', kc === 1 || kc === 3 || kc === 4);
+      document.body.classList.toggle('a4r', kc === 1 || kc === 3);
       m4NavFrame(now);
     }
     /* the index lands a row on its slide at rest; 516a: 05 CONTACT is a slide now -- EMAIL takes the router's contact go */
@@ -11945,7 +11993,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (m4On) m4Layout(); });   /* after the desktop's own fonts pass: the phone's places win */
     window.__a4m = () => m4G && { on: m4On, S: m4G.S, CH: m4G.CH, CF: m4G.CF, capY: m4G.capY, Zt: m4G.Zt, L: m4G.L, IN: A4M_IN, OUT: A4M_OUT, sens: m4G.sens, J: m4G.J, seg: m4G.seg, gr: m4G.gr, capS: m4G.capS, Z0: m4G.Z0, Z1: m4G.Z1, W: m4G.W, H: m4G.H, P: m4G.P, CP: m4G.CP, gk: m4G.gk, E: m4G.E, gal: m4G.gal, galC: m4G.galC, tops: m4G.tops, rest: m4G.rest, screens: +(view.scrollHeight / m4G.H).toFixed(2),
-      win: m4G.win && m4G.win.map(q => q && { a: q.a, b: q.b, e: q.e, wS: q.wS, v: q.v, len: q.len }), r: m4G.r && m4G.r.map(x => +x.toFixed(2)) };   /* for the rigs: read it, never write it */
+      win: m4G.win && m4G.win.map(q => q && { a: q.a, b: q.b, e: q.e, wS: q.wS, v: q.v, len: q.len }), r: m4G.r && m4G.r.map(x => +x.toFixed(2)),
+      hg: m4G.hg, gf: m4G.gf, PG: m4G.PG, ty: m4G.ty && m4G.ty.map(x => +x.toFixed(2)) };   /* for the rigs: read it, never write it (519c: the slot's gap, the glass's foot, the push padding, the titles' places) */
     window.__a4mAt = (k, rr) => m4G && m4G.seg ? (m4G.seg[k].j0 + m4Jx(m4G, k, rr)) / m4G.sens : 0;   /* 518c: for the rigs -- the scroll where slide k has risen rr px */
     return { open, layout, active, wheel };
   })();
