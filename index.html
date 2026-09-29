@@ -13152,8 +13152,31 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const unit8 = () => ROT_WHEEL + PAGE8 * innerHeight;
     const J1 = () => ROT_WHEEL / unit8();      /* where the turn hands over to its trickle -- and the run starts */
     const rotOf = J => J <= 0 ? 0 : (J < J1() ? ROT_MAIN * J / J1() : ROT_MAIN + (1 - ROT_MAIN) * (J - J1()) / (1 - J1()));
-    const liftOf = () => LIFT_X * unit8() * Math.pow(Math.min(1, Math.max(0, page)), LIFT_POW);
-    const blockP8 = () => (page >= 1 ? 1 : Math.pow(Math.min(1, Math.max(0, page)), BLOCK_POW));
+    /* 521a (SPEC-521 B1): A LANDSCAPE PHONE'S PAGE TRAVEL WAITS FOR THE TURN ("as the deck is rotating, the scrolling is faster
+       and the top part (where the cards show one after the other) is no longer visible because the header is covering it ...
+       make sure that the vertical movement is a bit delayed so we can see the deck turning" -- landscape only). The turn's
+       ROT_WHEEL is a fixed length of track and a landscape window is short, so there the turn takes half the journey (J1 .45 at
+       932x430, .52 at 932x320 against .27 upright) and the lift -- page ^ LIFT_POW of a track 3.6 windows long -- had carried
+       the deck 92% of its wall up (151% at 320 tall) by the turn's 90%: the stack went under the header while it turned.
+       The page's VERTICAL layers -- the deck's lift (the deck, SELECTED / WORKS, the hero chrome) and the film's slide (its
+       social row, the film) -- read vPage8(), the journey DELAYED: through the turn (page <= J1) it runs at vK8() of the
+       journey, solved so the lift at J1 is M_LAND_LIFT of the wall (the share his own phone has upright at 430x932, 25%) --
+       the lift is the same curve, so at every stage of the turn it is that share x (rot / ROT_MAIN) ^ LIFT_POW -- then a
+       cubic Hermite from (J1, vK8 J1, slope vK8) to (1, 1, slope 1) catches up during the run: C1 at J1, monotone, and at
+       the showreel the SAME position and speed as before (the handover, the way back up from it, contact after it). Every
+       pose is the turn's own (pose8 draws whatever lift it is given); the ring (M8) is counted for the undelayed lift, never
+       less than this one. Everywhere else (the desktop, an upright phone) vK8 is 1 and vPage8() is the page, clamped -- the
+       formulas as they were. */
+    const M_LAND_LIFT = 0.25;
+    const vK8 = () => { if (!(MOB.on && MOB.land)) return 1;
+      const wallH = Math.max(1, innerHeight - headFoot() - TOP7);   /* pose8's wall: from the header's foot + TOP7 to the frame's foot */
+      return Math.min(1, Math.pow(M_LAND_LIFT * wallH / (LIFT_X * unit8()), 1 / LIFT_POW) / J1()); };
+    const vPage8 = () => { const p = Math.min(1, Math.max(0, page)), kq = vK8(); if (kq >= 1) return p;
+      const j = J1(); if (p <= j) return kq * p;
+      const u = (p - j) / (1 - j), u2 = u * u, u3 = u2 * u;
+      return (2 * u3 - 3 * u2 + 1) * kq * j + (u3 - 2 * u2 + u) * (1 - j) * kq + (-2 * u3 + 3 * u2) + (u3 - u2) * (1 - j); };
+    const liftOf = () => LIFT_X * unit8() * Math.pow(vPage8(), LIFT_POW);
+    const blockP8 = () => (page >= 1 ? 1 : Math.pow(vPage8(), BLOCK_POW));
     let lift8 = 0, homeDwellT = 0, lastW8T = 0;   /* the deck's lift; the home-basin dwell clocks (475) */
     let prev8 = 0;                             /* the page at the last pageSync, for the crossing */
     const COMMIT8_LEAD = 0.03;                 /* past J1, a downward gesture this far ahead of the page commits */
