@@ -4494,6 +4494,16 @@
      side the rule reads the window's HEIGHT (the large viewport: the toolbar never moves it), the phone's own short side, so a
      phone keeps its TITLE when it turns */
   html.mob.mobl{ --t-title:min(calc(var(--t-sub) / var(--t-fit)), calc((100vh - 2 * var(--pad)) * .0584)); }
+  /* 521c (SPEC-521 B2-B6, his notes on the landscape phone -- "ONLY apply comments for this view"): ABOUT ON ITS SIDE. The phone's
+     About (M512:ABOUT, m4Layout) with a landscape phone's own lines. INTRO's statement WHOLE IN SUBTITLE, as the desktop's: its three
+     lines centred, each wrapping balanced where the measure is short (the words revealed by the scroll, m4Read); WHY ARE THEY
+     WATCHING on ONE line (its last word back in the row). ROLE's labels and FLAGSHIP WORK, CONNECTING PEOPLE / TO THE BRAND, the
+     kicker's two lines and the schools' order are seats in JS (m4Role / m4Flag, m4People, m4Bg) */
+  html.mob.mobl.a4m #a4Cp{ font-size:var(--m-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
+    text-transform:uppercase; font-variation-settings:normal; font-optical-sizing:auto; }
+  html.mob.mobl.a4m #a4Cp .l1, html.mob.mobl.a4m #a4Cp .l2, html.mob.mobl.a4m #a4Cp .l3{ position:static; display:block; width:auto; text-wrap:balance; }
+  html.mob.mobl.a4m #a4Cp .l2::after{ content:none; }
+  html.mob.mobl.a4m #a4Unit4 .a4-rw4 .w:last-child{ position:static; }
   /* THE MENU SLIDE, IN TWO COLUMNS. The portrait slide hangs 01-04 from the top and stands 05-08 on the open bar, and
      nothing couples the two groups: on a wide, short screen -- the more so with the browser's bars showing, which the
      slide keeps (it never scrolls) -- 01-04 ran into 05-08. Here the anchors stay (MENU on the top margin, 01 three
@@ -11265,6 +11275,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* 516a: INTRO AT ITS OPENING (ms): the corridor's train fires at A4M_TRAIN_AT; the paragraph's words from A4M_P0, A4M_STAG
        apart, each over A4M_DUR (the site's fade + blur) */
     const A4M_TRAIN_AT = 0, A4M_P0 = 900, A4M_STAG = 45, A4M_DUR = 550;
+    /* 521c (SPEC-521 B2, his words: "here we should use the desktop version, first all text appears in SUBTITLE and revealed while
+       scrolling. cards come at the end"): A LANDSCAPE PHONE'S INTRO READS AS THE DESKTOP'S -- in the desktop's units (A4_WU of the
+       window's height): A4M_RD.w a word (the words' windows overlapping as seqMeta lays them; a word is released where the scroll
+       passes its window's middle, A4M_STAG ms after the one before at the least, and plays in by itself over A4M_DUR), .hold the
+       quiet after the last word, then the trigger (the corridor's train, the desktop's a4Train and clock; the statement fades as it
+       comes), .room the sweep's scroll -- the desktop's 3 / 18 / 40 */
+    const A4M_RD = { w:3, hold:18, room:40 };
     /* 518c (SPEC-518 E2, his words: "the transition should be triggered element by element and play out automatically. No
        mid-transition pauses within an element's transition"): EVERY ELEMENT ON A CLOCK, INTRO's model -- released where it
        stands (m4Run), its links (a line, a word, a school) play in by themselves: a row A4M_ROW ms after the row above, a word
@@ -11329,6 +11346,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       nav.forEach((t, i) => add(String(i + 1).padStart(2, '0') + ' ' + t, W(String(i + 1).padStart(2, '0')) + M_RULE * S + W(t)));
       const lk = t => ((m4Foot(t) || {}).textContent || t).trim();
       [[lk('instagram'), lk('linkedin')], [A4M_CONTACT.email, lk('vimeo')], [A4M_CONTACT.base, A4M_CONTACT.year]].forEach(([a, b]) => add(a + ' | ' + b, W(a) + M_GAP * S + W(b)));
+      if (MOB.land){   /* 521c (SPEC-521 B4-B6): a landscape phone's own one-line rows */
+        const pw = ws('#a4Unit3 .a4-mids.ml2 .w'), kw = ws('#a4Unit4 .a4-bgk.k2 .w, #a4Unit4 .a4-bgk.k3 .w'), fw = ws('#a4Unit .a4-p2l .w, #a4Unit .a4-p2c .w');
+        if (pw.length) add('connecting people', W(tx('#a4Unit3 .a4-brk .bw') + ' ' + pw[0]));
+        if (kw.length) add('taught me it’s worth asking', W(kw.join(' ')));
+        if (r4.length) add('why are they watching', W(r4.join(' ')));
+        if (fw.length) add('flagship work', W(fw.join(' '), 1));
+      }
       return R;
     });
     let m4On = false, m4G = null, m4Pin = null, m4T = 0, m4Drift = 0, m4Ch = null, m4Boot = 0;
@@ -11573,6 +11597,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          A4M_IN x jx, straight into the next (no holds) -- ROLE, APPROACH and BACKGROUND slower through their sentence windows
          (m4Win, E5). A pin taller than the screen (E) runs on under its sheet */
       const sens = m4G.sens = mSens('about'), seg = m4G.seg = [{ j0: 0, len: m4G.E[0] / A4M_IN }];
+      if (m4G.rd) seg[0].len += m4G.rd.len;   /* 521c (SPEC-521 B2): on its side INTRO reads first -- its own stretch of the journey */
       m4G.win = sl.map((e, i) => i >= 1 && i <= 3 ? m4Win(i, m4Ch[['role', 'approach', 'bg'][i - 1]], sens) : null);
       for (let i = 1; i < sl.length; i++) seg[i] = { j0: seg[i - 1].j0 + seg[i - 1].len, len: m4Jx(m4G, i, H + m4G.E[i]) };
       const J = m4G.J = (seg[seg.length - 1].j0 + seg[seg.length - 1].len) / sens;
@@ -11585,7 +11610,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (g0 && Math.abs(g0.H - H) >= 1 && sc0 > 0){
         const j0 = sc0 * g0.sens; let k = g0.seg.length - 1; while (k > 0 && j0 < g0.seg[k].j0) k--;
         const L0 = k ? g0.H + g0.E[k] : g0.E[0], L1 = k ? H + m4G.E[k] : m4G.E[0], f = L0 > 0 ? m4Clamp(m4Rx(g0, k, j0 - g0.seg[k].j0) / L0) : 0;
-        view.scrollTop = Math.min(J, (seg[k].j0 + m4Jx(m4G, k, f * L1)) / sens);
+        const q0 = !k && m4G.rd && g0.seg[0].len > 0 ? m4Clamp(j0 / g0.seg[0].len) * seg[0].len : -1;   /* 521c: inside a landscape INTRO's read, the same share of it */
+        if (q0 >= 0) view.scrollTop = Math.min(J, q0 / sens);
+        else view.scrollTop = Math.min(J, (seg[k].j0 + m4Jx(m4G, k, f * L1)) / sens);
       }
       m4NavLayout();
       m4Frame(performance.now());
@@ -11641,6 +11668,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const cp = document.getElementById('a4Cp'), l1 = cp.querySelector('.l1'), l3 = cp.querySelector('.l3');
       m4St(cp, 'width', W.toFixed(2) + 'px');
       const pa = m4Put(cp, 'B', M, 0), pb1 = l3 ? m4Base(l3, true) - m4Pin.y : pa.b1, hB = pb1 - pa.cap;   /* the paragraph: its cap .. its LAST line's baseline */
+      if (MOB.land) return m4IntroL(cp, pa, hB, cre);   /* 521c (SPEC-521 B2): on its side, the desktop's INTRO */
+      m4St(cp, 'opacity', ''); m4St(cp.querySelector('.dots'), 'opacity', '');   /* 521c: upright the statement is its own (a turn lifts the landscape read's) */
       const st = l1 ? m4Put(l1, 'B', M, 0) : { cap:0, b1:0 }, hT = st.b1 - st.cap;
       const room = (cre.cap - M) - Z0, h0 = bandH4 * m4G.gk;
       const hb = Math.max(A4M_GH_MIN * h0, Math.min(h0, room - hT - hB - 2 * CP));
@@ -11655,6 +11684,50 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const E = Math.max(0, yP + hB - (cre.cap - M));
       if (E > 0) m4Shift([m4Q('.a4-row3 .a4-big'), m4Q('.a4-row3 .a4-mid')], E);
       return E;
+    }
+    /* 521c (SPEC-521 B2): A LANDSCAPE PHONE'S INTRO, THE DESKTOP'S. The corridor centred in the space below the title row as
+       upright (the band's height scaled down only if the slide needs it); the WHOLE statement (SUBTITLE, M512:LAND) centred on
+       the band's middle -- the cards come in over it at the end, as it fades. Its read (m4G.rd, journey px): each word's line
+       (its seqMeta window's middle, at A4M_RD.w units a word) and hysteresis (a quarter window: back at the top none stays), the dots' line, the trigger, the whole read */
+    function m4IntroL(cp, pa, hB, cre){
+      const { M, W, H, Zt, Z0, Z1 } = m4G, h0 = bandH4 * m4G.gk, lim = cre.cap - M;
+      const hb = Math.max(A4M_GH_MIN * h0, Math.min(h0, lim - Z0));
+      const yb = Math.max(Z0, Math.min((Zt + Z1) / 2 - hb / 2, lim - hb)), yc = Math.max(Z0, yb + hb / 2 - hB / 2);
+      m4Shift([cp], yc - pa.cap);
+      m4Gal(document.getElementById('a4Gal'), M, yb, W, hb);
+      m4G.gal = [+yb.toFixed(2), +hb.toFixed(2)];
+      const ws = [...cp.querySelectorAll('.l2 .w, .l3 .w')], sq = seqMeta(ws.map(() => A4M_RD.w)), WU = A4_WU * H, W0 = sq.total * WU, k = .97 * W0 / sq.end;
+      ws.forEach(w => { w._mqo = undefined; });   /* written afresh by the next frame (upright, m4Tm wrote them) */
+      m4G.rd = { W0, dots: W0 / 16, trig: W0 + A4M_RD.hold * WU, len: W0 + (A4M_RD.hold + A4M_RD.room) * WU,
+        ch: { items: ws.map((w, i) => ({ links:[{ e:w, d:0 }], head:w, kind:'rd', next:A4M_STAG, t:(sq.st[i] + sq.u[i] / 2) * k, hy:sq.u[i] / 4 * k })) } };
+      const E = Math.max(0, Math.max(yb + hb, yc + hB) - lim);   /* too short: the bottom row follows, as upright */
+      if (E > 0) m4Shift([m4Q('.a4-row3 .a4-big'), m4Q('.a4-row3 .a4-mid')], E);
+      return E;
+    }
+    /* 521c: the read, per frame -- the words by m4Run (released in order where the scroll passes each one's line, each playing in by
+       itself; back past it, it plays out), the dots out once the read begins, the statement out as the train comes in (the
+       desktop's 1 - 2 x its clock) */
+    function m4Read(rd, jx, now, dt){
+      m4Run(rd.ch, (it, on) => jx >= it.t - (on ? it.hy : 0), now, dt);
+      const cp = document.getElementById('a4Cp'), dots = cp && cp.querySelector('.dots');
+      if (cp) m4St(cp, 'opacity', Math.max(0, 1 - swP * 2).toFixed(3));
+      if (dots){ const v = m4Clamp((dots._mqv === undefined ? 1 : dots._mqv) + (jx < rd.dots ? 1 : -1) * dt / A4M_DUR); dots._mqv = v; m4St(dots, 'opacity', v.toFixed(3)); }
+    }
+    /* 521c (SPEC-521 B4): FLAGSHIP WORK on ONE line, its right ink on the right margin -- WORK by its word's ink, FLAGSHIP's word a
+       BODY word space before it (m4Sp); both on the line's cap y. Returns WORK's placed ink (the line's) */
+    function m4Flag(p2, y){
+      const { vw, M } = m4G, w0 = p2[0].querySelector('.w'), w1 = p2[1].querySelector('.w');
+      const f = m4Put(p2[1], 'R', vw - M, y, { ink:w1 });
+      m4Put(p2[0], 'E', w1.getBoundingClientRect().left - m4Pin.x - m4Sp(w1), y, { ink:w0 });
+      return f;
+    }
+    /* 521c (SPEC-521 B5): CONNECTING PEOPLE / TO THE BRAND on TWO lines -- PEOPLE / TO THE BRAND's box with its first line on
+       CONNECTING's, PEOPLE's word carried (its margin: m4Edge's bearing plus the rest) to a word space after CONNECTING's box; TO
+       THE BRAND under it on the margin (never a text-indent: the words are inline blocks, each would inherit it) */
+    function m4People(bw, ml, con){
+      const pe = m4Put(ml, 'B', m4G.M, con.cap), w = ml.querySelector('.w');
+      if (w) m4St(w, 'marginLeft', ((parseFloat(w.style.marginLeft) || 0) + bw.getBoundingClientRect().right + m4Sp(bw) - w.getBoundingClientRect().left).toFixed(2) + 'px');
+      return pe;
     }
     /* 05 CONTACT (516a, the phone's own): UK & WORLDWIDE | 2026 on the bottom margin; the corridor (BACKGROUND's) centred as
        INTRO's; INSTAGRAM | LINKEDIN on it, EMAIL | VIMEO under it, CP clear */
@@ -11683,14 +11756,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       m4St(q('.a4-rw2'), 'left', '0px'); m4St(q('.a4-rw2'), 'top', '0px');
       const t1 = m4Put(q('.a4-lbig.s1l'), 'L', M, 0), t2 = m4Put(q('.a4-lbig.s1r'), 'L', M, t1.cap + g);
       const mm = [q('.a4-mids.ml'), q('.a4-mids.mc'), q('.a4-mids.mr')], p2 = [q('.a4-p2l'), q('.a4-p2c')];
-      const m0 = m4Put(mm[0], 'R', vw - M, 0); m4Put(mm[1], 'R', vw - M, pB); const m2 = m4Put(mm[2], 'R', vw - M, 2 * pB);
+      const mA = MOB.land ? 'L' : 'R', mX = MOB.land ? M : vw - M;   /* 521c (SPEC-521 B4): on its side BRAND FILMS / CONTENT STRATEGY / SOCIALS on the LEFT margin */
+      const m0 = m4Put(mm[0], mA, mX, 0); m4Put(mm[1], mA, mX, pB); const m2 = m4Put(mm[2], mA, mX, 2 * pB);
       const LH = A4M_BELT_H * S, bT = m2.b0 + CP; m4Logos(bT, LH);
       const f1 = m4Put(p2[0], 'L', M, bT + LH + CP, { ink:p2[0].querySelector('.w') }), f2 = m4Put(p2[1], 'L', M, f1.cap + pB, { ink:p2[1].querySelector('.w') });
+      const fw = MOB.land ? m4Flag(p2, bT + LH + CP) : f2;   /* 521c (SPEC-521 B4): on its side FLAGSHIP WORK, one line on the RIGHT margin */
       const sp = rw.length === 4 ? m4Sp(rw[1]) : 0;
       const r1 = m4Put(rw[1], 'R', vw - M, 0); m4Before(rw[0], rw[1], sp);
       const r3 = m4Put(rw[3], 'R', vw - M, r1.cap + g); m4Before(rw[2], rw[3], sp);
       return { top:{ els:[q('.a4-lbig.s1l'), q('.a4-lbig.s1r')], h: t2.b0 - t1.cap },
-               mid:{ els:[...mm, q('.a4m-lg'), ...p2], h: f2.b0 - m0.cap },
+               mid:{ els:[...mm, q('.a4m-lg'), ...p2], h: fw.b0 - m0.cap },
                bot:{ els:rw, h: r3.b0 - r1.cap } };
     }
     /* the nine, one row in the registry's order reversed (the desktop's belt): each cropped to its registry ink box, ink
@@ -11717,7 +11792,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const q = s => pin.querySelector(s), bw = q('.a4-brk.b1 .bw'), ml = q('.a4-mids.ml2'), mr = q('.a4-mids.mr2');
       m4St(q('.a4-brk.b1'), 'left', '0px'); m4St(q('.a4-brk.b1'), 'top', '0px'); m4St(q('.a4-ap'), 'top', '0px');
       m4Edge(ml, 'L'); m4Edge(mr, 'R');
-      const con = m4Put(bw, 'L', M, 0), pe = m4Put(ml, 'B', M, con.cap + g);
+      const con = m4Put(bw, 'L', M, 0), pe = MOB.land ? m4People(bw, ml, con) : m4Put(ml, 'B', M, con.cap + g);   /* 521c (SPEC-521 B5): on its side two lines */
       const ps = [q('.a4-ap p.ap1'), q('.a4-ap p.ap2')];
       const a1 = m4Put(ps[0], 'L', M, 0, { fc:mLineStarts(ps[0]) }), slitY = a1.b1 + CP, slitH = (A4_V.slitB - A4_V.slitT) / 20 * S;   /* 513b: the desktop's thin band -- the design's slit (11.7) on the design's 20px SUBTITLE */
       const a2 = m4Put(ps[1], 'L', M, slitY + slitH + CP, { fc:mLineStarts(ps[1]) });   /* 516c: both by their leftmost line's ink */
@@ -11738,6 +11813,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const { vw, M, W, g, pN, N, cB, B, pB, CP } = m4G, pin = document.getElementById('a4Unit4'); m4Pin = m4O(pin);
       const q = s => pin.querySelector(s);
       const kk = ['k1', 'k2', 'k3'].map((c, i) => m4Put(q('.a4-bgk.' + c), 'L', M, i * g));
+      if (MOB.land){ const k2 = q('.a4-bgk.k2'); kk[2] = m4Put(q('.a4-bgk.k3'), 'B', k2.getBoundingClientRect().right - m4Pin.x + m4Sp(k2), kk[1].cap); }   /* 521c (SPEC-521 B6): on its side 12 YEARS IN ADVERTISING / TAUGHT ME IT'S WORTH ASKING -- two lines */
       let y = 0, last = null;
       const bgp = [...pin.querySelectorAll('.a4-bgp')];
       bgp.forEach(p => { last = m4Put(p, 'L', M, y, { ref:p.querySelector('p'), fc:mLineStarts(p.querySelector('p')) }); y = last.b1 + pN + (pN - cB * N); });   /* 516c: by its leftmost line's ink */
@@ -11749,6 +11825,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const yy = last.b1 + CP, LH = cB * B + 2 * pB, Z = A4M_SCH;
       const bgc = [...pin.querySelectorAll('.a4-bgc')].map(c => { const im = c.querySelector('.bglg'), k = A4M_LG4[im && im.dataset.lg] || [0, 0, 1, 1, 48];
         return { c, lg:c.querySelector('.lg'), t:c.querySelector('.t'), k, a:k[2] / k[3], z:Z.k[im && im.dataset.lg] || 1 }; });
+      if (MOB.land) bgc.reverse();   /* 521c (SPEC-521 B6, his answer): on its side the schools reversed -- LIONS cMBA . Glasgow . BMU */
       bgc.forEach(o => { m4St(o.c, 'left', '0px'); m4St(o.c, 'top', '0px'); o.tw = 0;
         if (o.t){ o.fc = mLineStarts(o.t); const p = m4Put(o.t, 'L', 0, yy, { fc:o.fc }); o.tw = p.r - p.l; } });   /* 517a: by its leftmost line's ink */
       const nG = bgc.length, tw = bgc.reduce((a, o) => a + o.tw, 0);
@@ -11763,7 +11840,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         x += gw[i] + air;
       });
       const rw = q('.a4-rw4'), ws = [...rw.querySelectorAll('.w')];
-      const t1 = m4Put(rw, 'R', vw - M, 0, { lc:['Y'] }), t2 = m4Put(ws[ws.length - 1], 'R', vw - M, t1.cap + g);
+      const t1 = m4Put(rw, 'R', vw - M, 0, { lc:[MOB.land ? 'G' : 'Y'] }), t2 = MOB.land ? t1 : m4Put(ws[ws.length - 1], 'R', vw - M, t1.cap + g);   /* 521c (SPEC-521 B6): on its side WHY ARE THEY WATCHING on one line (M512:LAND) */
       const mid = [...bgp, ...bgc.map(o => o.lg), ...bgc.map(o => o.t)];
       return { top:{ els:['k1', 'k2', 'k3'].map(c => q('.a4-bgk.' + c)), h: kk[2].b0 - kk[0].cap },
                mid:{ els:mid, h: yy + (LH + Math.max(LH, hx)) / 2 }, bot:{ els:[rw], h: t2.b0 - t1.cap } };
@@ -11839,7 +11916,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         approach: { items: [el(u3, [u3.querySelector('.a4-brk.b1 .bw'), ...in3('.a4-mids.ml2 .w')], 'p1', { full:true }), el(u3, in3('.a4-mids.mr2 .w'), 'p2', { full:true }),
                             el(u3, in3('.a4-ap p.ap1 .w')), el(u3, [slw], 'slit', { seq:true, geo:[document.getElementById('a4GalV')] }), el(u3, in3('.a4-ap p.ap2 .w'))] },
         bg: { items: [el(u4, [u4.querySelector('.a4-bgk.k1'), ...in4('.a4-bgk.k2 .w, .a4-bgk.k3 .w')], 'p1', { full:true }), el(u4, in4('.a4-rw4 .w'), 'p2', { full:true }),
-                      ...['p1', 'p2', 'p3'].map(c => el(u4, in4('.a4-bgp.' + c + ' p .w'))), el(u4, in4('.a4-bgc'), '', { seq:true, geo:in4('.a4-bgc .lg, .a4-bgc .t') })] },
+                      ...['p1', 'p2', 'p3'].map(c => el(u4, in4('.a4-bgp.' + c + ' p .w'))), el(u4, MOB.land ? in4('.a4-bgc').reverse() : in4('.a4-bgc'), '', { seq:true, geo:in4('.a4-bgc .lg, .a4-bgc .t') })] },
         contact: { items: [['ig', 'li'], ['em', 'vm'], ['bs', 'yr']].map(p => el(u5, p.map(ct), 'ct')) }
       };
       m4Ch.role.belt = m4Ch.role.items.find(it => it.kind === 'belt');
@@ -11944,14 +12021,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* 516a INTRO COMES IN WITH ITS SLIDE (his call): the corridor's train fires A4M_TRAIN_AT after the opening -- the
          desktop's own entrance (its snapshot, a4Train; its 2.2s quintic clock, tick's; place()) -- and the paragraph's words
          come in one by one from A4M_P0 */
-      const tb = now - m4Boot;
-      if (!swOn && tb >= A4M_TRAIN_AT) swOn = true;
+      const tb = now - m4Boot, rd = g.rd;
+      if (rd){ const on = jx >= rd.trig; if (on !== swOn){ swOn = on; if (swP >= 1 || swP <= 0) swSnap = false; } }   /* 521c (SPEC-521 B2): on its side the train fires at the read's trigger (tick's own switch) */
+      else if (!swOn && tb >= A4M_TRAIN_AT) swOn = true;
       swDir += ((swOn ? 1 : -1) - swDir) * Math.min(1, dt / 250);
       swP = m4Clamp(swP + (dt / 2200) * swDir);
       swE = swP * swP * swP * (swP * (swP * 6 - 15) + 10);
       const gal = document.getElementById('a4Gal'), gb = document.getElementById('a4GalB');
       if (!swSnap){ a4Train(gal); if (swOn) swSnap = true; }
-      m4Tm(m4Ch.intro, tb - A4M_P0);
+      if (rd){ if (!swOn && swP === 0){ swSnap = false; for (const c of gal.children) if (c._B !== undefined) c._B = undefined; } m4Read(rd, jx, now, dt); }   /* 521c: back at the rail the train's books drop (tick's 508) */
+      else m4Tm(m4Ch.intro, tb - A4M_P0);
       /* THE CORRIDORS, the desktop's: the drift + A4_K x the journey (518c: jx, so a slide's worth of travel moves them as
          before) through its lag (tick's), every card through place() -- INTRO's while its sheet shows, CONTACT's while its
          sheet shows (the desktop's own switches: an inline 'hidden' / a band not 'visible' keeps its books and writes nothing) */
@@ -12010,6 +12089,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          rise, full as the next one starts to rise; INTRO's, which never rises, with ROLE's rise over it. The bar's own B - D
          rule stands at the very start and fades over the first A4M_HR of a screen */
       const pr = r.map((x, i) => i ? m4Clamp(x / (H + E[i])) : u[1]), ty = g.ty = [];
+      if (g.rd) pr[0] = m4Clamp(jx / g.seg[0].len);   /* 521c (SPEC-521 B3): on its side INTRO's rule is ITS OWN read's -- full before ROLE begins to rise (upright: with ROLE's rise) */
       for (let i = n5 - 1, yN = Infinity; i >= 0; i--){ ty[i] = Math.min(Math.max(vt[i] + g.M, g.capY), yN - g.PG - g.capS); yN = i && !(r[i] > 0) ? Infinity : ty[i]; }   /* 520a: a title pushes only once its slide has begun to rise */
       let own = null;
       (g.trs || []).forEach((tr, i) => { if (!tr) return;
@@ -12091,7 +12171,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (m4On) m4Layout(); });   /* after the desktop's own fonts pass: the phone's places win */
     window.__a4m = () => m4G && { on: m4On, S: m4G.S, CH: m4G.CH, CF: m4G.CF, capY: m4G.capY, Zt: m4G.Zt, L: m4G.L, IN: A4M_IN, OUT: A4M_OUT, sens: m4G.sens, J: m4G.J, seg: m4G.seg, gr: m4G.gr, capS: m4G.capS, Z0: m4G.Z0, Z1: m4G.Z1, W: m4G.W, H: m4G.H, P: m4G.P, CP: m4G.CP, gk: m4G.gk, E: m4G.E, gal: m4G.gal, galC: m4G.galC, tops: m4G.tops, rest: m4G.rest, screens: +(view.scrollHeight / m4G.H).toFixed(2),
       win: m4G.win && m4G.win.map(q => q && { a: q.a, b: q.b, e: q.e, wS: q.wS, v: q.v, len: q.len }), r: m4G.r && m4G.r.map(x => +x.toFixed(2)),
-      hg: m4G.hg, gf: m4G.gf, PG: m4G.PG, ty: m4G.ty && m4G.ty.map(x => +x.toFixed(2)) };   /* for the rigs: read it, never write it (519c: the slot's gap, the glass's foot, the push padding, the titles' places) */
+      hg: m4G.hg, gf: m4G.gf, PG: m4G.PG, ty: m4G.ty && m4G.ty.map(x => +x.toFixed(2)),
+      rd: m4G.rd ? { W0: +m4G.rd.W0.toFixed(2), dots: +m4G.rd.dots.toFixed(2), trig: +m4G.rd.trig.toFixed(2), len: +m4G.rd.len.toFixed(2), t: m4G.rd.ch.items.map(it => +it.t.toFixed(2)) } : null };   /* 521c: a landscape INTRO's read (journey px) */   /* for the rigs: read it, never write it (519c: the slot's gap, the glass's foot, the push padding, the titles' places) */
     window.__a4mAt = (k, rr) => m4G && m4G.seg ? (m4G.seg[k].j0 + m4Jx(m4G, k, rr)) / m4G.sens : 0;   /* 518c: for the rigs -- the scroll where slide k has risen rr px */
     return { open, layout, active, wheel };
   })();
