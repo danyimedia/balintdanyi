@@ -4725,7 +4725,6 @@
 
 <div class="ld-copy" id="ldCopy">
   <p style="--i:0">Creative lead for video.</p>
-  <p style="--i:1">From brief to delivery.</p>
 </div>
 
 <div class="ld-count" id="ldCount"><span id="ldA"></span><span id="ldB"></span></div>
@@ -8022,8 +8021,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        off when BALINT is only about a third of the way in, so the three
        motions read as one gesture rather than a relay. */
     SEQ_LAP  : 0.65,
-    WORD_IN  : 750,    // ms one word takes
-    WORD_GAP : 220,    // ms between one word and the next -- was 165; wider = less overlap
+    /* 522: HIS CALL -- the statement is ONE line now (FROM BRIEF TO DELIVERY went) and it is slowed to take
+       the time the two did: the old 750 / 220 x 1.8, so its four words span 3 x 396 + 1350 = 2538ms where
+       the eight spanned 7 x 220 + 250 + 750 = 2540ms. The counter's schedule is derived from this span
+       (ldTextEnd), so it keeps its pace. */
+    WORD_IN  : 1350,   // ms one word takes (522: was 750)
+    WORD_GAP : 396,    // ms between one word and the next -- was 165, then 220; 522: x1.8 with WORD_IN
     /* Breath at the end of each line, on top of the running word gap. */
     LINE_PAUSE: 250,
     /* In EM, not px: the drop scales with the statement's own font, so a
@@ -8180,7 +8183,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
 
      The showreel panel waits on the deck alone; the page unlocks only when
      the last of them has finished. */
-  const LD_OUT_ALL  = (ldLines.length - 1) * LD.OUT_GAP + LD.OUT_DUR;
+  const LD_OUT_ALL  = LD.OUT_GAP + LD.OUT_DUR;   /* 522: the statement is ONE line now, but the exit keeps the beat it was tuned at
+     with two -- ld-wdo parks the paragraph slide, so this is only the pause from ldFly() to the trigger (it was
+     (lines - 1) x OUT_GAP + OUT_DUR = 710ms; a one-line count would have moved the trigger 45ms earlier) */
   const LD_NAME_AT  = LD_OUT_ALL * (1 - LD.OUT_LAP);
   const LD_MENU_N   = stripe.querySelectorAll('.menu span').length;
   const LD_MENU_ALL = (LD_MENU_N - 1) * LD.MENU_GAP + LD.MENU_IN;
