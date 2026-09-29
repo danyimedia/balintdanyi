@@ -3916,6 +3916,7 @@
     --t-nocaps:var(--m-nocaps);
   }
   html.mob.mobt{ --m-sub:28px; }   /* 522b: a TABLET's SUBTITLE before the first solve -- M_CAP x MOB_TAB_K, the solve's cap there */
+  html.mob.mobt{ --m-pad:30px; }   /* 522e: HIS CALL -- a tablet's side margin halfway between the phone's 24 and the desktop's 36 */
   /* 515a ABOUT'S LOCAL CAP (SPEC-515 item 2). About has left the site's SUBTITLE solve: its view and its nav re-derive every
      phone token from About's own S, --m-sub-a (JS: min(the site's S, the fit of About's rows)), so nothing on About overruns
      at the bigger site SUBTITLE; the bar (B - D, the icon) keeps the site's. The nav's band follows the nav's words. */
@@ -3939,6 +3940,13 @@
   html.mob .m-probe .m-pb{ font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); text-transform:uppercase; }
   /* THE LOADER PARAGRAPH (#ldCopy) drops to BODY(CAPS); the rest of the loader is unchanged */
   html.mob #ldCopy p{ font-size:var(--m-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh); }
+  /* 522c: THE LOADER'S NAME ON A TABLET. .ld-name wears the TITLE (--big), bound by the measure: on an upright phone that is
+     19.97px, the bar's S to a hair, so the flight lands on B - D without a change of size. A tablet's measure is two to three
+     times a phone's and the TITLE with it (40.6 at 744, 57 at 1024): the name was 2-2.85 x the phone's -- not his x 1.4 -- and
+     shrank by a third to a half on its way into the bar. Here it wears the bar's own size, S (28: the phone's 20 x MOB_TAB_K),
+     as the phone's does in effect; ldSolve / ldCentre read the size drawn, so the group centres on it. The flight's inline
+     size (!important) still outranks this. */
+  html.mob.mobt .ld-name{ font-size:var(--m-sub) !important; }
 
   /* M512:HEADER */
   /* THE COLLAPSED BAR: B - D (the rule between them, as on the desktop) and the menu icon on the right margin.
@@ -4079,6 +4087,16 @@
   html.mob.m-rot #black .c3-ctl{ --sr-h:min(100cqw, 100cqh * 9 / 16); }
   html.mob.m-rot body.sr-fs #black .film .shot{ width:100cqh !important; height:100cqw !important; }
   html.mob.m-rot body.sr-fs #black .c3-ctl{ left:calc((100cqh - min(100cqh, 100cqw * 16 / 9)) / 2); top:calc((100cqw - min(100cqw, 100cqh * 9 / 16)) / 2); width:min(100cqh, 100cqw * 16 / 9); height:min(100cqw, 100cqh * 9 / 16); }
+  /* 522c: AN UPRIGHT TABLET. "On every phone the width binds" is a phone's: a tablet's band is less tall for its width (.70
+     against the turned film's .5625), so the HEIGHT binds and the turned film ran the band end to end -- its start edge flush on
+     the bar's foot, its first 10px under the bar's glass (.hdr::before bleeds 10px past it), 0 air over it and a margin under
+     it. The phone's film never touches the bar (80px of air at each end on a 390 x 844). Here its long side is the band less a
+     margin, seated a margin under the bar's foot with its foot on the bottom margin; where the width binds (a narrow window:
+     Split View) it is centred as the phone's. The 509 row keeps to the frame (--sr-h, the turned shot's short side).
+     Fullscreen stays the phone's (the shot squared to the window). */
+  html.mob.mobt.m-rot body:not(.sr-fs) #black .film .shot{ width:min(100cqh - var(--m-pad), 100cqw * 16 / 9);
+    top:calc(max(var(--m-pad), (100cqh - min(100cqh - var(--m-pad), 100cqw * 16 / 9)) / 2) + min(100cqh - var(--m-pad), 100cqw * 16 / 9) / 2); }
+  html.mob.mobt.m-rot body:not(.sr-fs) #black .c3-ctl{ --sr-h:min(100cqw, (100cqh - var(--m-pad)) * 9 / 16); }
 
   /* M512:CONTACT */
   /* THE CONTACT PAGE ON A PHONE (SPEC-512 sec. F): its classes as they are, two changes. LET'S MAKE GREAT WORK
@@ -4092,6 +4110,12 @@
      keeps the desktop's air (the :has() rule above outranks this one) */
   html.mob body.site3 .contact{ --c2-top:calc(var(--hdr-h, 140px) + 24px + var(--m-c2-dy, 0px)); }
   html.mob .c2-form{ margin-bottom:var(--m-c2-foot, var(--c2-air)); }
+  /* 522d: THE FORM ON A TABLET. Its labels, SEND and the typed text (half) wear TITLE (--big), a share of the window on the
+     phone build (.0584 of the measure: 19.97 on a 390 phone, S to a hair) -- a tablet's measure made them 40.6 - 57px, not his
+     x 1.4, and bigger than GET IN TOUCH once a message is open (it drops to the bar's S). Here they are S (28: the phone's 20 x
+     MOB_TAB_K) in both orientations, the typed text 14, as the loader's name and the blog list. The column's room (--c2-room,
+     --c2-cut: read off --big here) follows, so c2Seat and c2Clear work on the size drawn */
+  html.mob.mobt .contact{ --big:var(--m-sub); }
   /* 516c: one margin under the bar's baseline GET IN TOUCH stood UNDER the bar's glass (.hdr::before bleeds 10px past the bar's
      foot): at 400 - 430 its caps' top pixel was frosted and cut (the pixels read 25.00), at 360 a third of one. While the page is at
      the header (ct-lid, no view open) the glass ends a pixel short of the title's cap top -- two margins and the bar's cap, less
@@ -4112,6 +4136,13 @@
      --m-c3-film-gap: the start slide's film foot to the title row's glass band (the head's own pad above the
        title's cap): the band begins exactly where the film ends, so the glass never lies on the picture. */
   html.mob{ --m-p1:var(--c3-row-pad); --m-p2:var(--c3-row-gap); --m-c3-film-gap:var(--c3-head-pad); }
+  /* 522e: A TABLET's SPACING -- HIS CALL (2026-09-29): "Case post-spacing should be similar to phone landscape". The phone's gaps
+     are these px dials at S 20; a tablet's type is x MOB_TAB_K (S 28), so each dial is the phone's x 1.4 here: P1 44.1, P2 32.9,
+     the caption's gap 11.2, the header group's gap 11.76 (G, mHeadSeat), the head's pad 28, the page's foot (2 x --c3-gap) 84 --
+     every gap the landscape phone's in S times the tablet's S. On the ROOT, as px, so the JS readers (videoLayout, mHeadSeat,
+     --m-l-stk / --m-l-mh, the catch-up's lead) read them too. The film's gap (mHeroGap, .7 S) and the margins (--m-pad) scale
+     already; --c3-sub-gap / --c3-stick-gap / --c3-sub-cushion are the desktop's V3 head's, unread here. */
+  html.mob.mobt{ --c3-row-pad:44.1px; --c3-row-gap:32.9px; --c3-cap-gap:11.2px; --c3-c4-head-gap:11.76px; --c3-head-pad:28px; --c3-gap:42px; }
   /* THE START SLIDE. The film's layer scrolls WITH the page (absolute; JS lifts it to the page's top), so the
      film goes up under the header -- there is no morph on a phone. The title row: the title SUBTITLE, the
      subtitle beside it in BODY(CAPS), its ink on the right margin (seated in JS); it is drawn inside the words'
@@ -4141,6 +4172,7 @@
   html.mob #viewCase3 .c3-credcol{ order:2; }
   html.mob #viewCase3 .c3-it{ margin:calc(var(--m-p2) - var(--m-t3, var(--ink-t3))) 0 calc(var(--m-p1) - var(--m-b3, var(--ink-b3))); }
   html.mob #viewCase3 .c3-lede{ margin:calc(var(--m-p2) - var(--m-tn, var(--ink-t))) 0 calc(-1 * var(--m-bn, var(--ink-b))); }
+  html.mob.mobt #viewCase3 .c3-lede{ width:auto; }   /* 522c: a TABLET's lede takes the full measure, as a phone's -- the desktop's half measure was given back only under 980px (a window breakpoint, which a phone never passes and a tablet does) */
   /* CREDITS never overrun -- 518b (SPEC-518 D3): a credit that must break keeps its name on the role's LAST row. The role is its
      head (.rh, a full row of its own, gone when empty) and its tail (.rt, JS: mCredWrap); the tail, the hairline (at least
      --m-cr-lmin, the rest of the row) and the name share the last row, on one baseline; the name stays whole on the right. The
@@ -4215,6 +4247,10 @@
   /* 515a THE BLOG LIST (not designed yet; out of the SUBTITLE solve): its date and tag captions are BODY at the list's own
      cap, --m-sub-l (JS: min(the site's S, the size at which both clear the centred TITLE)), so they never run into it */
   html.mob #viewBlog .ent-row .cap{ font-size:calc(var(--m-sub-l, var(--m-sub)) / 2); }
+  /* 522c: A TABLET's list titles at the list's own S -- the phone's TITLE is a share of the measure (.0584: ~S on a phone), which a
+     tablet's measure doubles (40.6 - 57px against S 28); here the titles are x 1.4 with the rest, and the rows' pitch and the
+     captions' cap line (--big) follow them. The list's cap measures them so (MOB.lrows) */
+  html.mob.mobt #blogStack{ --big:var(--m-sub-l, var(--m-sub)); }
   /* and a POST's page (the same view, body.blogread) wears the blog's S throughout -- its title too (c3S0, JS). 516b: only
      where its title does not wrap -- a landscape phone (or a phone-mode window wider than tall); an UPRIGHT phone's post
      wears the site's tokens (SPEC-516 sec. 4), its title and section rows wrapping (below) */
@@ -4389,6 +4425,14 @@
   html.mob.a4m #a4Cp .l2::after{ content:' '; }
   html.mob.a4m #a4Cp .l2, html.mob.a4m #a4Cp .l3, html.mob.a4m #a4Cp .w, html.mob.a4m #a4Cp .dots{
     font:inherit; letter-spacing:inherit; word-spacing:inherit; text-transform:inherit; }
+  /* 522e (his answer, 2026-09-29: "on the INTRO strip we are using the version when the gallery scrolls over the text (one after
+     the other inherited from desktop & mobile landscape)"): A TABLET's INTRO, upright too, is the landscape phone's -- the
+     statement WHOLE in SUBTITLE (M512:LAND's rules, 521c), revealed by the scroll, the cards coming in over it at the end
+     (m4IntroL, MOB.tab). On its side the M512:LAND rules say the same */
+  html.mob.mobt.a4m #a4Cp{ font-size:var(--m-sub); font-weight:1000; letter-spacing:var(--t-sub-trk); word-spacing:var(--t-sub-ws); line-height:var(--t-sub-lh);
+    text-transform:uppercase; font-variation-settings:normal; font-optical-sizing:auto; }
+  html.mob.mobt.a4m #a4Cp .l1, html.mob.mobt.a4m #a4Cp .l2, html.mob.mobt.a4m #a4Cp .l3{ position:static; display:block; width:auto; text-wrap:balance; }
+  html.mob.mobt.a4m #a4Cp .l2::after{ content:none; }
   html.mob.a4m #a4Unit .a4-lbig, html.mob.a4m #a4Unit .a4-mids, html.mob.a4m #a4Unit3 .a4-mids, html.mob.a4m #a4Unit4 .a4-bgk{ right:auto; transform:none; }
   html.mob.a4m #a4Unit .a4-rw2{ left:0; right:auto; top:0; }
   html.mob.a4m #a4Unit .a4-p2r{ display:none; }   /* 516a: FOR is dropped on the phone (his call) */
@@ -4520,6 +4564,13 @@
   html.mob.mobl .m-bot{ left:calc(50% + var(--pad)); }
   html.mob.mobl .m-list-in{ display:flex; flex-wrap:wrap; justify-content:flex-end; column-gap:var(--m-sub); }
   html.mob.mobl .m-list button{ margin:0 -.0576em 0 0; }
+  /* 522d: A TABLET ON ITS SIDE (his call, option A). Every landscape phone and the 16:10 / 3:2 tablets wrap the case titles
+     4 + 2, right-aligned and clear of the 01 number; the 4:3 iPad Pro's column (1366 x 1024: 635px, 45.4em of BODY) is wider
+     than any phone's, and they ran 5 + 1, the first line out under 01. The list is capped at the widest landscape phone's
+     column in BODY (932 x 430: 418px at BODY 10, 41.8em -- 42em) and stands on the column's right edge; a narrower column
+     (1133 x 744, 1180 x 820, 1280 x 800) keeps its own. The SUBTITLE solve counts the lines against the same cap
+     (M_LIST_TAB). */
+  html.mob.mobl.mobt .m-list-in{ max-width:calc(42 * var(--m-body)); margin-left:auto; }
   /* THE SHOWREEL, UNROTATED AND FULL SCREEN. The film box is the whole window less the bottom margin (paint()'s inline
      top / height give way, as they do to the reel's own fullscreen, which keeps this box) and the picture is contained
      in it: its top on the window's top, black either side. The margin under it is the phone's gesture strip: the
@@ -4530,6 +4581,12 @@
      While the reel is at rest under the header (hs-lid, not contact, no view open, the slide shut) the header's band
      and its rule step aside, so nothing lies on the picture: B, D and the icon sit in the black beside it. */
   html.mob.mobl body.site3 #black .film{ inset:0 0 var(--m-pad) !important; height:auto !important; place-items:center; }
+  /* 522c: A TABLET ON ITS SIDE. A phone is wider for its height than the film, so the height binds and B, D and the icon sit in
+     the black beside the picture. A tablet (4:3 to 16:10) is not: the width binds, the picture runs edge to edge, centred in
+     the box, and at 16:10 its top rose under the header -- B, D and the icon on the picture (its top 16px of it at 1280 x 800,
+     2.7 at 1133 x 744). Its box starts at the bar's foot, as the upright band does: the picture contained and centred under
+     the header, B, D and the icon in the black over it. Fullscreen (the header hidden) keeps the phone's box. */
+  html.mob.mobl.mobt body.site3:not(.sr-fs) #black .film{ top:var(--hdr-h, 140px) !important; }
   html.mob.mobl:not(.m-live) body.site3.hs-lid:not(.ct-lid):not(.caseopen):not(.aboutopen):not(.blogopen) .hdr::before{
     background:transparent; -webkit-backdrop-filter:none; backdrop-filter:none;
   }
@@ -11587,7 +11644,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const csN = getComputedStyle(apP), N = parseFloat(csN.fontSize) || .5454 * S, B = S / 2, cK = a4Cap(1000);
       const mCapAt = x => { const g = mGlyphF('normal 1000 ' + x + 'px ' + getComputedStyle(view).fontFamily, 'H', x); return g ? g.a : cK * x; };   /* 516c: a SUBTITLE cap at its own optical size */
       const g0 = m4G && m4G.seg ? { seg: m4G.seg, sens: m4G.sens, H: m4G.H, E: m4G.E, win: m4G.win } : null;   /* 518c: the journey before a re-layout */
-      m4G = { vw, H, M, S, B, N, W: vw - 2 * M, capS: mCapAt(S), cB: a4Cap(700), gk: A4M_GK,
+      m4G = { vw, H, M, S, B, N, W: vw - 2 * M, capS: mCapAt(S), cB: a4Cap(700), gk: A4M_GK * (MOB.tab ? MOB_TAB_K : 1),   /* 522e: a TABLET's corridors grow with its text (his "the rest of the elements scale as the layout allow them") */
               g: parseFloat(getComputedStyle(k1).lineHeight) || .8843 * S,
               pN: parseFloat(csN.lineHeight) || 1.13 * N, pB: parseFloat(getComputedStyle(mB).lineHeight) || 1.13 * B };
       m4G.CP = A4M_CPAD * S;
@@ -11613,6 +11670,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       kB1 = kBB = m4G.gk;
       a4Ring(document.getElementById('a4Gal'), m4G.gk); a4Ring(document.getElementById('a4GalB'), m4G.gk);
       m4G.E[0] = m4Intro(); m4G.E[4] = m4Contact();
+      /* 522e: a tablet's x MOB_TAB_K only where the layout allows it -- if INTRO or CONTACT would run on (E), both corridors
+         step down toward the desktop's scale (A4M_GK), a tenth at a time, the same on both (off a tablet gk is A4M_GK: never runs) */
+      while (m4G.gk > A4M_GK && (m4G.E[0] > 0 || m4G.E[4] > 0)){
+        m4G.gk = kB1 = kBB = Math.max(A4M_GK, +(m4G.gk - .1).toFixed(2));
+        a4Ring(document.getElementById('a4Gal'), m4G.gk); a4Ring(document.getElementById('a4GalB'), m4G.gk);
+        m4G.E[0] = m4Intro(); m4G.E[4] = m4Contact();
+      }
       /* 516a ONE PADDING for ROLE, APPROACH and BACKGROUND: the dial, or the most the tallest of them leaves with its centre
          element centred, never under A4M_PAD_MIN */
       const C = (m4G.Zt + m4G.Z1) / 2, G = [m4Role(), m4Approach(), m4Bg()];
@@ -11698,7 +11762,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const cp = document.getElementById('a4Cp'), l1 = cp.querySelector('.l1'), l3 = cp.querySelector('.l3');
       m4St(cp, 'width', W.toFixed(2) + 'px');
       const pa = m4Put(cp, 'B', M, 0), pb1 = l3 ? m4Base(l3, true) - m4Pin.y : pa.b1, hB = pb1 - pa.cap;   /* the paragraph: its cap .. its LAST line's baseline */
-      if (MOB.land) return m4IntroL(cp, pa, hB, cre);   /* 521c (SPEC-521 B2): on its side, the desktop's INTRO */
+      if (MOB.land || MOB.tab) return m4IntroL(cp, pa, hB, cre);   /* 521c (SPEC-521 B2): on its side, the desktop's INTRO; 522e (his answer): a TABLET's, upright too */
       m4St(cp, 'opacity', ''); m4St(cp.querySelector('.dots'), 'opacity', '');   /* 521c: upright the statement is its own (a turn lifts the landscape read's) */
       const st = l1 ? m4Put(l1, 'B', M, 0) : { cap:0, b1:0 }, hT = st.b1 - st.cap;
       const room = (cre.cap - M) - Z0, h0 = bandH4 * m4G.gk;
@@ -11805,7 +11869,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const gap = A4M_BELT_GAP * m4G.S, ds = [...box.children];
       let x = 0;
       ds.slice().reverse().forEach(d => {
-        const lg = d._lg, k = lg.ink, im = d.firstChild, nw = im.naturalWidth || 1000, nh = im.naturalHeight || 1000;
+        const lg = d._lg, k = lg.ink, im = d.firstChild, sm = d._m4o ? d._m4o.firstChild : im, nw = sm.naturalWidth || 1000, nh = sm.naturalHeight || 1000;   /* 522c: a lap's clone (m4Laps) is sized by its original's image */
         const kw = k.w * nw, kh = k.h * nh, h = LH * (lg.scale || 1), wd = kw / kh * h, s = h / kh;
         d._m4x = d._m4bx = x; d._m4w = wd; d._m4tf = undefined; x += wd + gap;
         m4St(d, 'left', d._m4x.toFixed(2) + 'px'); m4St(d, 'top', ((LH - h) / 2).toFixed(2) + 'px'); m4St(d, 'width', wd.toFixed(2) + 'px'); m4St(d, 'height', h.toFixed(2) + 'px');
@@ -11813,7 +11877,23 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         m4St(im, 'left', (-k.x * nw * s).toFixed(2) + 'px'); m4St(im, 'top', (-k.y * nh * s).toFixed(2) + 'px');
       });
       box._m4ring = x; box._m4gap = gap;
+      if (m4Laps(box, gap)) return m4Logos(top, LH);   /* 522c: a tablet's belt, lap by lap (m4Laps) -- the laps changed: the row again */
       m4St(box, 'top', top.toFixed(2) + 'px'); m4St(box, 'height', LH.toFixed(2) + 'px');
+    }
+    /* 522c A TABLET'S BELT, LAP BY LAP. The frame wraps each logo into [-(w + air), ring - (w + air)), so the ring must be at
+       least the measure plus the widest logo and its air, or a hole runs with the drift. ONE lap is ~41 S: a phone's measure is
+       well inside it, a tablet's may not be (S 28: a lap 1146px, a 1366 on its side needs 1496). There the nine are drawn
+       again after themselves, in the same order -- clones (_m4o, their original; its entrance state with them) -- until the
+       ring is long enough; the entrance takes them in with the rest (m4Chains' ord, re-sorted at the next frame). The logos'
+       size and air are the phone's. Off a tablet: one lap, as ever. True when the laps changed */
+    function m4Laps(box, gap){
+      const ds = [...box.children], o = ds.filter(d => !d._m4o);
+      const lap = o.reduce((a, d) => a + (d._m4w || 0) + gap, 0), mw = Math.max(0, ...o.map(d => d._m4w || 0));
+      const n = MOB.tab && lap > 0 ? Math.max(1, Math.ceil((m4G.W + mw + gap) / lap)) : 1;
+      if (ds.length === n * o.length) return false;
+      ds.forEach(d => { if (d._m4o){ d.remove(); m4Wrote.delete(d); m4Wrote.delete(d.firstChild); } });
+      for (let i = 1; i < n; i++) o.forEach(d => { const c = d.cloneNode(true); c._m4o = d; c._lg = d._lg; c._bv = d._bv; c._bo = d._bo; box.appendChild(c); });
+      return true;
     }
     /* 03 APPROACH: CONNECTING / PEOPLE / TO THE BRAND (left); the centre -- paragraph 1, CP, the desktop's slit, CP, paragraph 2
        (NOCAPS, margin to margin); CULTURE / TO EFFECTIVENESS (right) */
@@ -12764,6 +12844,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* 512e: on a landscape phone the menu's rows stand in half-width columns (M512:LAND: half the content less two margins
      between them). mColK is the full width over the column, so a row scaled by it is measured in the solve's terms. */
   const mColK = () => { if (!MOB.land) return 1; const c = document.documentElement.clientWidth - 2 * padPx(); return c / Math.max(1, (c - 2 * padPx()) / 2); };
+  /* 522d: on a tablet on its side the case titles' list is capped at 42em of BODY (M512:LAND, .m-list-in): the widest landscape
+     phone's column. The menu row below counts their lines against it. A title's own row still reads the column: the cap is in
+     em of BODY, so a title under it at one S is under it at every S -- it never bounds S; the column (px) does. */
+  const M_LIST_TAB = 42;
   MOB.rows.push(W => { const k = mColK(); return [
     { what:'menu row 01', w: k * (W('01') + (M_GAP + M_TRI) * W.S + W('Selected Works')) },   /* 01, the triangle, SELECTED WORKS */
     { what:'menu row 05', w: k * (W('Instagram') + M_GAP * W.S + W('05')) },                    /* INSTAGRAM, 05 */
@@ -12798,7 +12882,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     names.forEach(t => add('menu title: ' + t, k * W(t, 1)));
     { const vh = document.documentElement.clientHeight || innerHeight, pad = padPx(), lh = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sm-lh')) || 1.13) * S / 2;
       let lines = names.length;
-      if (MOB.land){ const col = (document.documentElement.clientWidth - 2 * pad) / k; let x = 0; lines = names.length ? 1 : 0;
+      if (MOB.land){ let col = (document.documentElement.clientWidth - 2 * pad) / k; let x = 0; lines = names.length ? 1 : 0;
+        if (MOB.tab) col = Math.min(col, M_LIST_TAB * S / 2);   /* 522d: a tablet on its side wraps the titles in the capped list */
         names.forEach(t => { const w = W(t, 1); if (x > 0 && x + S + w > col){ lines++; x = w; } else x += (x > 0 ? S : 0) + w; }); }
       const L = .75 * S + lines * lh, u = (MOB.land ? -.141 + 1.5 + 4 + 1 + .7 : -.141 + 3 + 4 + 1 + 4 + 3 - .159) + L / S;
       R.push({ what:'menu open, works expanded (vertical)', s:(vh - 2 * pad) / u }); }   /* 520a: the LAYOUT viewport's height (the root's clientHeight) -- a keyboard never changes the type */
@@ -12815,10 +12900,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!MOB.on) return [];
     const S = W.S, content = document.documentElement.clientWidth - 2 * padPx(), pr = document.createElement('div');
     pr.className = 'ent'; pr.setAttribute('aria-hidden', 'true'); pr.style.cssText = 'position:fixed; left:0; top:0; visibility:hidden; pointer-events:none; white-space:nowrap;';
+    if (MOB.tab) pr.style.fontSize = S + 'px';   /* 522c: a tablet draws its titles at the list's S (M512:CASE): measured at the pass's */
     document.body.appendChild(pr);
     const R = [...document.querySelectorAll('#blogStack .ent-row')].map(row => {
       const t = ((row.querySelector('.big') || {}).textContent || '').trim(), cs = [...row.querySelectorAll('.cap')].map(c => c.textContent.trim());
       pr.textContent = t; const tw = pr.getBoundingClientRect().width, cw = Math.max(0, ...cs.map(x => W(x, 1))) / S;
+      if (MOB.tab) return { what:'blog list: ' + t, w:tw + 2 * (cw + M_GAP / 2) * S };   /* 522c: on a tablet the title grows with S -- the row's run at S */
       return { what:'blog list: ' + t, s:Math.max(.01, (content - tw) / (2 * (cw + M_GAP / 2))) };
     });
     pr.remove();
@@ -16192,6 +16279,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (MOB.land){   /* 512e: a LANDSCAPE phone -- the film fit to the height: a margin under the B - D bar's baseline, the title row under the film, a margin from the title's baseline to the hint's cap top (its baseline on the bottom margin); centred across. 520a: the bar's baseline MEASURED (inkBot4) -- PREV / NEXT's cap line, the film's top on it; the gap under the film the hero's */
         const S = MOB.S || M_S0, top = (inkBot4 > 0 ? inkBot4 : PAD + .7 * S) + PAD, room = H - top - mGapWant - .7 * S - PAD - .35 * S - PAD;
         vh = Math.max(0, Math.min(vh, room)); vw = vh * 16 / 9; xc = (W - vw) / 2; yc = top + (room - vh) / 2;
+        if (MOB.tab){ const v2 = mTabSide(W, room, vh); if (v2 < vh){ vh = v2; vw = vh * 16 / 9; xc = (W - vw) / 2; yc = top; } }   /* 522d (C522-D1, option A): a TABLET on its side -- PREV / NEXT keep the film's side room, on its top line (mTabSide) */
       }
       stageH = yc + vh + mGapWant + mGapDy - headBox.pad - (1 - (hdrFullF ? Math.min(1, c3S0() / c3F()) : 0.2)) * brandFull;   /* 514c: portrait -- the film's foot to the title's cap top IS the hero's card foot to its paragraph's cap top, read live (mHeroGap), the seat's measured miss folded in (mGapFix) */
       if (c3Up()){   /* 516b: A POST ON AN UPRIGHT PHONE (SPEC-516 sec. 4) -- the title ABOVE the film. The film stays centred in the
@@ -16222,6 +16310,33 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const hb = $('#c3Head').offsetHeight;
     if (hb !== 100) console.assert(Math.abs(hb - headBox.h) < 1, 'head box: laid out ' + hb + ', model ' + headBox.h.toFixed(1));
     videoScroll();
+  }
+  /* 522d (C522-D1, HIS CALL: option A) A TABLET ON ITS SIDE KEEPS THE LANDSCAPE PHONE'S START SLIDE: PREV / NEXT on the film's
+     top line, in its side room. A phone's film, fit to the height, always leaves them that room; a tablet's (1.33 - 1.6:1) is
+     bound by the width or nearly, and ran over them. So where the film, as laid (vh, centred in the room), would reach the
+     words -- its top less than a margin under their baseline AND its sides less than a margin from their ink -- it is
+     narrowed to keep one margin (--m-pad, the phone's) between each word's ink and its side; mNav seats PREV's ink on the
+     left margin and NEXT's on the right, so the film's width is W less two margins, the wider word's ink and two margins of
+     air. videoLayout then stands its top on the words' cap line, as a phone's (520a), and centres it across; the room it no
+     longer fills stays under the title row, over the hint (which holds the bottom margin). The words are read live, written
+     as mNav writes them (it runs after the layout, with the same words). Returns the film's height: vh itself when nothing
+     is reached (1366x1024), or with one case / post only (no words). */
+  function mTabSide(W, room, vh){
+    if (!mNavEl || N < 2) return vh;
+    const w = SRC === 'blogs' ? 'post' : 'case'; let iw = 0, cap = 0;
+    [...mNavEl.children].forEach((b, i) => {
+      const t = (i ? 'Next ' : 'Prev ') + w; if (b.textContent !== t) b.textContent = t;
+      const n = b.firstChild, cs = getComputedStyle(b), px = parseFloat(cs.fontSize); if (!n || n.nodeType !== 3 || !(px > 0)) return;
+      const up = cs.textTransform === 'uppercase', ch = k => up ? t[k].toUpperCase() : t[k], rg = document.createRange();
+      rg.setStart(n, 0); rg.setEnd(n, 1); const q0 = rg.getBoundingClientRect();
+      rg.setStart(n, t.length - 1); rg.setEnd(n, t.length); const q1 = rg.getBoundingClientRect();
+      const g0 = mGlyph(cs, ch(0), px), g1 = mGlyph(cs, ch(t.length - 1), px);
+      if (!g0 || !g1 || !(q0.width > 0) || !(q1.width > 0)) return;
+      iw = Math.max(iw, (q1.left + g1.r) - (q0.left + g0.l)); cap = Math.max(cap, g0.a);
+    });
+    if (!(iw > 0)) return vh;
+    const wMax = W - 2 * (PAD + iw + PAD);
+    return (room - vh) / 2 < cap + PAD && vh * 16 / 9 > wMax ? Math.max(0, wMax * 9 / 16) : vh;
   }
   const clamp01 = v => Math.min(1, Math.max(0, v));
   /* THE WHEEL DRIVES A TRACK, AND THE TRACK DRIVES THE PAGE. The wheel
