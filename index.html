@@ -11885,11 +11885,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        well inside it, a tablet's may not be (S 28: a lap 1146px, a 1366 on its side needs 1496). There the nine are drawn
        again after themselves, in the same order -- clones (_m4o, their original; its entrance state with them) -- until the
        ring is long enough; the entrance takes them in with the rest (m4Chains' ord, re-sorted at the next frame). The logos'
-       size and air are the phone's. Off a tablet: one lap, as ever. True when the laps changed */
+       size and air are the phone's. 522d: not a tablet's alone -- a phone on its side falls short too (932x430 needs 1011
+       against a lap of 819), so any phone build that needs them gets the laps; an upright phone's measure is well inside ONE
+       lap (390x844 needs 469), so it keeps its nine, as ever. True when the laps changed */
     function m4Laps(box, gap){
       const ds = [...box.children], o = ds.filter(d => !d._m4o);
       const lap = o.reduce((a, d) => a + (d._m4w || 0) + gap, 0), mw = Math.max(0, ...o.map(d => d._m4w || 0));
-      const n = MOB.tab && lap > 0 ? Math.max(1, Math.ceil((m4G.W + mw + gap) / lap)) : 1;
+      const n = lap > 0 ? Math.max(1, Math.ceil((m4G.W + mw + gap) / lap)) : 1;   /* 522d: every phone build (was MOB.tab only) */
       if (ds.length === n * o.length) return false;
       ds.forEach(d => { if (d._m4o){ d.remove(); m4Wrote.delete(d); m4Wrote.delete(d.firstChild); } });
       for (let i = 1; i < n; i++) o.forEach(d => { const c = d.cloneNode(true); c._m4o = d; c._lg = d._lg; c._bv = d._bv; c._bo = d._bo; box.appendChild(c); });
