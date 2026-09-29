@@ -3892,9 +3892,9 @@
   #viewCase3 .c3-details.c3-stack .cell.media{ width:min(var(--c3-media-max), 100%); height:min(var(--c3-media-max), 100vw - 2 * var(--pad)); }
 
   /* ==== 512 MOBILE ====================================================================================
-     THE PHONE BUILD (SPEC-512). Portrait phones -- and any window up to 600px wide -- carry html.mob (set by
-     mobEval, the first resize listener in the script); landscape phones will add html.mobl (step 512e). EVERY
-     rule below is scoped under html.mob, so above 600px nothing here applies and the desktop is untouched.
+     THE PHONE BUILD (SPEC-512). Phones -- 522b: and tablets, by their device (mobDevice), never a desktop window -- carry
+     html.mob (set by mobEval, the first resize listener in the script); on their side they add html.mobl (step 512e), a
+     tablet adds html.mobt (522b). EVERY rule below is scoped under html.mob, so on a desktop nothing here applies.
      Parallel steps insert ONLY in their own sub-section. */
 
   /* M512:BASE */
@@ -3915,6 +3915,7 @@
     --t-body:var(--m-body);
     --t-nocaps:var(--m-nocaps);
   }
+  html.mob.mobt{ --m-sub:28px; }   /* 522b: a TABLET's SUBTITLE before the first solve -- M_CAP x MOB_TAB_K, the solve's cap there */
   /* 515a ABOUT'S LOCAL CAP (SPEC-515 item 2). About has left the site's SUBTITLE solve: its view and its nav re-derive every
      phone token from About's own S, --m-sub-a (JS: min(the site's S, the fit of About's rows)), so nothing on About overruns
      at the bigger site SUBTITLE; the bar (B - D, the icon) keeps the site's. The nav's band follows the nav's words. */
@@ -5038,18 +5039,42 @@
   const PREVIEW = location.hash === '#preview';
 
   /* ==== 512 MOBILE: THE MODE (SPEC-512 sec. A, B) ====================================================
-     ONE flag. Portrait phones -- and any window up to 600px wide -- run the phone build: html.mob, MOB.on.
-     Landscape phones (512e) run it too, with html.mobl and MOB.land: a coarse pointer, landscape, at most 500px
-     tall (every phone turned on its side; a desktop window, a tablet and a mouse never). The mode is
+     ONE flag. 522b: THE DEVICE decides it, never the window (mobDevice, below): phones AND tablets run the phone
+     build -- html.mob, MOB.on -- upright, or on their side with html.mobl and MOB.land; a tablet adds html.mobt and
+     MOB.tab (its text x MOB_TAB_K). A desktop never does, however narrow its window. The mode is
      re-read by the FIRST resize listener in this file, so every solve after it in the same resize already
      sees the new mode (and the fresh SUBTITLE); a switch that arrives without a resize (the media change
      alone) re-runs every solve by dispatching one. MOB.hooks run on every switch (mobile-only components
      reset there); MOB.rows are the SUBTITLE solve's tight rows (a view step may add its own); MOB.solve is
      the solve itself, defined with the menu engine below. Above 600px nothing here touches the page: no
      class, no inline token. */
-  const MOB = { on:false, land:false, S:0, fit:0, tight:'', fits:[], all:[], aS:0, afit:0, atight:'', hooks:[], rows:[], arows:[], lrows:[], lS:0, ltight:'', solve:null };   /* 515a: all = every row's fit; arows / aS = About's local cap; lrows / lS the blog's (list and posts) */
-  const MOB_Q = '(max-width: 600px)', MOB_LQ = '(pointer: coarse) and (orientation: landscape) and (max-height: 500px)';
-  const MOB_LAND = true;   /* 512e: the landscape phones run the phone build (html.mob.mobl) */
+  const MOB = { on:false, land:false, tab:false, dev:'', S:0, fit:0, tight:'', fits:[], all:[], aS:0, afit:0, atight:'', hooks:[], rows:[], arows:[], lrows:[], lS:0, ltight:'', solve:null };   /* 515a: all = every row's fit; arows / aS = About's local cap; lrows / lS the blog's (list and posts) */
+  /* 522b: THE DEVICE -- HIS RULE (2026-09-29): "touch & phone screen ratios - phone versions / touch & bigger ipad like screen
+     ratios - tablet / anything mouse driven - desktop". Read off the PRIMARY INPUT and the SCREEN, never the window, so a
+     desktop window dragged narrow stays the desktop (it took the phone build at <= 600px until 522b).
+       - a mouse / trackpad -- a fine primary pointer -- is the DESKTOP. An iPad is the exception: iPadOS reports a Mac, and a
+         fine pointer once a trackpad is attached, but it always has a multi-touch screen, which no Mac has.
+       - a finger -- a coarse primary pointer -- is a PHONE when its screen is phone-shaped (the long side >= MOB_PHONE_R x the
+         short: phones run 1.78 (16:9) to 2.2, tablets 1.33 (4:3) to 1.67) or small (short side < 600 css px); else a TABLET.
+     screen.* is the device's own screen (iOS reports it upright whatever the turn: max / min), so Split View or a turn
+     never re-classes a tablet; the window's ORIENTATION still picks upright (html.mob) or on its side (html.mobl).
+     ?view=phone | tablet | desktop forces the device -- to look at a build on the laptop. */
+  const MOB_Q = '(pointer: coarse)', MOB_LQ = '(orientation: landscape)';
+  const MOB_LAND = true;   /* 512e: the landscape phones run the phone build (html.mob.mobl); 522b: and tablets on their side */
+  const MOB_PHONE_R = 1.7, MOB_PHONE_SIDE = 600;
+  const MOB_TAB_K = 1.4;   /* 522b: HIS CALL -- a tablet's text is the phone's x 1.4: the SUBTITLE cap 20 -> 28, BODY 14, NOCAPS 15.3 */
+  const MOB_VIEW = (() => { try { const m = /[?&]view=(phone|tablet|desktop)(?![\w-])/.exec(location.search); return m ? m[1] : ''; } catch (x) { return ''; } })();
+  function mobDevice(){
+    if (MOB_VIEW) return MOB_VIEW;
+    let coarse = false, ipad = false, a = 0, b = 0;
+    try { coarse = !!(window.matchMedia && matchMedia(MOB_Q).matches); } catch (x) {}
+    try { ipad = /Macintosh/.test(navigator.userAgent) && (navigator.maxTouchPoints || 0) > 1; } catch (x) {}
+    if (!coarse && !ipad) return 'desktop';
+    try { a = screen.width; b = screen.height; } catch (x) {}
+    if (!(a > 0 && b > 0)){ a = innerWidth; b = innerHeight; }
+    const lo = Math.min(a, b), hi = Math.max(a, b);
+    return hi >= MOB_PHONE_R * lo || lo < MOB_PHONE_SIDE ? 'phone' : 'tablet';
+  }
   /* 518a / 518d (SPEC-518 C1, F): PHONE SCROLL SENSITIVITY -- ONE multiplier per page system, side by side, each scaling ONLY
      that system's finger input (px of finger -> its own progress); every system's timings, springs, holds and easing curves
      stay exactly as they were (his rule for F: "INSTEAD adjust overall sensitivity, as a general multiplier here to the
@@ -5091,10 +5116,10 @@
   }
   function mobEval(e){
     const mm = q => { try { return !!(window.matchMedia && matchMedia(q).matches); } catch (x) { return false; } };
-    const land = MOB_LAND && mm(MOB_LQ), on = land || mm(MOB_Q), R = document.documentElement;
-    const flip = on !== MOB.on || land !== MOB.land;
-    MOB.on = on; MOB.land = land;
-    R.classList.toggle('mob', on); R.classList.toggle('mobl', land);
+    const dev = mobDevice(), on = dev !== 'desktop', land = on && MOB_LAND && mm(MOB_LQ), tab = dev === 'tablet', R = document.documentElement;   /* 522b */
+    const flip = on !== MOB.on || land !== MOB.land || tab !== MOB.tab;
+    MOB.on = on; MOB.land = land; MOB.tab = tab; MOB.dev = dev;
+    R.classList.toggle('mob', on); R.classList.toggle('mobl', land); R.classList.toggle('mobt', tab);
     if (mobBar(e, on, land, flip)) return;   /* 518b: the toolbar -- held while the case / post is open (no listener after this one runs) */
     if (!on){ R.style.removeProperty('--m-sub'); R.style.removeProperty('--m-sub-a'); R.style.removeProperty('--m-sub-l'); }
     if (on && MOB.solve) MOB.solve(true);
@@ -5109,7 +5134,7 @@
   try { new MutationObserver(() => { if (MOB_VP.debt && !document.body.classList.contains('caseopen')){ MOB_VP.debt = false; dispatchEvent(new Event('resize')); } })
     .observe(document.body, { attributes:true, attributeFilter:['class'] }); } catch (x) {}   /* 518b: the held toolbar resizes, paid the moment the case / post closes */
   try { const mq = window.matchMedia && matchMedia(MOB_Q); if (mq && mq.addEventListener) mq.addEventListener('change', mobEval); } catch (x) {}
-  try { const mq = window.matchMedia && matchMedia(MOB_LQ); if (mq && mq.addEventListener) mq.addEventListener('change', mobEval); } catch (x) {}   /* 512e: the landscape query's own change */
+  try { const mq = window.matchMedia && matchMedia(MOB_LQ); if (mq && mq.addEventListener) mq.addEventListener('change', mobEval); } catch (x) {}   /* 512e: the landscape query's own change (522b: the orientation; MOB_Q is the primary pointer's) */
   mobEval();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (MOB.solve) MOB.solve(true); });   /* first in line: S lands before any engine's own fonts pass reads it */
   /* ==== 516c THE PHONE'S INK, SUB-PIXEL (SPEC-516 sec. 5: "a margin alignment is sorely required for this mobile version") ====
@@ -12669,6 +12694,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      floor. S = min(M_CAP, the tightest row's fit); BODY = S / 2 (10), NOCAPS = BODY x 1.0909 (10.9). About's and the blog's
      local caps take min(S, their own fit), so they follow it. */
   const M_CAP = 20;
+  /* 522b: A TABLET's cap and start are the phone's x MOB_TAB_K (his 1.4): 28, so BODY 14 and NOCAPS 15.3 -- every phone text
+     size derives from S. The fit still binds under it (a narrow Split View window takes what its rows allow). */
+  const mCap = () => M_CAP * (MOB.tab ? MOB_TAB_K : 1), mS0 = () => M_S0 * (MOB.tab ? MOB_TAB_K : 1);
   const M_GAP = 1, M_RULE = 2, M_TRI = 1.1 + .27, M_ICO = 1.32;
   const mJSON = id => { try { return JSON.parse(document.getElementById(id).textContent); } catch (e) { return null; } };
   const mOneRow = t => String(t || '').split('/').map(x => x.trim()).filter(Boolean).join(' ');
@@ -12804,15 +12832,16 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function mSolve(){
     if (!MOB.on) return false;
     const content = document.documentElement.clientWidth - 2 * padPx();   /* the phone's width: innerWidth is the layout viewport, which a page's overflow grows */
-    let S = MOB.S || M_S0, fit = S, tight = '', fits = [], rows = [];
+    const CAP = mCap();   /* 522b: 20 on a phone, 28 on a tablet */
+    let S = MOB.S || mS0(), fit = S, tight = '', fits = [], rows = [];
     const measure = (list, W, S) => { const all = [];
       list.forEach(f => { let rs = []; try { rs = f(W) || []; } catch (x) {}
         rs.forEach(r => { const k = r.s > 0 ? r.s : r.w > 0 ? S * content / r.w : 0; if (k > 0) all.push({ what:r.what, s:k }); }); });
       return all.sort((p, q) => p.s - q.s); };
     for (let pass = 0; pass < 3; pass++){
       const W = mMeasurer(S), all = measure(MOB.rows, W, S);
-      if (!all.length){ fit = S = M_S0; tight = ''; fits = []; rows = []; break; }
-      fit = all[0].s; S = Math.min(M_CAP, fit); tight = all[0].what; fits = all.slice(0, 6); rows = all;   /* 518a: capped again -- the tightest row's fit, never over M_CAP */
+      if (!all.length){ fit = S = mS0(); tight = ''; fits = []; rows = []; break; }
+      fit = all[0].s; S = Math.min(CAP, fit); tight = all[0].what; fits = all.slice(0, 6); rows = all;   /* 518a: capped again -- the tightest row's fit, never over the cap (522b: CAP, a tablet's x 1.4) */
     }
     /* 515a ABOUT'S LOCAL CAP (SPEC-515 item 2): About's own rows (MOB.arows) at About's S, which is the site's unless they
        cannot hold it -- then their fit (two passes: the second at the capped size, for its optical size) */
@@ -12829,7 +12858,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     aS = Math.min(S, Math.floor(aS * 100) / 100);
     lS = Math.min(S, Math.floor(lS * 100) / 100);
     const r2 = x => Math.round(x * 100) / 100;
-    MOB.fit = r2(fit); MOB.tight = tight; MOB.fits = fits.map(r => ({ what:r.what, s:r2(r.s) })); MOB.capBinds = fit > M_CAP;   /* 518a: for the rigs */
+    MOB.fit = r2(fit); MOB.tight = tight; MOB.fits = fits.map(r => ({ what:r.what, s:r2(r.s) })); MOB.capBinds = fit > CAP; MOB.cap = CAP;   /* 518a: for the rigs (522b: the cap in force) */
     MOB.all = rows.map(r => ({ what:r.what, s:r2(r.s) }));   /* 515a: every row the solve measured, tightest first (the rigs list them) */
     MOB.afit = r2(afit); MOB.atight = atight; MOB.ltight = ltight;
     const was = MOB.S, wasA = MOB.aS, wasL = MOB.lS; MOB.S = S; MOB.aS = aS; MOB.lS = lS;
