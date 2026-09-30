@@ -4607,6 +4607,19 @@
   /* THE START SLIDE: fit to the height, the film leaves room at its sides, where the desktop's doors (the neighbouring
      cases' cards, off the screen on a portrait phone) would come into view across the margins. The phone has none. */
   html.mob.mobl #viewCase3 #c3Cards > .c3-case:not(.film){ visibility:hidden; }
+  /* 522g: A TABLET ON ITS SIDE KEEPS THE DESKTOP'S START SLIDE (HIS CALL, 2026-09-30; mDeskSlide). The decks show where PREV / NEXT
+     stood, and a tap on a door steps the ring (the row is gone); the film's layer is FIXED, as the desktop's, so the film morphs
+     into the band; SCROLL DOWN stands in the title row, centred, its baseline on the title's (the desktop's seat, trued by
+     --m-hint-dt, JS; --c3-hint-x when a long title reaches it) and fades on the track; the title row's ground is GLASS from its
+     band top (--m-c3-band-top, JS), so the film shows blurred behind it as it rises -- joined, the phone's one glass (M512:CASE)
+     takes over as ever. */
+  html.mob.mobl.mobt #viewCase3 .c3-3d{ position:fixed; }
+  html.mob.mobl.mobt #viewCase3 #c3Cards > .c3-case:not(.film){ visibility:visible; }
+  html.mob.mobl.mobt #viewCase3 .c3-mnav{ display:none; }
+  html.mob.mobl.mobt #viewCase3 .c3-hint{ position:absolute; left:var(--c3-hint-x, 50%); right:auto; top:calc(var(--c3-head-pad) + var(--c3-brand-cap) - var(--c3-cap) - var(--ink-t) + var(--m-hint-dt, 0px)); bottom:auto; transform:translateX(-50%); transition:none; }
+  html.mob.mobl.mobt #viewCase3 .c3-head::before{ background:var(--c3-glass-bg); -webkit-backdrop-filter:var(--c3-glass-f); backdrop-filter:var(--c3-glass-f); }
+  html.mob.mobl.mobt #viewCase3 .c3-intro{ background:linear-gradient(transparent var(--m-c3-see, 0px), var(--paper) 0); }   /* 522g: the intro's top under that glass (the phone's intro starts ON the title's baseline, the ground ends G under it) is see-through -- --m-c3-see, JS -- so the glass blurs film, never the paper's edge, and the paper starts at its foot, as the desktop's */
+  html.mob.mobl.mobt #viewCase3.m-solo #c3Cards > .c3-case:not(.film){ visibility:hidden; }   /* 522g: a ring of one (JS): no decks -- the ring would wrap onto the post itself */
   /* 521b (SPEC-521 B7, his iPhone on its side: "why is 'MY ROLE' and 'SUMMARY' paragraph font size super large ... should be
      BODY(CAPS), like the paragraph of CREDITS. BRIEF and the other section's paragraph text is also huge"). The rules above already
      set every case / post text at the phone's classes -- Chrome draws exactly SUBTITLE 20 / BODY(CAPS) 10 / NOCAPS 10.91 here.
@@ -15591,6 +15604,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const c3Up = () => SRC === 'blogs' && MOB.on && root.classList.contains('m-rot');
   const c3S0 = () => SRC === 'blogs' && MOB.on && MOB.lS > 0 && !c3Up() ? Math.min(hdrS0, MOB.lS) : hdrS0;
   const c3F = () => c3Up() ? c3S0() : hdrFullF;
+  /* 522g: A TABLET ON ITS SIDE KEEPS THE DESKTOP'S START SLIDE (HIS CALL, 2026-09-30: "instead of prev case and next case, I should
+     see the decks on the side ... title row should move all the way to bottom margins. the video+scroll behaviour then works
+     similarly as desktop but the all the text below behaves like phone"). The film between the side DECKS (no PREV / NEXT: a tap
+     on a door steps the ring), the title row on the bottom margin with SCROLL DOWN centred in it, the fixed film and its morph
+     into the band -- the desktop's; the type the tablet's, and everything under the start slide the phone build's. The one gate. */
+  const mDeskSlide = () => MOB.tab && MOB.land;
   /* 516b THE POST'S TITLE ON AN UPRIGHT PHONE (SPEC-516 sec. 4: post titles are much longer than case titles). It stands
      ABOVE the film (videoLayout) at the site's S, drawn at that size, and takes as many rows as it needs: its measure is the
      row's less the two-row subtitle beside it and one S of air (M_GAP -- a start row as the solve measures one), at the
@@ -15848,7 +15867,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       /* 401 (V4): the hero's hover, along the door's own facing; the eased
          coat is scoped to .hv so the step's tweens never inherit it */
       el.addEventListener('pointerenter', e => {
-        if (chosen.case !== 4 || card.q === 0 || !card._mh) return;
+        if (chosen.case !== 4 || card.q === 0 || !card._mh || mDeskSlide()) return;   /* 522g: a finger's tap is no hover */
         card._hv = 1; el.classList.add('hv'); el.style.transform = card._mh;
         c3Cur(e, true);
       });
@@ -16267,21 +16286,21 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        hinge may be tall; the film is 1 / hingeK of it, or the width's, and
        centred in the room. The film is the priority: the doors take only
        what the glass leaves. */
-    const over = dial('--hdr-glass-over');
+    const over = mDeskSlide() ? PAD + .7 * dial('--m-sub') + 1 - hf : dial('--hdr-glass-over');   /* 522g: a tablet on its side -- the case page's header glass is the bar's (M512:CASE: a hair under B - D's baseline): the hinges' room and the join start at ITS foot */
     const bandTop0 = H - (rest + brandFull * BRAND_SMALL + headBox.pad);   // the band's top at rest
     const roomT = hf + over + GAL_CLEAR, roomB = bandTop0 - GAL_CLEAR;      // the hinges' room
     const hingeK = deckDials(W).hingeK;                                     // the hinge, a share of the film: the film half way between a door's sides
     let vw = Math.min(W - 2 * PAD, Math.max(0, roomB - roomT) / hingeK * 16 / 9), vh = vw * 9 / 16;   /* 512d: let -- a phone re-seats the box below */
     let xc = (W - vw) / 2, yc = (roomT + roomB) / 2 - vh / 2;
+    if (mDeskSlide()){ if (N > 1) vw = mDeckW(W, vw); vh = vw * 9 / 16; xc = (W - vw) / 2; yc = (roomT + roomB) / 2 - vh / 2; $('#viewCase3').classList.toggle('m-solo', N < 2); }   /* 522g: a TABLET on its side -- the desktop's box, centred in the hinges' room, no wider than leaves the decks their room (mDeckW); a ring of one has no decks (the ring would wrap onto the post itself: .m-solo, M512:LAND) and keeps the desktop's fit, as PREV / NEXT stood down for N < 2 */
     /* DEV CHECK: the hinges inside the room */
     console.assert(yc + vh / 2 - hingeK * vh / 2 >= roomT - 0.01 && yc + vh / 2 + hingeK * vh / 2 <= roomB + 0.01, 'the hinges leave the glasses\' room');
-    if (MOB.on){   /* 512d: THE PHONE'S START SLIDE (SPEC-512 sec. G) -- the film margin to margin, centred in the window; the title row under it, its glass band's top on the film's foot (--m-c3-film-gap); so the head's rest box is seated from the film (the hint holds the bottom margin) */
+    if (MOB.on && !mDeskSlide()){   /* 512d: THE PHONE'S START SLIDE (SPEC-512 sec. G) -- the film margin to margin, centred in the window; the title row under it, its glass band's top on the film's foot (--m-c3-film-gap); so the head's rest box is seated from the film (the hint holds the bottom margin) */
       vw = W - 2 * PAD; vh = vw * 9 / 16; xc = PAD; yc = (H - vh) / 2;
       mGapWant = mHeroGap();   /* 520a: the hero's card-to-paragraph gap under the film on EVERY phone (a landscape one had the head's pad) */
       if (MOB.land){   /* 512e: a LANDSCAPE phone -- the film fit to the height: a margin under the B - D bar's baseline, the title row under the film, a margin from the title's baseline to the hint's cap top (its baseline on the bottom margin); centred across. 520a: the bar's baseline MEASURED (inkBot4) -- PREV / NEXT's cap line, the film's top on it; the gap under the film the hero's */
         const S = MOB.S || M_S0, top = (inkBot4 > 0 ? inkBot4 : PAD + .7 * S) + PAD, room = H - top - mGapWant - .7 * S - PAD - .35 * S - PAD;
         vh = Math.max(0, Math.min(vh, room)); vw = vh * 16 / 9; xc = (W - vw) / 2; yc = top + (room - vh) / 2;
-        if (MOB.tab){ const v2 = mTabSide(W, room, vh); if (v2 < vh){ vh = v2; vw = vh * 16 / 9; xc = (W - vw) / 2; yc = top; } }   /* 522d (C522-D1, option A): a TABLET on its side -- PREV / NEXT keep the film's side room, on its top line (mTabSide) */
       }
       stageH = yc + vh + mGapWant + mGapDy - headBox.pad - (1 - (hdrFullF ? Math.min(1, c3S0() / c3F()) : 0.2)) * brandFull;   /* 514c: portrait -- the film's foot to the title's cap top IS the hero's card foot to its paragraph's cap top, read live (mHeroGap), the seat's measured miss folded in (mGapFix) */
       if (c3Up()){   /* 516b: A POST ON AN UPRIGHT PHONE (SPEC-516 sec. 4) -- the title ABOVE the film. The film stays centred in the
@@ -16297,7 +16316,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       }
     }
     $('#c3Stage').style.height = Math.max(0, stageH).toFixed(2) + 'px';   // to the sub-pixel: a rounded stage moved the head's foot by half a px
-    if (MOB.on) $('#c3Head').style.setProperty('--m-c3-band-top', (yc + vh - Math.max(0, stageH) + .5).toFixed(2) + 'px');   /* 514c: the row's paper begins half a px under the film's foot (the head's box top is the stage's foot) */
+    if (MOB.on) $('#c3Head').style.setProperty('--m-c3-band-top', (mDeskSlide() ? mBandIn() : yc + vh - Math.max(0, stageH) + .5).toFixed(2) + 'px');   /* 522g: a tablet on its side -- the band from the title's cap top less the pad, as the desktop's glass (mBandIn) */   /* 514c: the row's paper begins half a px under the film's foot (the head's box top is the stage's foot) */
     if (c3Up()) $('#c3Head').style.setProperty('--m-c3-band-top', '0px');   /* 516b: a post's head stands over its film -- its paper is its own box, down to the film's top */
     const Sin = Math.max(1, stageH + mCatch0 - headTop);                // the scroll at which the head reaches its slot and sticks (519b: an upright phone's case -- its lead later: mCatchLead)
     /* the picture's layout size: the window's cover, so the film is crisp at
@@ -16313,33 +16332,25 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (hb !== 100) console.assert(Math.abs(hb - headBox.h) < 1, 'head box: laid out ' + hb + ', model ' + headBox.h.toFixed(1));
     videoScroll();
   }
-  /* 522d (C522-D1, HIS CALL: option A) A TABLET ON ITS SIDE KEEPS THE LANDSCAPE PHONE'S START SLIDE: PREV / NEXT on the film's
-     top line, in its side room. A phone's film, fit to the height, always leaves them that room; a tablet's (1.33 - 1.6:1) is
-     bound by the width or nearly, and ran over them. So where the film, as laid (vh, centred in the room), would reach the
-     words -- its top less than a margin under their baseline AND its sides less than a margin from their ink -- it is
-     narrowed to keep one margin (--m-pad, the phone's) between each word's ink and its side; mNav seats PREV's ink on the
-     left margin and NEXT's on the right, so the film's width is W less two margins, the wider word's ink and two margins of
-     air. videoLayout then stands its top on the words' cap line, as a phone's (520a), and centres it across; the room it no
-     longer fills stays under the title row, over the hint (which holds the bottom margin). The words are read live, written
-     as mNav writes them (it runs after the layout, with the same words). Returns the film's height: vh itself when nothing
-     is reached (1366x1024), or with one case / post only (no words). */
-  function mTabSide(W, room, vh){
-    if (!mNavEl || N < 2) return vh;
-    const w = SRC === 'blogs' ? 'post' : 'case'; let iw = 0, cap = 0;
-    [...mNavEl.children].forEach((b, i) => {
-      const t = (i ? 'Next ' : 'Prev ') + w; if (b.textContent !== t) b.textContent = t;
-      const n = b.firstChild, cs = getComputedStyle(b), px = parseFloat(cs.fontSize); if (!n || n.nodeType !== 3 || !(px > 0)) return;
-      const up = cs.textTransform === 'uppercase', ch = k => up ? t[k].toUpperCase() : t[k], rg = document.createRange();
-      rg.setStart(n, 0); rg.setEnd(n, 1); const q0 = rg.getBoundingClientRect();
-      rg.setStart(n, t.length - 1); rg.setEnd(n, t.length); const q1 = rg.getBoundingClientRect();
-      const g0 = mGlyph(cs, ch(0), px), g1 = mGlyph(cs, ch(t.length - 1), px);
-      if (!g0 || !g1 || !(q0.width > 0) || !(q1.width > 0)) return;
-      iw = Math.max(iw, (q1.left + g1.r) - (q0.left + g0.l)); cap = Math.max(cap, g0.a);
-    });
-    if (!(iw > 0)) return vh;
-    const wMax = W - 2 * (PAD + iw + PAD);
-    return (room - vh) / 2 < cap + PAD && vh * 16 / 9 > wMax ? Math.max(0, wMax * 9 / 16) : vh;
+  /* 522g THE DECKS' ROOM ON A TABLET ON ITS SIDE. The desktop fits its film to the hinges' room between the glasses, capped only
+     by the margins, and the doors take what it leaves -- three a side on a 16:9 window. A tablet on its side (1.33 - 1.6:1, a bar
+     for a header) makes that film width-bound, and the desktop's own build at 1180 x 820 or 1366 x 1024 then shows no deck at
+     all. So here the film is no wider than leaves each deck its first door whole and HALF its second (M_DECK_PEEK) -- the
+     desktop's own law for a deck (deckGeo: the first door whole, GAL_PEEK of the second) with half the second door, so the decks
+     read as decks where PREV / NEXT stood and the film keeps about the size that side room gave it (885 wide at 1180 x 820, where
+     the phone's slide had 897) -- solved on deckGeo itself, the film centred (both decks alike). A film that already leaves that
+     room keeps the desktop's size. */
+  const M_DECK_PEEK = 0.5;
+  function mDeckW(W, vw){
+    const ok = w => { const d = deckGeo({ W, xc:(W - w) / 2, yc:0, vw:w, vh:w * 9 / 16 }), o = d.dR[1]; return !!o && d.L >= 2 && o.xFar + M_DECK_PEEK * (o.xNear - o.xFar) <= W - d.cx0; };
+    if (!(vw > 0) || ok(vw)) return vw;
+    let lo = 0, hi = vw;
+    for (let i = 0; i < 40; i++){ const w = (lo + hi) / 2; if (ok(w)) lo = w; else hi = w; }
+    return lo;
   }
+  /* 522g: the title row's band on a tablet on its side, in the head's box: the desktop's glass top (videoScroll's bandTop, V4:
+     the title's live box top less the pad) at the title's rest scale -- its cap top less the pad, less its box's trim at kB */
+  function mBandIn(){ const kB = hdrFullF ? Math.min(1, c3S0() / c3F()) : 0.2; return Math.max(0, (1 - kB) * brandFull - kB * brandT); }
   const clamp01 = v => Math.min(1, Math.max(0, v));
   /* THE WHEEL DRIVES A TRACK, AND THE TRACK DRIVES THE PAGE. The wheel
      moves a target on the track (tr, wheel px); the track's position (trS)
@@ -16395,6 +16406,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
          position as before (never at 0, the programmatic reset's home). */
       if (window.scrollY > 0.5){ tr = trS = HOLD() + wheelOf(window.scrollY); sV = 0; }
       else if (MOB.on){ tr = trS = 0; sV = 0; }   /* 514c: a phone's reader came back to the top -- the track goes home with the page (a fresh load's state) */
+      if (mDeskSlide()) sOwnY = -1;   /* 522g: a tablet on its side -- the reader has moved the page: an own position still armed (a turn arms it at the top with no scroll to consume it) is stale, and a return to it is the reader's (its morph runs on the track) */
       videoScroll();
     } else if (MOB.on) sOwnY = -1;   /* 514c: a phone's own position is read once -- a later native return to it (0 after a PREV / NEXT reset) is the reader's */
   }, { passive:true });
@@ -16435,7 +16447,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* the track: the film from its box to full-window and the words from
        BRAND_SMALL to the intro's size, together, the page still -- m is the
        frame's state, 1 the box; p the track's progress */
-    const p = clamp01(trS / PRE_WHEEL), m = MOB.on ? 1 : 1 - p, grow = chosen.case === 4 ? false : p < 1;   /* 512d: m = 1 on a phone -- the film never morphs, its layer scrolls with the page, up under the header */   /* 401: V4 never grows */
+    const p = clamp01(trS / PRE_WHEEL), m = MOB.on && !mDeskSlide() ? 1 : 1 - p, grow = chosen.case === 4 ? false : p < 1;   /* 512d: m = 1 on a phone -- the film never morphs, its layer scrolls with the page, up under the header */   /* 401: V4 never grows */
     const dSigned = S;
     /* the words: growing, about their BASELINE at the foot of the window;
        grown, full size through the climb; stuck under the header, down to
@@ -16496,8 +16508,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       : C4 ? (1 - kS) / (1 - kB || 1) * Math.max(0, (hT + hb.h) - (tB4s + dial('--c3-c4-head-gap')))
       : (1 - kS) * hb.cap;   /* 406: V3's follow verbatim; V4's ramps over the same window but only to (pad - gap) -- the title's slack moved into the SEAT, so the slot lands the subtitle GAP under the title's ink */
     const dyX = chosen.case === 4 ? 0 : subExtra(now);   /* 404: the cushion was the strip's; V4 has neither */
-    head.style.setProperty('--c3-hint-op', (MOB.on ? (S > 0.5 ? 0 : 1) : 1 - clamp01(trS / (dial('--c3-hint-fade') * PRE_WHEEL))).toFixed(3));   /* 512d: a phone's hint is static and gone the moment the page moves (the CSS fades it) */
+    head.style.setProperty('--c3-hint-op', (MOB.on && !mDeskSlide() ? (S > 0.5 ? 0 : 1) : 1 - clamp01(trS / (dial('--c3-hint-fade') * PRE_WHEEL))).toFixed(3));   /* 522g: a tablet on its side -- the desktop's fade */   /* 512d: a phone's hint is static and gone the moment the page moves (the CSS fades it) */
     head.style.setProperty('--c3-sub-dy', (dyX - follow).toFixed(2) + 'px');
+    if (mDeskSlide()){ const ie = $('#c3Intro'), see = (hb.pad + dyX - follow).toFixed(2) + 'px'; if (ie && ie.style.getPropertyValue('--m-c3-see') !== see) ie.style.setProperty('--m-c3-see', see); }   /* 522g: a tablet on its side -- the intro's top under the title's GLASS is see-through (M512:LAND): the ground's foot (G under the title's baseline) less the intro's top (on it), so the glass blurs only film and the paper begins at its foot, as the desktop's */
     /* the band: --c3-head-pad above the cap top (which rises while the
        words grow), --c3-sub-gap under the subtitle's baseline (which
        goes wherever the strip goes). THE JOIN: the moment the band's top
@@ -16707,7 +16720,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function cardsLayout(){
     const g = vGeo, d = deck;
     layer3d.style.width = g.W + 'px'; layer3d.style.height = g.H + 'px';
-    layer3d.style.top = MOB.on ? (-g.stageH).toFixed(2) + 'px' : '';   /* 512d: absolute on a phone, in #c3Body (which starts under the stage): lifted by the stage to the page's top */
+    layer3d.style.top = MOB.on && !mDeskSlide() ? (-g.stageH).toFixed(2) + 'px' : '';   /* 522g: a tablet on its side -- fixed, the desktop's (M512:LAND) */   /* 512d: absolute on a phone, in #c3Body (which starts under the stage): lifted by the stage to the page's top */
     layer3d.style.perspective = d.P.toFixed(1) + 'px';
     layer3d.style.perspectiveOrigin = d.cx0.toFixed(1) + 'px ' + d.cy0.toFixed(1) + 'px';
     group3d.style.transformOrigin = d.cx0.toFixed(1) + 'px ' + d.cy0.toFixed(1) + 'px';
@@ -17245,7 +17258,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   }
   let mGapDy = 0, mGapWant = 0, mGapDyP = 0;   /* 516b: mGapDyP -- a post's own (its title seats above the film) */
   function mGapFix(){
-    if (!MOB.on || !vGeo){ mGapDy = 0; return; }   /* 520a: a landscape phone's film-to-title gap is the hero's too */
+    if (!MOB.on || !vGeo || mDeskSlide()){ mGapDy = 0; return; }   /* 520a: a landscape phone's film-to-title gap is the hero's too (522g: a tablet on its side seats its title on the bottom margin) */
     const S = window.scrollY, t = $('#c3Brand span');
     if (!t || !t.firstChild || S >= vGeo.Sin - 1 || !t.getClientRects().length) return;   /* only while the row is in the page's flow */
     const r = t.getBoundingClientRect(), k = t.offsetHeight ? r.height / t.offsetHeight : 1, fz = parseFloat(getComputedStyle(t).fontSize);
@@ -17369,7 +17382,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      brings it to the window's foot (the stable height) -- laid in as --m-c3-lead (M512:CASE), and the stick moves the lead later */
   function mCatchLead(){
     const was = mCatch0, vw = $('#viewCase3'); let L = 0;
-    if (mPhone() && vGeo && !c3Up()){   /* 516b: an upright phone's post's content stands under its film from the opening -- no lead */
+    if (mPhone() && vGeo && !c3Up() && !mDeskSlide()){   /* 516b: an upright phone's post's content stands under its film from the opening -- no lead (522g: nor a tablet on its side: its intro waits at the window's foot, as the desktop's) */
       const y0 = window.scrollY, tops = [...document.querySelectorAll('#c3Lede, #c3Intro .c3-it')].filter(e => e.getClientRects().length).map(e => e.getBoundingClientRect().top + y0);
       if (tops.length) L = Math.max(0, vGeo.H - (Math.min(...tops) - was));
     }
@@ -17548,7 +17561,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     document.querySelectorAll('#c3Details .cell.text .tx p, #c3Details .cell.quote .qt, #c3Details .stat .st-plat, #c3Details .c3-cap .cl, #c3Summary, #c3Lede, #c3Contrib').forEach(e => mSeatInk(e, 'L'));
     /* SCROLL DOWN FOR CASE / POST: its baseline on the bottom margin, measured (the --ink-b model missed Chrome's rounding) */
     const hn = $('#c3Hint');
-    if (hn && hn.getClientRects().length){ const q = document.createElement('i');
+    if (hn && mDeskSlide()){ const hd = $('#c3Head'), d = hd && hn.getClientRects().length ? hd.getBoundingClientRect().top + (parseFloat(getComputedStyle(hd).paddingTop) || 0) + brandFull - mBase(hn, false) : NaN;   /* 522g: on a tablet on its side the hint stands in the title row (M512:LAND), its baseline on the title's (the head's pad + the words' cap, brand()'s own: the words are not read here -- videoScroll has not yet re-anchored them) -- measured, as the phone's (the desktop's --c3-cap / --ink-t model missed Chrome's rounding by .8px) */
+      if (isFinite(d)) hn.style.setProperty('--m-hint-dt', ((parseFloat(hn.style.getPropertyValue('--m-hint-dt')) || 0) + d).toFixed(2) + 'px'); }
+    else if (hn) hn.style.removeProperty('--m-hint-dt');
+    if (hn && hn.getClientRects().length && !mDeskSlide()){ const q = document.createElement('i');
       q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; hn.appendChild(q);
       const y = q.getBoundingClientRect().bottom; q.remove();
       const cur = parseFloat(hn.style.getPropertyValue('--m-hint-dy')) || 0;
