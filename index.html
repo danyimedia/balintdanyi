@@ -41,6 +41,22 @@
 })();
 </script>
 <title>Balint Danyi</title>
+<!-- 524b R6 (his words: "custom link and link preview"): what a shared link to the site shows. The line is the loader's
+     statement as written; the picture is the start case's first still (no still was made for sharing). Each case's own
+     preview is its stub, case/<slug>/index.html, written by gen-stubs.js from this page. -->
+<meta name="description" content="Creative lead for video.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Balint Danyi">
+<meta property="og:title" content="Balint Danyi">
+<meta property="og:description" content="Creative lead for video.">
+<meta property="og:url" content="https://balintdanyi.com/">
+<meta property="og:image" content="https://balintdanyi.com/portfoliocontent/CaseAssets/Lions24/Lions24First.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Balint Danyi">
+<meta name="twitter:description" content="Creative lead for video.">
+<meta name="twitter:image" content="https://balintdanyi.com/portfoliocontent/CaseAssets/Lions24/Lions24First.jpg">
 <!-- Favicon: BD drawn from DM Sans at weight 1000, black on the page's
      own off-white. Real outlines rather than a font reference, since a
      favicon cannot load a webfont. -->
@@ -6779,20 +6795,139 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* `snap` is the loader's reset, which has to be instant. From the menu they
      all travel instead: the page eases to the section rather than cutting to
      it, which is what "scroll to" means here. */
-  /* The page a refresh should return to, written into the hash. Only the two
-     VIEWS count as pages -- blog and case. The landing page is the whole
-     hero -> showreel -> contact scroll, showreel and contact included: they
-     are slides of the same flow, so arriving on them still clears the route
-     and a refresh anywhere in that flow gets the loader as normal.
-     replaceState rather than assignment, so nothing scroll-jumps and no
-     history entries pile up. */
-  function setRoute(h){
+  /* 524b THE ADDRESS IS THE PAGE ON SCREEN. His decisions, 02.10.26: "custom link and link preview"; "pretty names"; "because
+     each case study page is a different page technically - IF the case studies were navigated via the side decks, it should
+     serve as an undo of that navigation ... so just use back button accordingly. works between HERO and CASE STUDY page as
+     well if that was the order". The landing is still the whole hero -> showreel -> contact scroll -- NO hash: showreel and
+     contact are its slides, and arriving on them clears the route. The views are pages: #case/<slug> (RT_SLUG, public and
+     permanent), #about, #blog (the list), #blog/<post-slug> (posts.json's own slugs).
+     SUPERSEDED (his 02.10.26 decision): "replaceState rather than assignment, so nothing scroll-jumps and no history entries
+     pile up". Every page change the VISITOR makes now pushes ONE entry (pushState: still no assignment, nothing
+     scroll-jumps); re-choosing the page already shown pushes nothing; the boot and a typed address only REPLACE (rtCanon);
+     Back / Forward land on the page in the address without pushing (rtPop -> rtApply: the site's own openers, quiet). */
+  /* ==== 524b ROUTER ==== */
+  /* R1 THE SLUGS: an explicit table, never derived. Once a link is out it is permanent -- add a row, never rename one. */
+  var RT_SLUG = {"lions2024":"cannes-lions-2024","lions2025":"cannes-lions-2025","money2020":"money2020-awards","blackhat":"black-hat","lions2023":"cannes-lions-2023","limits":"limits"};
+  var RT_C3 = (() => { try { const j = JSON.parse(document.getElementById('c3Data').textContent); return { ring: j.ring || [], start: j.start }; } catch (e) { return { ring: Object.keys(RT_SLUG), start: 'lions2024' }; } })();
+  var rtQ = 0, rtHeld = null, rtWant = null, rtT = 0, rtShown = null;   /* quiet depth; a deep link waiting out the loader; a Back / Forward waiting out a transition (latest wins); its timer; the entry on screen */
+  function rtSlugOf(key){ return RT_SLUG[key] || key; }   /* a case with no row yet goes by its key -- add its row before a link is shared */
+  function rtKeyOf(slug){ for (const k in RT_SLUG) if (RT_SLUG[k] === slug) return k; return !RT_SLUG[slug] && RT_C3.ring.indexOf(slug) >= 0 ? slug : null; }
+  function rtRead(h){
+    const m = /^#(case|blog|about)(?:\/([^?#]*))?(?:\?.*)?$/.exec(String(h || ''));
+    if (!m) return { v: 'landing' };   /* '', '#', '#top', the old '#showreel' / '#contact', anything unknown */
+    const sl = String(m[2] || '').replace(/\/+$/, '').toLowerCase();
+    if (m[1] === 'about') return { v: 'about' };
+    if (m[1] === 'case') return { v: 'case', key: rtKeyOf(sl) || RT_C3.start };   /* '#case' (legacy) and an unknown slug: the start case */
+    return /^[a-z0-9][a-z0-9-]*$/.test(sl) ? { v: 'post', key: sl } : { v: 'blog' };
+  }
+  function rtPath(r){ return r.v === 'case' ? 'case/' + rtSlugOf(r.key) : r.v === 'post' ? 'blog/' + r.key : r.v === 'landing' ? '' : r.v; }
+  /* THE ONE WRITER. h: the page's path ('' = the landing); step: { s, f } when a deck step made it (rtApply undoes it) */
+  function setRoute(h, step){
     if (PREVIEW) return;   /* blog: a preview window keeps its #preview (see PREVIEW) */
+    if (rtQ || rtHeld) return;   /* 524b: a Back / Forward being applied, or a deep link waiting out the loader -- the address already names the page */
+    if ((h ? '#' + h : '') === location.hash) return;   /* 524b R3: the page already shown pushes nothing */
     try{
-      history.replaceState(null, '',
+      const st = { bd: 524, i: (history.state && history.state.bd ? history.state.i : 0) + 1, s: step ? step.s : 0, f: step ? step.f : null };
+      history.pushState(st, '',
         h ? '#' + h : location.pathname + location.search);
+      rtShown = st; rtWant = null;   /* the visitor's own choice outranks a Back / Forward still waiting */
     } catch(e){}
   }
+  function rtStep(src, from, to, n){ setRoute(src === 'blogs' ? 'blog/' + to : 'case/' + rtSlugOf(to), { s: n, f: from }); }
+  /* the address made canonical IN PLACE (the boot, a typed address): replaceState, never a push */
+  function rtCanon(r, i){
+    const old = history.state && history.state.bd ? history.state : null, st = old || { bd: 524, i: i || 0, s: 0, f: null };
+    if (PREVIEW) return st;
+    const h = rtPath(r);
+    try { if ((h ? '#' + h : '') !== location.hash || !old) history.replaceState(st, '', h ? '#' + h : location.pathname + location.search); } catch (e) {}
+    return st;
+  }
+  function rtNow(){   /* the page on screen */
+    const c = document.body.classList;
+    if (c.contains('caseopen')) return c3Ready && C3.active() ? { v: C3.source() === 'blogs' ? 'post' : 'case', key: C3.current() } : { v: 'case', key: caseKeyOpen };
+    if (c.contains('aboutopen')) return { v: 'about' };
+    if (c.contains('blogopen')) return { v: 'blog' };
+    return { v: 'landing' };
+  }
+  function rtBusy(){   /* a transition in flight: the loader, a view swap's figure, the case's 720 ms exit curtain, a deck step */
+    const x = document.getElementById('viewCase3');
+    return !!rtHeld || ldLock || document.body.classList.contains('vsi-in') || !!viewSwap || !!(x && x.classList.contains('c3-exit')) || (c3Ready && C3.busy());
+  }
+  function rtPop(){
+    if (PREVIEW) return;
+    const r = rtRead(location.hash);
+    rtWant = { r, st: rtCanon(r, (rtShown ? rtShown.i : 0) + 1) };   /* a typed address is made canonical in place */
+    rtTick();
+  }
+  function rtTick(){
+    clearTimeout(rtT); rtT = 0;
+    if (!rtWant) return;
+    if (rtBusy()){ rtT = setTimeout(rtTick, 50); return; }   /* applied when the transition ends; a later Back / Forward replaces it */
+    if ((rtWant.r.v === 'post' || rtWant.r.v === 'blog') && !BLOG.ready){ blogWait(rtTick); return; }
+    const w = rtWant; rtWant = null;
+    rtApply(w.r, w.st);
+  }
+  /* BACK / FORWARD: the page in the address, through the site's own animations, nothing pushed */
+  function rtApply(r, st){
+    const was = rtShown; rtShown = st;
+    if (r.v === 'post' && BLOG.ring.indexOf(r.key) < 0){ r = { v: 'blog' }; rtCanon(r); }   /* a post no longer published: the list */
+    const P = rtNow();
+    if (P.v === r.v && P.key === r.key) return;
+    const tap = sel => { const el = document.querySelector(sel); if (el) el.click(); };
+    rtQ++;
+    try {
+      /* the deck step this entry was made by: undone (Back) or made again (Forward) -- the opposite way, the same number of steps */
+      let n = 0;
+      if (was && st && P.v === r.v && (r.v === 'case' || r.v === 'post')){
+        if (st.i === was.i - 1 && was.s && was.f === r.key) n = -was.s;
+        else if (st.i === was.i + 1 && st.s && st.f === P.key) n = st.s;
+      }
+      if (n && C3.stepTo(r.key, n)) return;
+      if (r.v === 'landing') tap('#hdr [data-go="home"]');   /* the close the home mark does */
+      else if (r.v === 'about') tap('#hdr [data-view="about"]');   /* About's own door: the view figure */
+      else if (r.v === 'blog') tap('#hdr [data-view="blog"]');   /* the list's own door */
+      else if (r.v === 'case'){
+        if (P.v === 'landing') openCase(r.key);   /* the open the hero does */
+        else tap('#csPick button[data-key="' + r.key + '"]');   /* the picker's swap: a held view in its figure, About's clean-ups included */
+      }
+      else openBlog(r.key);   /* the post's own opener (over About: csPick's figure, in openBlog) */
+    } finally { rtQ--; }
+  }
+  /* R4 / R5: the boot's page, opened as the visitor's choice from the landing -- quiet, the address already names it */
+  function rtOpen(r){
+    if (!r || r.v === 'landing') return;
+    if (r.v === 'blog' || r.v === 'post'){
+      const h = location.hash;
+      blogWait(() => {
+        if (location.hash !== h) return;   /* the visitor has moved on meanwhile */
+        if (r.v === 'post' && BLOG.ring.indexOf(r.key) < 0){ r = { v: 'blog' }; rtShown = rtCanon(r); }   /* an unknown post: the list */
+        rtQ++;
+        try {
+          if (r.v === 'post') openBlog(r.key);
+          else if (!document.body.classList.contains('blogopen')){ document.body.classList.add('blogopen'); playStack(); }
+        } finally { rtQ--; }
+      });
+      return;
+    }
+    rtQ++;
+    try { if (r.v === 'case') openCase(r.key); else abOpen(); } finally { rtQ--; }
+  }
+  /* R5: the loader hands over to the deep link's page AT THE TRIGGER -- the frame the deck would have blasted in. The deck
+     never arrives (held under the sheet: body.vsi); the page wipes up in its place, then the landing is put at rest beneath
+     it, as ldBypass does. */
+  function rtHand(){
+    const r = rtHeld; if (!r) return;
+    rtHeld = null;
+    document.body.classList.remove('vsi-in');
+    rtOpen(r);
+    const id = r.v === 'case' || r.v === 'post' ? 'viewCase3' : r.v === 'blog' ? 'viewBlog' : chosen.about === 4 ? 'viewAbout4' : chosen.about >= 2 ? 'viewAbout2' : 'viewAbout', t0 = performance.now();
+    (function lift(){   /* once the page's wipe has covered the landing (its clip at inset(0)) -- never on a clock: a loaded first frame runs late */
+      const v = document.getElementById(id), cp = v ? String(getComputedStyle(v).clipPath || 'none').trim() : 'none';
+      if (cp === 'none' || /^inset\(0(px)?( 0(px)?){0,3}\)$/.test(cp) || performance.now() - t0 > 2500) document.body.classList.remove('vsi', 'vsi-deck', 'ld-black');
+      else requestAnimationFrame(lift);
+    })();
+  }
+  /* ==== /524b ROUTER ==== */
 
   /* THE MENU'S THREE PLACES on the landing page. Within the landing page
      they are RUNS -- the page travels there; from a view (About, Blog, a
@@ -6865,9 +7000,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      existing machinery: the asset gate already times the first load for real;
      LD_SKIP_ENV keeps it off harnesses and ROUTED loads (his rule 3); a
      refreshed landing (his rule 2) arms a one-shot skip below. */
+  /* 524b R5 (his words: "loader yes, but only if loading the website for the first time"): a ROUTED load -- an address
+     naming a page -- skips the loader only in a tab that has shown it already. ldSeen (below) still owns the flag and still
+     sets it; this only reads it, earlier (getItem). Where storage is refused, the navigation type stands in, as there. An
+     address naming no page is a landing load and gets the landing's rules; #preview keeps its skip. */
+  const RT_SEEN = (() => { try { return sessionStorage.getItem('bd.loader') === '1'; }
+    catch (e) { const nav = performance.getEntriesByType('navigation')[0]; return !!nav && nav.type !== 'navigate'; } })();
   const LD_SKIP_ENV = /jsdom/i.test(navigator.userAgent)
     || (navigator.webdriver && !/intro=1/.test(location.search))
-    || !!(location.hash && location.hash !== '#' && location.hash !== '#top');
+    || PREVIEW || (/^#(?:case|blog|about)(?:[/?]|$)/.test(location.hash) && RT_SEEN);
   try {
     if (LOADER && !LD_SKIP_ENV){
       /* 509: rule 2's gate BAIL is gone -- any click or scroll on a repeat
@@ -7064,7 +7205,6 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function openCase(key){
     clearTimeout(c3ExitT); const xEl = document.getElementById('viewCase3'); if (xEl) xEl.classList.remove('c3-exit');   /* 494: a re-open cancels a pending exit */
     caseKeyOpen = key || caseKeyOpen;
-    setRoute('case');
     film8 = false; stopFilm();   /* 501: the showreel never plays on under a case */
     document.body.classList.add('caseopen');
     /* 507: the ring is named on the way IN, not cleaned up on the way out.
@@ -7072,7 +7212,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        re-open cancels that timer, so a case opened straight after a post
        was still showing the post. Every open says which ring it wants. */
     if (c3Ready) C3.setSource('cases');
-    if (chosen.case >= 3 && c3Ready){ C3.open(key); return; }
+    if (chosen.case >= 3 && c3Ready){ setRoute('case/' + rtSlugOf(key && C3.ring().indexOf(key) >= 0 ? key : C3.current())); C3.open(key); return; }   /* 524b R2: the case itself, not the view */
+    setRoute('case/' + rtSlugOf(caseKeyOpen || RT_C3.start));   /* 524b R2: the V1 view */
     if (key) loadCase(key);
     if (csFilm && csFilm.src !== csFilm.dataset.src) csFilm.src = csFilm.dataset.src;
     caseView.scrollTop = 0;
@@ -7098,7 +7239,6 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     ytApi().catch(() => {});   /* 508: the post's film is YouTube -- start fetching its API with the click, not with the first frame */
     clearTimeout(c3ExitT);
     const xEl = document.getElementById('viewCase3'); if (xEl) xEl.classList.remove('c3-exit');
-    setRoute('blog');
     film8 = false; stopFilm();
     const bv = document.getElementById('viewBlog');
     if (document.body.classList.contains('blogopen') && bv && xEl){
@@ -7107,8 +7247,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       bv.classList.add('vv-out');
       viewSwap = { prevCls: 'blogopen', inEl: xEl, outEl: bv, close: null, t: setTimeout(viewSettle, 720) };
     }
-    document.body.classList.remove('aboutopen');
+    else if (document.body.classList.contains('aboutopen') && xEl){   /* 524b R3 (the w524 review): a post over About -- a Back / Forward or a typed address -- rides csPick's figure: About HELD beneath the wipe, its word fold and a4nl landing behind the snap. It used to lose aboutopen at once, wiping About shut under the arriving post */
+      const aEl = document.getElementById(chosen.about === 4 ? 'viewAbout4' : chosen.about >= 2 ? 'viewAbout2' : 'viewAbout');
+      if (aEl){ xEl.style.zIndex = 810; aEl.classList.add('vv-out');
+        viewSwap = { prevCls: 'aboutopen', inEl: xEl, outEl: aEl, close: null,
+          also: () => { if (typeof hdrWords === 'function') hdrWords(false); document.body.classList.remove('a4nl'); }, t: setTimeout(viewSettle, 720) }; }
+    }
+    if (!viewSwap || viewSwap.prevCls !== 'aboutopen') document.body.classList.remove('aboutopen');
     document.body.classList.add('caseopen');
+    setRoute('blog/' + (key && C3.ring().indexOf(key) >= 0 ? key : C3.current()));   /* 524b R2: the post itself, not the list */
     C3.open(key || null);
     return true;
   }
@@ -7736,7 +7883,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const vw = e.target.closest('[data-view]');
     if (vw){
       const v = vw.dataset.view;
-      if (v === 'blog' && !BLOG.ready){ blogWait(() => vw.click()); return; }   /* blog: the list waits for posts.json (or its fallback) */
+      if (v === 'blog' && !BLOG.ready){ const h0 = location.hash; blogWait(() => { if (location.hash === h0 && !rtWant) vw.click(); }); return; }   /* 524b fix F2: opens only if the visitor is still where they chose it -- never a pushed list after they left */   /* blog: the list waits for posts.json (or its fallback) */
       viewSettle();                     // finalise any swap still in flight
       if (document.body.classList.contains(v + 'open')) return;
       c3Cover(false);   /* 523 C2: the case drops back under the arriving view's wipe -- the landing shows around it */
@@ -7773,6 +7920,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     }
     const go = e.target.closest('[data-go]');
     if (!go) return;
+    if (go.tagName === 'A' && go.getAttribute('href') === '#') e.preventDefault();   /* 524b R3: an href="#" mark (header 4) followed its link AFTER goHome -- a stray '#' entry on every click; the router writes the landing */
     const from = viewOpen();          // from a view the landing page is snapped into place under the wipe; within it, the page runs
     viewSettle();
     c3Cover(false);   /* 523 C2: the exit curtain uncovers the landing */
@@ -8036,7 +8184,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const src = fr && (fr.getAttribute('src') || srSrc(fr.dataset.src));   /* 512c: on an upright phone, the phone's film (SR_FILM_MOB -- 520a: the turned reel's only) */
     if (!src) return;
     srIn = true; srMob = src.indexOf('/video/' + SR_FILM_MOB.split('/')[0] + '?') >= 0;
-    if (!fr.getAttribute('src')) fr.src = src;   /* before the player is wired: it reads the src */
+    if (!fr.getAttribute('src')){ const n = fr.cloneNode(false); n.src = src; fr.replaceWith(n); }   /* before the player is wired: it reads the src. 524b fix F3 (his words: "just use back button accordingly"): a FRESH frame, never a re-pointed one -- coming Back into the site the browser restores the old frame's URL, and re-pointing it added a history entry, so his first Back did nothing. wireFilm reads #vimeo by id, after this */
     setTimeout(() => black.classList.add('lit'), 4000);   /* 451a: the fallback reveal, now from the REQUEST -- it stands without the API; the slide is never its hostage */
     wireFilm();
     if (srCtlWire) srCtlWire();
@@ -12684,7 +12832,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* Hero default, and it stays there. goHome() puts the deck on its opening
        slot and the page at the top; nothing moves either again until the deck
        has landed, because ldLock is still on. */
-    goHome(true);
+    rtQ++; try { goHome(true); } finally { rtQ--; }   /* 524b fix F1: the loader's own return to the hero is no visitor's page change -- it writes nothing, and a Back / Forward or a typed address waiting out the loader (rtWant) survives it */
 
     const FLY_LEAD = .22, LEADF = Math.round(LD.FLY * FLY_LEAD);
     const AFL = 12.4766 * LEADF / (12.4766 * LEADF + 2 * LD.FLY);   /* velocity continuity at the peak: 12.4766 = 18*ln2/(1-2^-18) */
@@ -12762,6 +12910,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       document.body.classList.add('ld-fly');
       document.body.classList.remove('ld-veil');
       ldSpinDone = true; ldTryUnlock();   /* 483: the deck spin left with the belt -- every hero's entrance ends here (the vsi intro IS V8's) */
+      if (rtHeld) rtHand();   /* 524b R5: a deep link's first load -- its page opens HERE, in place of the deck's entrance, as if chosen */
     }, LD_NAME_AT);
 
     /* Nothing scrolls until the last piece has arrived. The name and menu
@@ -12790,11 +12939,19 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        three classes here is exactly what the intro's own non-landing branch
        does, and it lands the hero at rest instead of animating it in. */
     document.body.classList.remove('vsi', 'vsi-in', 'vsi-deck');
+    if (rtHeld) rtHand();   /* 524b R5: the safety valve tore the loader down -- a held deep link still opens */
   }
   // Hashes v147 wrote for the landing slides are stale under this rule: strip
   // them so the URL heals itself, then run the loader as for any landing load.
-  if (location.hash === '#showreel' || location.hash === '#contact') setRoute('');
-  const ldRoute = ['#blog', '#case', '#about'].indexOf(location.hash);
+  /* 524b R2 / R4: the boot reads the address ONCE and makes it canonical in place (rtCanon: replaceState, never a push) --
+     '#case' -> '#case/cannes-lions-2024', an unknown case slug -> the start case, '#' / '#top' / the old '#showreel' /
+     '#contact' / anything unknown -> the landing, no hash. A post is checked once posts.json is in (rtOpen: unknown -> the
+     list). #preview is left exactly as it was. */
+  const rtBoot = PREVIEW ? null : rtRead(location.hash);
+  if (rtBoot) rtShown = rtCanon(rtBoot);
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}   /* 524b R3: Back / Forward never restore a scroll under the site's own animations */
+  addEventListener('popstate', rtPop);   /* 524b R3: Back / Forward, and an address typed into an open tab */
+  const ldRoute = rtBoot ? ['blog', 'case', 'about'].indexOf(rtBoot.v === 'post' ? 'blog' : rtBoot.v) : -1;
 
   /* 501: fonts.ready has hung on real engines (old WebKit), and BOTH boot
      paths hang off it with no other exit. The race costs at most 4s of
@@ -12809,7 +12966,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   { let raced = false; setTimeout(() => { raced = true; }, 4000);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (raced && s3()){ hdrSolve(); measure(); if (v67Ready) V67.reClear(); paint(); } }); }   /* 511c2: and the deck */
 
-  if (ldRoute >= 0){
+  if (ldRoute >= 0 && ldSkip){   /* 524b R5: a routed load the loader stands down for -- this tab has shown it (a reload, Back / Forward into the site), or a harness */
     /* Teardown is synchronous -- the loader must never be seen -- but the
        ROUTING waits for the fonts, exactly as the normal boot does and for
        the same reason its comment gives: every destination solves type on
@@ -12819,11 +12976,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     fontsUp().then(() => {
       if (s3()){ hdrSolve(); measure(); if (v67Ready) V67.reClear(); }   /* 511c2: the deck re-clears against the true header too */
       if (location.hash === '#blog') blogWait(() => { if (location.hash === '#blog' && !document.body.classList.contains('blogopen')){ document.body.classList.add('blogopen'); playStack(); } });   /* 508: #blog is the list -- blog: once posts.json is in (or its fallback) */
-      if (location.hash === '#case')  openCase();
-      if (location.hash === '#about') abOpen();
+      if (rtBoot.v !== 'blog') rtOpen(rtBoot);   /* 524b R4: #case/<slug>, #about, #blog/<slug> -- quiet, the address already names the page (the list keeps its own line above) */
       paint();
     });
   } else {
+    if (ldRoute >= 0) rtHeld = rtBoot;   /* 524b R5: a deep link in a tab that has not shown the loader -- the loader first, then its page at the trigger (rtHand) */
     if (ldSeen && !ldSkip) ldListen();   /* 510: a repeat landing hears input from boot -- held until the flight can run */
     /* Started on the font rather than on load: solving the name against the
        fallback face would size it wrong and then jump when DM Sans arrived.
@@ -14784,7 +14941,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (!introRun._seated){
         introRun._waiting = true;
         try { ldLock = false; siteReady = true; } catch (e) {}
-        try { goHome(true); } catch (e) {}   /* 447h: the KICK -- the loader's goHome chain froze under the lock and a freed lock does not restart a dead chain; called again now, the journey actually runs to 0 and paint draws the true rest */
+        rtQ++; try { goHome(true); } catch (e) {} finally { rtQ--; }   /* 524b fix F1: quiet, as ldFly's -- 447h: the KICK -- the loader's goHome chain froze under the lock and a freed lock does not restart a dead chain; called again now, the journey actually runs to 0 and paint draws the true rest */
         place(true);   /* ONCE */
         /* 447g: paint() poses the deck from the PAGE SPRING every frame (the
            drive layer's own law), so single-card watches and rect anchors
@@ -15076,7 +15233,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     })();
     /* 444: #blog stays a live route while its menu button is parked */
     const goBlogHash = () => {
-      if (location.hash !== '#blog' || document.body.classList.contains('blogopen') || document.body.classList.contains('blogread')) return;   /* 508 (review): a post's page carries #blog too -- never bounce it back to the list */
+      if (rtHeld || rtWant || location.hash !== '#blog' || document.body.classList.contains('blogopen') || document.body.classList.contains('blogread')) return;   /* 508 (review): a post's page carries #blog too -- never bounce it back to the list */
       const sp = document.querySelector('[data-view="blog"]'); if (sp) sp.click();
     };
     addEventListener('load', goBlogHash); addEventListener('hashchange', goBlogHash);
@@ -15084,6 +15241,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const landing = v8() && !document.body.classList.contains('caseopen') &&
         (!location.hash || location.hash === '#' || location.hash === '#top');
       const harness = /jsdom/i.test(navigator.userAgent) || (navigator.webdriver && !/intro=1/.test(location.search));   /* 434: suites keep their stage (jsdom always; a driven browser unless ?intro=1 forces the intro) */
+      if (rtHeld) return;   /* 524b R5: a deep link's first load -- the deck stays HELD under the sheet (no landing state may flash); rtHand lifts it once its page covers the landing */
       if (!landing || harness){ document.body.classList.remove('vsi'); document.body.classList.remove('vsi-in'); return; }
       /* 436: the intro waits for the LOADER's finish -- ld-out set and the
          hold released (the flight landed). On killed-loader paths that state
@@ -16904,6 +17062,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   }
   async function run(steps){
     busy = true; c3Cover(false);   /* 523 C2: the step moves the case: nothing hidden under it while it runs */
+    rtStep(SRC, RING[cur], caseAt(steps), steps);   /* 524b R3: the visitor's deck step is ONE history entry, written as it STARTS with the step it took -- never at caseSwap, which lands after the belt (TRANS_MS) and could name a case after the visitor had left for About or the landing (the w524 review's race). Quiet under a Back / Forward */
     layer3d.classList.remove('rest'); ctlEach(c => c.classList.add('away'));
     cards.forEach(c => c.el.classList.remove('boot'));   // from here on every film arrives with its still already shown: no loading blur
     const fc = filmCard(); if (fc && fc.player && fc.playing){ fc.playing = false; fc.player.pause().catch(() => {}); }
@@ -17921,7 +18080,17 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (savedTitle) document.title = savedTitle;
     setSource('cases');   /* 507: leaving the reader puts the ring back -- every open names its own ring too, because the view figure defers this close 720ms and a quick re-open cancels it */
   }
-  return { open, close, active, relayout: layout, ring: () => RING.slice(), current: () => RING[cur], setSource, source: () => SRC, warm };   /* 401: relayout for the live V3/V4 flip; 509: warm */
+  /* 524b R3: Back / Forward over a deck step -- the same step again, the opposite way or the same way, the same number of
+     steps, when the belt can take it (pick's own gates: the film at rest, the card on screen; a phone's PREV / NEXT one at
+     a time). false: the router falls back to the picker's swap. */
+  function stepTo(key, n){
+    if (!active() || busy || stepQ || !vGeo || !n || Math.abs(n) > TRANS_PICK || caseAt(n) !== key) return false;
+    if (mPhone()){ if (Math.abs(n) !== 1) return false; mStep(n); return busy; }
+    const c = cards.find(x => x.q === n);
+    if (c) pick(c);
+    return busy;
+  }
+  return { open, close, active, relayout: layout, ring: () => RING.slice(), current: () => RING[cur], setSource, source: () => SRC, warm, busy: () => busy || !!stepQ, stepTo };   /* 401: relayout for the live V3/V4 flip; 509: warm */
   })();
   c3Ready = true;
   /* 509: the boot hero's film is warmed on a landing visit only (a routed
