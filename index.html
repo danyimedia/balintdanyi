@@ -3211,6 +3211,15 @@
   body.caseopen.case3:not(.c3-in) #home{ transform:translateY(0) scale(1); }   /* 429: the home recede waits for the same frame */
   body.caseopen.case3:not(.c3-in) #dim{ opacity:0; }
   body.caseopen.case3{ overflow:hidden auto; }      /* the document scrolls under the case, as the standalone's does */
+  /* 523 C2 THE COVERED LANDING (desktop; c3Cover arms body.c3-cov). Once the open wipe has landed and the case is the only
+     thing on the screen, what lies under it is not painted: the landing (#home -- the deck, the showreel, #dim) and the
+     clipped-away views. Every pixel of them is covered by the opaque case or clipped to nothing, so the screen does not
+     change -- Safari repainted them under the case on every scroll frame. visibility, not display: their layout, observers
+     and scroll state stand; '*' and !important because About's cards and bands write visibility:visible of their own.
+     Keyed on the open state too: caseopen falling (the exit curtain), a view arriving (aboutopen / blogopen) or html.mob
+     (a turn) lifts it in the same style pass, whatever the script does. A phone or tablet never carries it (514a's paper).
+     523 gate 2: the rule itself is written by the script, in WebKit only (beside ENG_WEBKIT) -- in Blink's stylesheet its
+     '*' subjects restyled whole subtrees on every case / view toggle (home exit 341 -> 1660 elements), armed or not. */
   /* 501: the document scrollbar (the case is the ONLY page that scrolls the
      document) painted a classic bar on the right and cost 15-17px of layout
      width on every open/close -- videoLayout reads innerWidth, which had the
@@ -5134,6 +5143,15 @@
   const MOB_PHONE_R = 1.7, MOB_PHONE_SIDE = 600;
   const MOB_TAB_K = 1.4;   /* 522b: HIS CALL -- a tablet's text is the phone's x 1.4: the SUBTITLE cap 20 -> 28, BODY 14, NOCAPS 15.3 */
   const MOB_VIEW = (() => { try { const m = /[?&]view=(phone|tablet|desktop)(?![\w-])/.exec(location.search); return m ? m[1] : ''; } catch (x) { return ''; } })();
+  /* 523: THE ENGINE -- WebKit (Safari on the Mac, every browser on iOS / iPadOS), read once. Safari-only fixes key on it so
+     Chrome (Blink) runs exactly what it ran before 523: the covered landing (c3Cover), the About cards' rank z and their
+     transform seat. jsdom (the smoke suite) counts as not-WebKit. */
+  const ENG_WEBKIT = (() => { try { const ua = navigator.userAgent || ''; return /AppleWebKit/.test(ua) && !/(Chrome|Chromium|Edg|OPR)\//.test(ua) && !/jsdom/i.test(ua); } catch (x) { return false; } })();
+  /* 523 gate 2: C2's hiding rule (the covered landing, see 523 C2 in the style) exists only in WebKit -- Blink never parses it */
+  if (ENG_WEBKIT){ try { const st = document.createElement('style'); st.id = 'c3CovCss';
+    const K = 'html:not(.mob) body.c3-cov.caseopen.case3.c3-in:not(.aboutopen):not(.blogopen)';
+    st.textContent = [K + ' #home', K + ' #home *', K + ' .view', K + ' .view *'].join(',\n') + '{ visibility:hidden !important; }';
+    document.head.appendChild(st); } catch (x) {} }
   function mobDevice(){
     if (MOB_VIEW) return MOB_VIEW;
     let coarse = false, ipad = false, a = 0, b = 0;
@@ -7708,6 +7726,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (v === 'blog' && !BLOG.ready){ blogWait(() => vw.click()); return; }   /* blog: the list waits for posts.json (or its fallback) */
       viewSettle();                     // finalise any swap still in flight
       if (document.body.classList.contains(v + 'open')) return;
+      c3Cover(false);   /* 523 C2: the case drops back under the arriving view's wipe -- the landing shows around it */
       film8 = false; stopFilm();        /* 501: a view over the landing means no audible film beneath it */
       /* 493 THE DECISION TABLE.
            landing slide <-> landing slide : no transition (the page runs)
@@ -7743,6 +7762,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!go) return;
     const from = viewOpen();          // from a view the landing page is snapped into place under the wipe; within it, the page runs
     viewSettle();
+    c3Cover(false);   /* 523 C2: the exit curtain uncovers the landing */
     document.body.classList.remove('blogopen', 'aboutopen');
     if (typeof hdrWords === 'function') hdrWords(false);   /* 414: leaving About folds the words back to the letters */
     document.body.classList.remove('a4nl');   /* 424: the line choreography is About's alone */
@@ -8943,6 +8963,24 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   }, 1200));
   addEventListener('resize', () => { clearTimeout(seatAll._t); seatAll._t = setTimeout(seatAll, 150); });
   addEventListener('transitionend', e => { if (e.propertyName === 'font-size' && e.target.classList && e.target.classList.contains('c2-title')) seatFlex(e.target); }, true);
+  /* 523 C2 THE COVERED LANDING. While a case or post is the ONLY thing on the screen and at rest -- its open wipe landed
+     (.c3-in, the clip at inset(0)), no view held under it (viewSwap), no exit curtain (c3-exit) or drop (vv-out) on it --
+     body.c3-cov hides what it covers (the CSS above). ARMED when the wipe lands (#viewCase3's clip transitionend), when a
+     swap settles (viewSettle), when an in-place open or a PREV / NEXT step ends. LIFTED FIRST, in the same task as the class
+     change that starts the motion, on every path that moves the case or shows what is under it: a view's wipe (About,
+     Blog), the exit to the landing (home, showreel, contact), an open (a case or post over this one), a PREV / NEXT step,
+     a close, a mode switch (a turn). A phone and a tablet never arm it. */
+  function c3Cover(on){
+    const c = document.body.classList;
+    if (!on){ if (c.contains('c3-cov')) c.remove('c3-cov'); return; }
+    if (c.contains('c3-cov') || MOB.on || viewSwap || !ENG_WEBKIT) return;   /* 523 gate: Safari only -- in Chrome the un-hide cost 1-3 frames at every exit (hitch.js); Chrome never needed it */
+    if (!c.contains('caseopen') || !c.contains('case3') || !c.contains('c3-in') || c.contains('aboutopen') || c.contains('blogopen')) return;
+    const v = document.getElementById('viewCase3');
+    if (!v || v.classList.contains('vv-out') || v.classList.contains('c3-exit')) return;
+    if (!/^inset\(0(px)?( 0(px)?){0,3}\)$/.test(String(getComputedStyle(v).clipPath || '').trim())) return;   /* the wipe still running: its transitionend arms it */
+    c.add('c3-cov');
+  }
+  MOB.hooks.push(() => c3Cover(!MOB.on));   /* a turn: the phone's / tablet's build never carries it */
   function viewSettle(){
     if (!viewSwap) return;
     clearTimeout(viewSwap.t);
@@ -8955,6 +8993,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     viewSwap.outEl.style.transition = '';
     viewSwap.inEl.style.zIndex = '';
     viewSwap = null;
+    c3Cover(true);   /* 523 C2: a case or post that wiped in over a held view is now alone on the screen */
   }
   const AB = {
     LETTER_IN : 700,   // ms the intro letters take to arrive
@@ -10029,6 +10068,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const A4_ROOT = 'portfoliocontent/';   /* the a2 module's ROOT is closed over its own IIFE */
     const A4_LAG = 0.045, A4_K = 0.225, A4_DRIFT = 12;   /* 394: half pace; 409: halved AGAIN on his call -- the scroll coupling, everywhere; the drift untouched */
     const A4_SP = 38, A4_P = 800, A4_N = 56;   /* the lens off the sheet: face ~ |x| * cardW / P */
+    /* 523 THE ENGINE, read once: WebKit -- Safari, and every iOS browser (CriOS, FxiOS, EdgiOS are WebKit and carry no
+       "Chrome/" token) -- seats the gallery bands by transform (tick, band()); Blink and Gecko keep the `top` seat they
+       render today, so their picture is the same by construction. jsdom names AppleWebKit too and is no engine. */
+    const A4_WEBKIT = ENG_WEBKIT;   /* 523 gate: the one engine flag (beside the device rule) */
     /* 508: A4_N is the FLOOR of a band's ring, not the ring. 56 cards span
        2128px, and the lens shows a card out to 1.23x its slot, so above a
        ~1870px window the ring's wrap seam sat ON the lens: cards visibly
@@ -10474,7 +10517,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         if (c._v !== vz){ c._v = vz; c.style.visibility = vz; }
         const tf = 'translate3d(' + x.toFixed(2) + 'px,0,0) rotateY(90deg)';
         if (c._tf !== tf){ c._tf = tf; c.style.transform = tf; }
-        const zi = (1000 - Math.round(Math.abs(x) / 24)) | 0;   /* nearer the middle paints on top, as a fanned row occludes */
+        /* 523 THE RANK z. Stepping z every 24px of |x| re-stacked ~50 cards a frame, and WebKit re-rasters every card layer
+           whose z changes (WebKit 26.6, measured: 26 of the 58 INTRO cards re-rastered on every scroll frame -- Safari's
+           About stall). Only cards on the SAME side of the middle ever overlap (a card's face projects between 0.845x and 1.225x
+           of its x, on its own side), and on one side the order by |x| IS the order on the belt (u, above: the train only
+           widens the gaps, never reorders). So z is the belt rank, the nearer the middle on top, and a card's z changes only
+           when it crosses the middle or wraps off-lens. The same stacking wherever the 24px bands could not tie: a pitch of
+           24px or more (every phone and tablet corridor, every desktop band down to a scale of .632). Below that, two
+           neighbours could share a band and fall back to DOM order, so those bands keep the 24px steps -- and their picture. */
+        const zi = (A4_WEBKIT && sp >= 24 ? (x < 0 ? 5000 + u : 5000 - u) : 1000 - Math.round(Math.abs(x) / 24)) | 0;   /* 523 gate: rank z in Safari only -- Chrome keeps live's 24px steps (rank z once left a card tile unrastered there) */   /* nearer the middle paints on top, as a fanned row occludes */
         if (c._zi !== zi){ c._zi = zi; c.style.zIndex = zi; }
       });
     }
@@ -10966,16 +11017,22 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            clip opening from nothing to the slit's height and back, no
            corner can ever show). BACKGROUND keeps the stateless lag. */
         const introTop = slotRest - bh1 / 2 + par1;
-        gal.style.top = introTop.toFixed(1) + 'px';
+        /* 523: in WebKit a per-frame `top` is a layout move, and it re-rasters the band's composited cards (with the z churn,
+           the whole gallery cost measured in WebKit 26.6); a transform moves the band's layer as it stands. Chrome keeps `top`. */
+        if (A4_WEBKIT){ gal.style.top = '0px'; gal.style.transform = 'translate3d(0,' + introTop.toFixed(1) + 'px,0)'; }
+        else gal.style.top = introTop.toFixed(1) + 'px';
         gal.style.zIndex = 2; gal.style.clipPath = 'none';   /* 399: above its own card only -- every later card covers it */
         const gV = document.getElementById('a4GalV'), gB = document.getElementById('a4GalB');
         /* 503: `box` is the band's OWN height -- a band that scaled its cards
            needs no clip at all, and only the VISION slit still asks for one. */
+        const rv = [];   /* 523: the bands turning visible this frame */
         const band = (el, top, h, z, box) => {
           const on = h > 0.5 && top > -(box + 6) && top < vh + 6;
+          if (on && el.style.visibility !== 'visible') rv.push(el);
           el.style.visibility = on ? 'visible' : 'hidden';
           if (!on) return;
-          el.style.top = top.toFixed(1) + 'px';
+          if (A4_WEBKIT){ el.style.top = '0px'; el.style.transform = 'translate3d(0,' + top.toFixed(1) + 'px,0)'; }   /* 523: the seat by transform, as INTRO's */
+          else el.style.top = top.toFixed(1) + 'px';
           el.style.zIndex = z;
           const c = Math.max(0, (box - h) / 2);
           el.style.clipPath = 'inset(' + c.toFixed(1) + 'px -120px ' + c.toFixed(1) + 'px -120px)';   /* 426: the clip breathes SIDEWAYS -- the outer faces bleed past the margins instead of chopping */
@@ -10994,6 +11051,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            exists (it was that clip which ate the cards' corners). */
         const bTop = bgTop + bg4BandW - P4 * (1 - e4 / vh);   /* 423: the band seats where the GROUP put it (window-true), riding its content's pull */
         band(gB, bTop, e4 > 2 ? bhB : 0, 8, bhB);
+        /* 523 BAND FIRST: place() ran above, while these bands were still hidden, and skipped their cards -- so a band's
+           reveal frame showed them where they stood the last time it was visible (jumps of 90 - 1850px, measured), and on
+           its first reveal no cards at all. The bands that just turned visible are placed now, in the same frame (place()
+           is idempotent within a frame: the same cur, the same books). */
+        if (rv.length) place(rv);
         /* the belt is always on: the drift and the scroll keep it alive */
         curB += ((sc * A4_LB_K + drift4) - curB) * lagF;   /* 501: the belt rides the same accumulated drift -- its own (now - T0) sprinted on a late open exactly as the gallery's did */
         beltPlace(curB);
@@ -11618,6 +11680,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         /* 516a: INTRO comes in with its slide -- its clock from now, the corridor's train from nothing (the desktop's books, as
            open() resets them) */
         m4Boot = performance.now(); m4Drift = 0; cur = 0; swP = 0; swE = 0; swDir = 0; swSnap = false;
+        if (A4_WEBKIT) ['a4Gal', 'a4GalV', 'a4GalB'].forEach(id => { const h = document.getElementById(id); if (h) h.style.transform = ''; });   /* 523: the desktop's WebKit seat off -- the phone seats by top */
         cards.forEach(c => { c.style.zIndex = ''; c._m4t = c._m4v = c._m4z = undefined; c._tf = c._v = c._zi = undefined;
           c._pm = undefined; c._B = undefined; c._D = 0; c._hideL = false; const u = a4U(c); if (u !== c._vi){ a4Img(c, u); c._dirty = false; } });
         Object.keys(m4BeltS).forEach(k => { delete m4BeltS[k]; });
@@ -15800,7 +15863,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       seatAdj4 = Math.max(-60, Math.min(60, seatAdj4 + Math.max(-6, Math.min(6, 8 - (tR.top - mLow.bottom)))));
       const kBn = hdrFullF ? Math.min(1, c3S0() / c3F()) : 0.2;
       const hTn = inkBot4 + dial('--c3-c4-head-gap') - headBox.pad - (1 - kBn) * headBox.cap + seatAdj4;
-      document.documentElement.style.setProperty('--c3-head-top', hTn.toFixed(2) + 'px');
+      $('#c3Head').style.setProperty('--c3-head-top', hTn.toFixed(2) + 'px');   /* 523 C3: on its one reader, not the root */
     }
   }
   function stripTick(){
@@ -16270,7 +16333,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     } else {
       headTop = hf - mv.b + dial('--c3-stick-gap') - headBox.pad;
     }
-    root.style.setProperty('--c3-head-top', headTop.toFixed(2) + 'px');
+    $('#c3Head').style.setProperty('--c3-head-top', headTop.toFixed(2) + 'px');   /* 523 C3: on its one reader (.c3-head's sticky top), not the root */
     /* AT REST the words are small at the foot of the window, their baseline
        --c3-rest above it -- and they GROW UP FROM THAT BASELINE with the
        page still, so the head's box (which holds them full size) starts
@@ -16423,7 +16486,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (Math.abs(nx) < 0.3 && Math.abs(sV) < 2){ next = tr; sV = 0; }
       moved = next !== trS; trS = next;
       const page = Math.max(0, Math.min(maxScroll(), pageOf(trS - HOLD())));
-      if (Math.abs(page - window.scrollY) > 0.01 || (page === 0 && window.scrollY !== 0)){ sOwnY = page; window.scrollTo(0, page); }   // home is exactly home: a sub-pixel left by the spring's last step is written away
+      if (Math.abs(page - window.scrollY) > 0.01 || (page === 0 && window.scrollY !== 0)){ window.scrollTo(0, page); sOwnY = window.scrollY; }   // home is exactly home: a sub-pixel left by the spring's last step is written away   /* 523 C1: the position the engine TOOK, read back -- WebKit truncates a scrollTo to whole px (Chrome rounds), and the fractional one asked for read the site's own scroll as a native one (1px off > the handler's 0.5): the wheel's travel was thrown away -- Safari's frozen case */
     }
     const stepping = transTick(now), sliding = headTick(now);
     if (moved || snapLive(now) || stepping || sliding) videoScroll(now);
@@ -16494,7 +16557,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        case-down) it follows by (1 - k) cap; and before the page moves it
        waits at --c3-sub-rest, snapping in when it does */
     const hT = mHG ? mHG.hT : C4 && inkBot4 ? inkBot4 + dial('--c3-c4-head-gap') - hb.pad - (1 - kB) * hb.cap + seatAdj4 : headTop;   /* 518b: an upright phone's seat by ink (mHeadSeat) */   /* 407: hoisted above follow (its reader) -- the seat first, everything else from it */
-    if (C4) root.style.setProperty('--c3-head-top', hT.toFixed(2) + 'px');
+    if (C4) head.style.setProperty('--c3-head-top', hT.toFixed(2) + 'px');   /* 523 C3: on #c3Head, not the root */
     /* 407: V4's follow target is RECT-DERIVED -- the slot must land the
        dial's gap under the title's LIVE ink bottom, so the target is exactly
        (box foot) - (title bottom + gap), at any viewport, no dial algebra,
@@ -16531,7 +16594,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const joined = bandTop <= g.hdrGlassFoot;
     const stackTop = mHG ? mHG.stack : hT + hb.h - follow;   /* 518b: an upright phone's slot, G under the title's baseline by ink */
     const stkS = stackTop.toFixed(2);   /* 501: change-gated -- this var is every row's sticky top, and a same-value write still re-ran sticky layout */
-    if (videoScroll._stk !== stkS){ videoScroll._stk = stkS; root.style.setProperty('--c3-stack-top', stkS + 'px'); }
+    if (videoScroll._stk !== stkS){ videoScroll._stk = stkS; rows.forEach(r => r.el.style.setProperty('--c3-stack-top', stkS + 'px')); }   /* 523 C3: on each row (its sticky top, the phone's ::before), not the root */
     document.body.classList.toggle('c3-joined', joined);
     document.body.classList.toggle('c3-stuck', stuck);
     /* the glass: from the band's top (the window's top once joined) to the
@@ -16789,7 +16852,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     run(card.q);
   }
   async function run(steps){
-    busy = true;
+    busy = true; c3Cover(false);   /* 523 C2: the step moves the case: nothing hidden under it while it runs */
     layer3d.classList.remove('rest'); ctlEach(c => c.classList.add('away'));
     cards.forEach(c => c.el.classList.remove('boot'));   // from here on every film arrives with its still already shown: no loading blur
     const fc = filmCard(); if (fc && fc.player && fc.playing){ fc.playing = false; fc.player.pause().catch(() => {}); }
@@ -16801,7 +16864,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     caseSwap();
     if (mRvHold) requestAnimationFrame(() => requestAnimationFrame(mRvBack));   /* 516b fix: ... and the next post's come in with its title, on open()'s beat */
     await slideHead(false);
-    busy = false;
+    busy = false; c3Cover(true);   /* 523 C2 */
     videoScroll();
   }
   /* A STEP of s slots (1 or 2) as ONE movement: every card's path is the
@@ -16920,6 +16983,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   }
   function detailsBuild(){
     const host = $('#c3Details'); host.innerHTML = ''; secs.length = 0; rows.length = 0;
+    videoScroll._stk = null;   /* 523 C3: --c3-stack-top lives on the rows -- the next videoScroll writes it onto the new ones */
     glass = document.createElement('div'); glass.className = 'c3-glass'; glass.id = 'c3Glass'; glass.setAttribute('aria-hidden', 'true'); host.appendChild(glass);
     CASE.details.forEach((sec, si) => {
       const el = document.createElement('div'); el.className = 'c3-sec'; el.dataset.si = si;
@@ -17526,7 +17590,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (mfKeep){
       const y = mfTo(mfKeep.p, mfTable());
       sOwnY = y; tr = trS = y > 0.5 ? HOLD() + wheelOf(y) : 0; sV = 0;
-      if (Math.abs(window.scrollY - y) > 0.5 || (y === 0 && window.scrollY !== 0)) window.scrollTo(0, y);
+      if (Math.abs(window.scrollY - y) > 0.5 || (y === 0 && window.scrollY !== 0)){ window.scrollTo(0, y); sOwnY = window.scrollY; }   /* 523 C1: the position the engine took (WebKit truncates y), so its scroll event reads as ours */
       mfY = window.scrollY;   /* the place in THIS layout: a flip back from here starts from it */
       videoScroll(); detailsScroll(window.scrollY);
     }
@@ -17773,6 +17837,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (i >= 0) cur = i;
     CASE = REC()[RING[cur]];
     if (!savedTitle) savedTitle = document.title;
+    c3Cover(false);   /* 523 C2: a case or post opening -- fresh, or over this one in place */
     tr = trS = 0; sV = 0; sOwnY = -1; sLast = 0; userPaused = false;
     document.body.classList.remove('c3-joined');
     window.scrollTo(0, 0);
@@ -17782,9 +17847,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (!sRaf) sRaf = requestAnimationFrame(sTick);
     if (!stripRaf) stripRaf = requestAnimationFrame(stripTick);
     requestAnimationFrame(() => requestAnimationFrame(() => {
-      document.body.classList.add('c3-in'); mRvHold = false; if (MOB.on && vGeo) mRvOpen(); }));   /* 429: the entrance choreography starts here, two frames past the build -- 516b: an upright phone's post brings in the content under its film with it */
+      document.body.classList.add('c3-in'); mRvHold = false; if (MOB.on && vGeo) mRvOpen(); if (!busy) c3Cover(true); }));   /* 523 C2: an open over an open case lands at once (no wipe); a fresh one's wipe has just started, so this declines and its transitionend arms it */   /* 429: the entrance choreography starts here, two frames past the build -- 516b: an upright phone's post brings in the content under its film with it */
   }
+  view.addEventListener('transitionend', e => { if (e.target === view && /clip-path$/.test(e.propertyName) && !busy) c3Cover(true); });   /* 523 C2: the open wipe has landed */
   function close(){
+    c3Cover(false);   /* 523 C2 */
     if (fsOn) fsToggle();   /* 501: never leave the fullscreen state behind a closed case */
     document.body.classList.remove('c3-in');
     const p = curPlayer(); if (p && p.pause){ try { const q = p.pause(); if (q && q.catch) q.catch(() => {}); } catch (err) {} }
