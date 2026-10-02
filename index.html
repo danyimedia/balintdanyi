@@ -3384,6 +3384,7 @@
     display:flex; flex-direction:column; justify-content:flex-start;
     padding:var(--c3-gap) var(--pad) var(--c3-gap);   /* as tall as its content: nothing empty before the details */
   }
+  html:not(.mob) body:not(.c3-stuck) #viewCase3 .c3-intro{ z-index:3; }   /* 524a H1 (his words: "white halo comes from the white background layer that's sitting behind all the text of the case studies ... it keeps coming back"): until the head sticks the intro is drawn OVER the title row's glass, so its paper is never in what the glass blurs -- Safari's backdrop blur reads past its box and pulled the white into the band's foot. It lies wholly under the glass's foot (+0.09 px), so no pixel moves; stuck it is z 2 again and its words frost as before. The phone's and the tablet's keep 514c / 518b / 522g */
   #viewCase3 .c3-brand{
     display:flex; justify-content:space-between; align-items:baseline;
     font-weight:1000; line-height:.78; letter-spacing:var(--t-title-trk); word-spacing:var(--t-title-ws); text-transform:uppercase;   /* 511e: TITLE's spacing */
@@ -5159,6 +5160,10 @@
   if (ENG_WEBKIT){ try { const st = document.createElement('style'); st.id = 'c3ShCss';
     st.textContent = '#viewCase3 .c3-case > .c3-sh{ display:none; }\n' +
       'html:not(.mob) #viewCase3 .c3-case:has(> iframe) > .c3-sh{ display:block; position:absolute; left:0; top:0; width:100%; height:100%; z-index:1; pointer-events:auto; will-change:transform; }';
+    document.head.appendChild(st); } catch (x) {} }
+  /* 524a H1: in WebKit the intro gets its own layer -- where it only TOUCHES the glass, Safari could otherwise draw it into a layer under the glass, back in what the glass blurs */
+  if (ENG_WEBKIT){ try { const st = document.createElement('style'); st.id = 'c3HaloCss';
+    st.textContent = 'html:not(.mob) #viewCase3 .c3-intro{ will-change:transform; }';
     document.head.appendChild(st); } catch (x) {} }
   function mobDevice(){
     if (MOB_VIEW) return MOB_VIEW;
@@ -10127,7 +10132,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       navW = { sp, w, L, R, ln: [...nav.querySelectorAll('i')], ctW, kS };
       sp.forEach((e, k) => { if (!e._nv){ e._nv = 1; e.addEventListener('click', () => {
         const E = innerHeight / A4_R2;
-        vTr = Math.max(0, Math.min(maxSc(), A4S ? [0, A4S.g1.s + A4S.g1.T, A4S.g2.s + A4S.g2.T, A4S.g3.s + A4S.g3.T][k] : 0));   /* 423: a traveller lands on the FULL SCREEN -- the card seated, its content settled, the next not yet moving */
+        vTr = Math.max(0, Math.min(maxSc(), A4S ? [0, a4ScOf(1), a4ScOf(2), A4S.end][k] : 0));   /* 423: a traveller lands on the FULL SCREEN -- the card seated, its content settled, the next not yet moving */
         if (!nav._ct){ nav._ct = 1; const c = nav.querySelector('span.ct'); if (c) c.addEventListener('click', () => { vTr = maxSc(); }); }
       }); } });
     }
@@ -10666,7 +10671,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const T4 = (Q4M ? Q4M.total : 151)   * WU / (1 - .48);   /* maths true; the live measure overwrites on About's first layout */
         return { WU, g0: { s: 0, T: T0, w: W0, trig: W0 + 18 * WU },
                  g1: { s: T0, T: T2, a: .50 }, g2: { s: T0 + T2, T: T3, a: .37 },
-                 g3: { s: T0 + T2 + T3, T: T4, a: .48 }, end: T0 + T2 + T3 + T4 }; })();
+                 g3: { s: T0 + T2 + T3, T: T4, a: .48 }, end: T0 + T2 + T3 + T4,
+                 xw: Math.min(A4_XF * vh, .45 * Math.min(T2, T3, T4)) }; })();   /* 524a A1: the crossfade's half-window, scroll px (never more than 45% of the shortest slide: the two windows never meet) */
       const span = A4S.end;   /* the journey ends where the last word lands (plus its settle) */
       const tr = document.getElementById('a4Track');
       tr.style.height = Math.max(vh, span + vh - off).toFixed(0) + 'px';
@@ -10690,6 +10696,26 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     const A4_WU = .014, A4_CK = 4 / 3;
     let A4S = null;   /* the phase table, rebuilt with every layout */
     const ss4 = t => { t = Math.min(1, Math.max(0, t)); return t * t * (3 - 2 * t); };
+    /* 524a A1 THE RATE CROSSFADE (his words: "when the user gets used to scrolling fast because the scroll ratio is slow - all of a
+       sudden the ratio changes"). Every slide keeps its own steady rate (1/T, 420's law); only across a slide boundary does
+       the rate cross-fade, smoothstep-eased over A4_XF vh of scroll each side, INTEGRATED -- so the journey stays continuous
+       and monotonic, every slide's own speed holds outside the window, the journey's end is exactly where it was, and
+       everything keyed on e1 / x2 / e4 (the words, the pulls, the bands, the nav, the header) follows the one journey J.
+       A4_XJ: the same ease in JOURNEY units for the two layers whose own law bends at a boundary (ROLE's pull landing at
+       full cover; APPROACH's rise turning to its recession). a4S1 = the integral of ss4 from 0 to t. */
+    const A4_XF = .35, A4_XJ = .10;
+    const a4S1 = t => t <= 0 ? 0 : t >= 1 ? t - .5 : t * t * t * (1 - t / 2);
+    function a4J(sc){
+      const g = [A4S.g1, A4S.g2, A4S.g3], W = A4S.xw;
+      let J = 0;
+      for (const s of g) J += Math.min(1, Math.max(0, (sc - s.s) / s.T));   /* 420: ONE steady rate per slide */
+      if (W > 0) for (let k = 1; k < 3; k++){   /* ROLE -> APPROACH, APPROACH -> BACKGROUND */
+        const b = g[k].s, t = (sc - b + W) / (2 * W);
+        if (t > 0 && t < 1) J += (1 / g[k].T - 1 / g[k - 1].T) * (2 * W * a4S1(t) - Math.max(0, sc - b));
+      }
+      return J;
+    }
+    function a4ScOf(J){ let lo = 0, hi = A4S.end; for (let i = 0; i < 48; i++){ const m = (lo + hi) / 2; if (a4J(m) < J) lo = m; else hi = m; } return hi; }
     function seqMeta(units){
       const st = [0];
       for (let i = 1; i < units.length; i++){
@@ -10895,7 +10921,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            every downstream layer reads e1/x2/e4 as before, so the
            parallax ratios are untouched. */
         if (!A4S) return;
-        const eOf = g => vh * Math.min(1, Math.max(0, (sc - g.s) / g.T));   /* ONE steady rate, the whole segment */
+        const jA = a4J(sc);   /* 524a A1: the journey, 0..3 -- each slide's steady rate, cross-faded at the boundaries */
+        const eOf = g => vh * Math.min(1, Math.max(0, jA - (g === A4S.g1 ? 0 : g === A4S.g2 ? 1 : 2)));
         const qOf = (g, e) => Math.min(1, Math.max(0, (e / vh - g.a) / (1 - g.a)));   /* the words read the SLIDE'S COMPLETION */
         const e1 = eOf(A4S.g1);
         const x2 = eOf(A4S.g2);
@@ -10911,7 +10938,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         const uT0 = (vh - 870 * uS) / 2;
         const P2 = .5 * (uT0 + a4RoleTopU * uS), P4 = .5 * bg4TopW;   /* half the MEASURED edge-distance (511d: the ROLE composition's ink top, a4Rows -- it was a drawn 287.3) */
         const un2 = document.getElementById('a4Unit');
-        if (un2) un2.style.transform = 'translate3d(' + u2Seat.x.toFixed(2) + 'px,' + (u2Seat.y - P2 * (1 - e1 / vh)).toFixed(2) + 'px,0) scale(' + uS.toFixed(4) + ')';
+        if (un2) un2.style.transform = 'translate3d(' + u2Seat.x.toFixed(2) + 'px,' + (u2Seat.y - P2 * (1 - (e1 / vh - A4_XJ * a4S1((e1 / vh - 1 + A4_XJ) / A4_XJ)) / (1 - A4_XJ / 2))).toFixed(2) + 'px,0) scale(' + uS.toFixed(4) + ')';
         const un4 = document.getElementById('a4Unit4');
         if (un4) un4.style.transform = 'translate3d(' + u4Seat.x.toFixed(2) + 'px,' + (u4Seat.y - P4 * (1 - e4 / vh)).toFixed(2) + 'px,0) scale(' + uS.toFixed(4) + ')';
         /* 422: THE INTRO'S CLOCKS. The words scrub (54u); a HOLD (18u)
@@ -10979,9 +11006,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
            rises at its own (slightly faster) rate to settle as scope
            finishes leaving. */
         const VIS0 = .56 * vh;   /* deep enough that the lower rows wait below the window while CONNECTING leads */
-        const visY = (sc > A4S.g2.s - 2
+        const visY = (jA > 1 - 2 / A4S.g1.T
           ? VIS0 * (1 - x2 / vh)
-          : vh + 8) - A4_R1 * A4_CK * e4;   /* and approach recedes beneath the fourth card, on the same clock */
+          : vh + 8) - A4_R1 * A4_CK * e4
+          - (VIS0 - A4_R1 * A4_CK * vh) * (e4 / vh - A4_XJ * a4S1(e4 / vh / A4_XJ));   /* 524a A1: lands at 0 exactly at J = 2, leaves at its rise's speed */   /* and approach recedes beneath the fourth card, on the same clock */
         document.getElementById('a4Sl2').style.transform = 'translate3d(0,' + roleTop.toFixed(1) + 'px,0)';
         document.getElementById('a4Sl3').style.transform = 'translate3d(0,' + visY.toFixed(1) + 'px,0)';
         document.getElementById('a4Sl1').style.transform = 'translate3d(0,' + par1.toFixed(1) + 'px,0)';
@@ -17007,6 +17035,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function detailsBuild(){
     const host = $('#c3Details'); host.innerHTML = ''; secs.length = 0; rows.length = 0;
     videoScroll._stk = null;   /* 523 C3: --c3-stack-top lives on the rows -- the next videoScroll writes it onto the new ones */
+    videoScroll._gt = videoScroll._gh = null;   /* 524a G1: the glass is NEW (top 0, height 0) -- its change-gates must not hold the last case's band, or it stands 0 px tall until the join (his screenshot 1; Chrome too, since 508) */
     glass = document.createElement('div'); glass.className = 'c3-glass'; glass.id = 'c3Glass'; glass.setAttribute('aria-hidden', 'true'); host.appendChild(glass);
     CASE.details.forEach((sec, si) => {
       const el = document.createElement('div'); el.className = 'c3-sec'; el.dataset.si = si;
