@@ -5152,6 +5152,14 @@
     const K = 'html:not(.mob) body.c3-cov.caseopen.case3.c3-in:not(.aboutopen):not(.blogopen)';
     st.textContent = [K + ' #home', K + ' #home *', K + ' .view', K + ' .view *'].join(',\n') + '{ visibility:hidden !important; }';
     document.head.appendChild(st); } catch (x) {} }
+  /* 523b S1: THE FILM'S SHIELD -- Safari's scrolling thread reads the front-most LAYER under the wheel, and over a film that is
+     the Vimeo document's (pointer-events:none on the iframe does not reach it): it scrolled the page natively, and the track
+     adopted that at once -- the cut. A transparent box of the page's own, on its own layer in front of the iframe, carries
+     the page's wheel listener instead. Only on a card that holds an iframe; only on the desktop (no wheel on a touch device). */
+  if (ENG_WEBKIT){ try { const st = document.createElement('style'); st.id = 'c3ShCss';
+    st.textContent = '#viewCase3 .c3-case > .c3-sh{ display:none; }\n' +
+      'html:not(.mob) #viewCase3 .c3-case:has(> iframe) > .c3-sh{ display:block; position:absolute; left:0; top:0; width:100%; height:100%; z-index:1; pointer-events:auto; will-change:transform; }';
+    document.head.appendChild(st); } catch (x) {} }
   function mobDevice(){
     if (MOB_VIEW) return MOB_VIEW;
     let coarse = false, ipad = false, a = 0, b = 0;
@@ -8427,7 +8435,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     ldCopy.style.fontSize = Math.max(11, C).toFixed(1) + 'px';
     ldCopy.style.top = mid.toFixed(1) + 'px';
     ldSeatCount();   /* 511b: the counter's baseline onto the margin, measured */
-    if (MOB.on) ldCentre();   /* 514a: a phone centres the group in the band it shows */
+    ldCentre();   /* 514a: a phone centres the group in the band it shows; 523b S3: every device -- the desktop's name wears the header's TITLE too, not the size solved above (the group sat 87 px high at 1440 x 900) */
   }
   /* 511b: THE COUNTER'S BASELINE ON THE MARGIN, BY MEASURE. A zero-size inline-block on the
      front layer's baseline reads where the line really sits (layout units, before the paint
@@ -10307,7 +10315,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     function a4Card(host, i){
       const c = document.createElement('div'); c.className = 'a4-card';
       const im = document.createElement('img');
-      im.decoding = 'async'; im.alt = ''; im.draggable = false;
+      im.decoding = ENG_WEBKIT ? 'sync' : 'async'; im.alt = ''; im.draggable = false;   /* 523: SYNC in Safari (ENG_WEBKIT; Chrome keeps async) -- Safari re-rasterises these card layers as they move, and an async face painted BLANK until it decoded again: the BACKGROUND band blinked on and off (his recording, 15.06 / 16.58 s). Sync never paints a blank face; the picture is the same everywhere */
       c._img = im; c.appendChild(im);
       c._li = i;
       /* 508 (review): a card grown on resize would paint one frame untransformed
@@ -15926,11 +15934,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const el = document.createElement('div'); el.className = 'c3-case'; el.dataset.q = q;
       group3d.appendChild(el);
       const card = { q, key:null, el, still:null, iframe:null, player:null, playing:false, pose:null };
-      el.addEventListener('click', e => { e.stopPropagation(); pick(card); });
+      if (ENG_WEBKIT){ const sh = document.createElement('i'); sh.className = 'c3-sh'; sh.setAttribute('aria-hidden', 'true'); el.appendChild(sh); }   /* 523b S1: the film's shield (Safari) -- shown only while the card holds an iframe */
+      el.addEventListener('click', e => { if (e.target !== el && getComputedStyle(el).pointerEvents === 'none') return; e.stopPropagation(); pick(card); });   /* 523b S1: a card that takes no pointer itself lets a click on its shield through -- it is the film's */
       /* 401 (V4): the hero's hover, along the door's own facing; the eased
          coat is scoped to .hv so the step's tweens never inherit it */
       el.addEventListener('pointerenter', e => {
         if (chosen.case !== 4 || card.q === 0 || !card._mh || mDeskSlide()) return;   /* 522g: a finger's tap is no hover */
+        if (ENG_WEBKIT && getComputedStyle(el).pointerEvents === 'none') return;   /* 523b S1: entered through its shield, a card that takes no pointer stays as it was */
         card._hv = 1; el.classList.add('hv'); el.style.transform = card._mh;
         c3Cur(e, true);
       });
@@ -16096,7 +16106,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     try { if (!p && window.Vimeo && Vimeo.Player) p = vmPlayer(f); } catch (err) { p = null; }
     card.iframe = null; card.player = null; card.playing = false;
     if (p && p.off){
-      p.off('playing'); p.off('timeupdate');
+      p.off('playing'); p.off('timeupdate'); p.off('ended'); clearTimeout(card._lpT); card._lpT = 0;   /* 523b S2: the end watch goes with them */
       const prime = e => { if (w.adopted || !(e && e.seconds > 0)) return; p.off('timeupdate', prime); p.pause().then(() => p.setCurrentTime(0)).catch(() => {}); };
       p.on('timeupdate', prime);   /* a play already in flight is caught and parked again */
       p.setMuted(true).catch(() => {});
@@ -16171,11 +16181,24 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         card.player = vmPlayer(f);
         if (card.player.on){
           card.player.on('playing', ready);
-          card.player.on('timeupdate', e => { if (e && e.seconds > 0.05) ready(); if (e && card.q === 0 && card.iframe === f) ctlFillTo(clamp01(e.percent)); });
+          card.player.on('timeupdate', e => { if (e && e.seconds > 0.05) ready(); if (e && card.q === 0 && card.iframe === f) ctlFillTo(clamp01(e.percent)); filmEndWatch(card, e); });
+          card.player.on('ended', () => filmLoop(card));   /* 523b S2 */
         }
       } catch (err) { card.player = null; }
     }
     if (vGeo) cardSize(card);
+  }
+  /* 523b S2: THE LOOP, KEPT. The embed loops (loop=1), but his Safari showed CL25 stood black at its end under a PLAYING
+     control: the policy marks a film playing when it asks, so nothing asked again. A film whose time stops in its last 3%
+     for 1.5 s, or that reports 'ended', goes back to 0 and plays -- the film card only, only while the policy wants it. */
+  function filmLoop(card){
+    const p = card && card.player;
+    if (!p || !active() || filmCard() !== card || !card.playing || userPaused || busy) return;
+    p.setCurrentTime(0).then(() => p.play()).catch(() => {});
+  }
+  function filmEndWatch(card, e){
+    clearTimeout(card._lpT); card._lpT = 0;
+    if (e && e.percent >= 0.97) card._lpT = setTimeout(() => { card._lpT = 0; filmLoop(card); }, 1500);
   }
   /* THE CONTROL: the timeline and the sound, ours, through the film's player */
   function ctlBuild(){
@@ -17792,14 +17815,20 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   const stage = $('#c3Stage');
   const overFilm = e => { const g = vGeo; return !!g && !busy && !trAway() && e.clientX >= g.xc && e.clientX <= g.xc + g.vw && e.clientY >= g.yc && e.clientY <= g.yc + g.vh; };
   const ctlShow = on => ctlEach(c => c.classList.toggle('on', on));
-  stage.addEventListener('pointermove', e => { if (MOB.on) return; const on = !FILM_CONTROLS && (fsOn || overFilm(e)); stage.style.cursor = on ? 'pointer' : ''; ctlShow(on); });
+  const filmMove = e => { if (MOB.on) return; const on = !FILM_CONTROLS && (fsOn || overFilm(e)); stage.style.cursor = on ? 'pointer' : ''; if (ENG_WEBKIT) layer3d.style.cursor = stage.style.cursor; ctlShow(on); };   /* 523b S1: the shield wears the stage's cursor */
+  stage.addEventListener('pointermove', filmMove);
   stage.addEventListener('pointerleave', () => { stage.style.cursor = ''; });
   /* 501: the click waits out the dblclick window (instant, a double click
      fired play/pause/play as a visible stutter); a double click enters and
      exits fullscreen. In fullscreen the whole window is the film's surface. */
   let clkT = 0;
-  stage.addEventListener('click', e => { if (!MOB.on && !FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); clkT = setTimeout(togglePlay, 250); } });
-  stage.addEventListener('dblclick', e => { if (!MOB.on && !FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); fsToggle(); } });
+  const filmClick = e => { if (!MOB.on && !FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); clkT = setTimeout(togglePlay, 250); } };
+  const filmDbl = e => { if (!MOB.on && !FILM_CONTROLS && (fsOn || overFilm(e))){ clearTimeout(clkT); fsToggle(); } };
+  stage.addEventListener('click', filmClick);
+  stage.addEventListener('dblclick', filmDbl);
+  /* 523b S1: over a film the pointer meets its SHIELD (Safari), not the stage -- the same three handlers run for it */
+  if (ENG_WEBKIT){ const viaSh = fn => e => { if (e.target && e.target.classList && e.target.classList.contains('c3-sh')) fn(e); };
+    group3d.addEventListener('pointermove', viaSh(filmMove)); group3d.addEventListener('click', viaSh(filmClick)); group3d.addEventListener('dblclick', viaSh(filmDbl)); }
   function boot(){
     document.title = String(CASE.title || RING[cur]).split(' / ').join(' ');   /* 508: the case's (or post's) own title, nothing else -- blog: his " / " a space */
     { const h = $('#c3Hint'); if (h) h.textContent = SRC === 'blogs' ? 'Scroll down for post' : 'Scroll down for case'; }   /* 508 */
