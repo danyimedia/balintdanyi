@@ -4064,7 +4064,7 @@
      number -- 02-04, 05-08 -- stands at --m-dim, moving with the list. MENU and the bar are never touched; SELECTED WORKS'
      own row (01, the triangle, the words) is the open item -- the titles' heading -- and stays full black with them. The
      fade is on the rows' children, so the rows' own reveal (.m-r, opacity through blur) runs over it untouched. */
-  html.mob{ --m-list-air:.7; --m-dim:.8; }
+  html.mob{ --m-list-air:2.3; --m-dim:.8; }   /* 525c (his words: "use the same padding around the CASE study list as we have between the words MENU and 01"): MENU's baseline to 01's cap top -- three pitches less a cap (.7); 525b's 1.4 before. On its side the slide writes it (mnuSeat), closing with MENU -> 01 */
   html.mob .m-list{ height:0; overflow:hidden; transition:height .5s cubic-bezier(.76,0,.24,1); }
   html.mob .m-list-in{ padding:calc((var(--m-list-air) - .3) * 1em) 0; text-align:right; }
   html.mob .m-list button{
@@ -4628,6 +4628,16 @@
      (M_LIST_TAB). 525 T1: the titles are SUBTITLE now -- 42em of BODY is 21em of SUBTITLE, still the 932 phone's column;
      both wrap 3 + 2 + 1 (the 1366 iPad's column, 22.3em, would take 3 + 3, the first line out under 01). */
   html.mob.mobl.mobt .m-list-in{ max-width:calc(42 * var(--m-body)); margin-left:auto; }
+  /* 525d (his words: "I do not want this crammed view of the case studies. INSTEAD: the SELECTED WORK is opened the case titles appear in
+     vertical alignemnt, left side aligned to left side of the wrods SELECTED WORK ... WHEN 'SELECTED WORKS' is open, 02-04 menu items
+     fade+blur transition out"): A PHONE ON ITS SIDE -- the titles one under another over 02-04's place (the list no longer pushes
+     them), their left ink on SELECTED WORKS' (--m-works-w: the words' width, from the column's right), MENU -> 01's air above;
+     02-04 fade out through blur and take no tap. The column the clamp keeps: 01's row, the open list, a pitch over the bar's cap. */
+  html.mob.mobl:not(.mobt) .m-top{ top:calc(var(--pad) - .141em + clamp(1.5em, 100% - 2 * var(--pad) - 2.259em - 1px - max(var(--m-list-h, 2.8em), 3em), 3em)); }   /* 1px: MENU's seat (mnuSeat) moves the column by up to a pixel the clamp cannot see. 01's row, a pitch over the bar's cap, its cap, less MENU's -.141 -- less the list's own .3em foot, which the list carries */
+  html.mob.mobl:not(.mobt) .m-list{ position:absolute; left:0; right:0; top:1em; }
+  html.mob.mobl:not(.mobt) .m-list-in{ display:block; width:var(--m-works-w, auto); margin-left:auto; padding:calc((var(--m-list-air) - .3) * 1em) 0 .3em; text-align:left; }   /* .3em foot: the last title's font descent stays inside the list's clip; the clamp's reserve gives it back */
+  html.mob.mobl:not(.mobt) .m-list button{ margin:0 auto 0 0; }
+  html.mob.mobl:not(.mobt) .m-menu.m-works-on .m-top .m-r.on:not(.m-works){ opacity:0; filter:blur(8px); pointer-events:none; }
   /* THE SHOWREEL, UNROTATED AND FULL SCREEN. The film box is the whole window less the bottom margin (paint()'s inline
      top / height give way, as they do to the reel's own fullscreen, which keeps this box) and the picture is contained
      in it: its top on the window's top, black either side. The margin under it is the phone's gesture strip: the
@@ -13181,14 +13191,15 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     q('#mMenu .m-row').forEach(e => { const no = ((e.querySelector('.m-no') || {}).textContent || '').trim(), it = ((e.querySelector('.m-it') || {}).textContent || '').trim();
       if (no && it && no !== '01' && no !== '05') add('menu row ' + no, k * (W(no) + M_GAP * S + W(it))); });
     add('menu label', W('Menu'));
-    const names = q('#csPick button').map(b => b.textContent.trim()).filter(Boolean);
+    const names = q('#csPick button').map(mnuName).filter(Boolean);   /* 525b N2: the words the list shows */
     names.forEach(t => add('menu title: ' + t, k * W(t)));   /* 525 T1: SUBTITLE */
-    { const vh = document.documentElement.clientHeight || innerHeight, pad = padPx(), air = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--m-list-air')) || .7;   /* 525 T2: the list's air, the CSS's own token */
+    { const vh = document.documentElement.clientHeight || innerHeight, pad = padPx(), air = MOB.land ? 1.5 - .7 : (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--m-list-air')) || 2.3);   /* 525 T2: the list's air, the CSS's own token. 525c: MENU -> 01's -- on its side the column at its tightest (P 1.5) */
       let lines = names.length;
-      if (MOB.land){ let col = (document.documentElement.clientWidth - 2 * pad) / k; let x = 0; lines = names.length ? 1 : 0;
+      if (MOB.land && MOB.tab){ let col = (document.documentElement.clientWidth - 2 * pad) / k; let x = 0; lines = names.length ? 1 : 0;   /* 525d: only a tablet on its side wraps */
         if (MOB.tab) col = Math.min(col, M_LIST_TAB * S / 2);   /* 522d: a tablet on its side wraps the titles in the capped list */
         names.forEach(t => { const w = W(t); if (x > 0 && x + S + w > col){ lines++; x = w; } else x += (x > 0 ? S : 0) + w; }); }   /* 525 T1: SUBTITLE */
-      const L = (2 * (air - .3) + lines) * S, u = (MOB.land ? -.141 + 1.5 + 4 + 1 + .7 : -.141 + 3 + 4 + 1 + 4 + 3 - .159) + L / S;
+      const L = (2 * (air - .3) + lines) * S, u = MOB.land && !MOB.tab ? -.141 + 1.5 + 1 + Math.max(air - .3 + lines, 3) + 1 + .7   /* 525d: a phone on its side -- 01, the titles over 02-04, a pitch over the bar's cap */
+        : (MOB.land ? -.141 + 1.5 + 4 + 1 + .7 : -.141 + 3 + 4 + 1 + 4 + 3 - .159) + L / S;
       R.push({ what:'menu open, works expanded (vertical)', s:(vh - 2 * pad) / u }); }   /* 520a: the LAYOUT viewport's height (the root's clientHeight) -- a keyboard never changes the type */
     q('#ldCopy p').forEach(p => add('loader paragraph: ' + p.textContent.trim(), W(p.textContent.trim(), 1)));
     add('loader count', W('100%', 1));
@@ -13281,7 +13292,14 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* 525 T4: the case titles built as the slide sets out (no longer on the first tap) and the open list's height written
        for the landscape column's clamp (M512:LAND: .m-top) -- before MENU / 01 are seated, which reads that clamp */
     if (!mList.children.length) mnuList();
-    if (mList.firstElementChild) mMenu.style.setProperty('--m-list-h', mList.firstElementChild.offsetHeight + 'px');
+    /* 525c: on its side the list's air is MENU -> 01's as the clamp will set it -- P = (R + 2) / 3 in [1.5, 3], R the room the
+       bare titles leave; upright the token stands (three pitches) */
+    if (MOB.land && mList.firstElementChild){ const li = mList.firstElementChild, ls = getComputedStyle(li), em = parseFloat(getComputedStyle(mMenu).fontSize) || 20;
+      const ph = !MOB.tab, bare = li.getBoundingClientRect().height - parseFloat(ls.paddingTop) - parseFloat(ls.paddingBottom), R = (mMenu.clientHeight - 2 * padPx() - (ph ? 1 : 0)) / em - (ph ? 2.559 : 5.56) - bare / em;   /* the phone: the clamp's 1px, MENU's seat */
+      const P = Math.min(3, Math.max(1.5, ph ? (R + 1) / 2 : (R + 2) / 3));   /* 525d: a phone on its side -- one air (above), 02-04 out: P = (R + 1) / 2 */
+      mMenu.style.setProperty('--m-list-air', (P - .7).toFixed(4)); mnuListFit(); }
+    else mMenu.style.removeProperty('--m-list-air');
+    if (mList.firstElementChild) mMenu.style.setProperty('--m-list-h', mList.firstElementChild.getBoundingClientRect().height.toFixed(3) + 'px');   /* 525c2: to the sub-pixel */
     /* MENU's cap top on the top margin (its live baseline less M's ink height), 01-04 moved with it: they stand three
        pitches under it */
     const lb = mMenu.querySelector('.m-lbl'), tp = mMenu.querySelector('.m-top');
@@ -13292,7 +13310,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (g && isFinite(y)){ const d = PAD - (y - g.a);
         lb.style.top = (parseFloat(cs.top) + d).toFixed(2) + 'px'; tp.style.top = (parseFloat(getComputedStyle(tp).top) + d).toFixed(2) + 'px'; } }
     mMenu.querySelectorAll('.m-lbl, .m-top .m-no, .m-bot .m-it').forEach(e => seatEdge(e, 'left'));
-    mMenu.querySelectorAll('.m-top .m-it, .m-bot .m-no, .m-list button').forEach(e => seatEdge(e, 'right'));
+    mMenu.querySelectorAll('.m-top .m-it, .m-bot .m-no').forEach(e => seatEdge(e, 'right'));
+    { const lft = MOB.land && !MOB.tab;   /* 525d: a phone on its side aligns the titles LEFT, on SELECTED WORKS' left ink */
+      mMenu.querySelectorAll('.m-list button').forEach(e => { e.style.marginLeft = e.style.marginRight = ''; seatEdge(e, lft ? 'left' : 'right'); });
+      const wk = mMenu.querySelector('.m-works .m-it'), tp = mMenu.querySelector('.m-top');
+      if (lft && wk && tp){ const t = (wk.textContent || '').trim(), p = t ? inkPx(wk, t[0]) : null;
+        mMenu.style.setProperty('--m-works-w', (tp.getBoundingClientRect().right - wk.getBoundingClientRect().left - (p ? p.l : 0)).toFixed(2) + 'px'); }
+      else mMenu.style.removeProperty('--m-works-w'); }
   }
   function mnuMeasure(){
     mnuSeat();
@@ -13333,22 +13357,26 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   function mnuReset(){ cancelAnimationFrame(MNU.anim); MNU.drag = null; MNU.to = 0; mnuWorks(false, true); mnuSet(0); mnuState(false); }
   MOB.hooks.push(mnuReset);   /* a mode switch lands on a closed slide */
   /* SELECTED WORKS: the case titles, from the site's own case picker (its order, its names, its opener) */
+  /* 525b N2 (his words: "In this particular display remove AWARDS from MONEY20/20 AWARDS"): the menu's list shows a case's
+     SHORT title where CASES has one -- the list and the solve read the same words */
+  function mnuName(b){ const c = CASES.find(x => x.key === b.dataset.key); return ((c && c.short) || b.textContent).trim(); }
   function mnuList(){
     const pk = document.getElementById('csPick'); if (!pk) return;
     const inn = document.createElement('div'); inn.className = 'm-list-in';
     [...pk.querySelectorAll('button')].forEach((b, i) => { const x = document.createElement('button');
-      x.type = 'button'; x.textContent = b.textContent; x.dataset.key = b.dataset.key; x.style.setProperty('--d', (i * 60) + 'ms'); inn.appendChild(x); });
+      x.type = 'button'; x.textContent = mnuName(b); x.dataset.key = b.dataset.key; x.style.setProperty('--d', (i * 60) + 'ms'); inn.appendChild(x); });
     mList.innerHTML = ''; mList.appendChild(inn);
     inn.querySelectorAll('button').forEach(e => seatEdge(e, 'right'));   /* 516c */
   }
   /* 525 menu fix M1: an open list follows its titles through a resize (its px height is written once, as it opens) */
-  const mnuListFit = () => { if (!mMenu.classList.contains('m-works-on')) return; mList.style.transition = 'none'; mList.style.height = mList.scrollHeight + 'px'; void mList.offsetHeight; mList.style.transition = ''; };
+  const mnuListH = () => mList.firstElementChild ? mList.firstElementChild.getBoundingClientRect().height : mList.scrollHeight;   /* 525c2: the inner box, to the sub-pixel */
+  const mnuListFit = () => { if (!mMenu.classList.contains('m-works-on')) return; mList.style.transition = 'none'; mList.style.height = mnuListH() + 'px'; void mList.offsetHeight; mList.style.transition = ''; };
   function mnuWorks(on, instant){
     if (on && !mList.children.length) mnuList();
     mMenu.classList.toggle('m-works-on', on);
     const tg = mMenu.querySelector('.m-tog'); if (tg) tg.setAttribute('aria-expanded', on ? 'true' : 'false');
     if (instant) mList.style.transition = 'none';
-    mList.style.height = on ? mList.scrollHeight + 'px' : '0px';
+    mList.style.height = on ? mnuListH() + 'px' : '0px';   /* 525c2 */
     if (instant){ void mList.offsetHeight; mList.style.transition = ''; }
     else setTimeout(() => { if (MNU.p > 0){ mnuMeasure(); mnuSet(MNU.p); } }, 540);   /* the rows under it moved */
   }
