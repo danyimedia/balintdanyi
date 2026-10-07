@@ -4631,12 +4631,12 @@
   /* 525d (his words: "I do not want this crammed view of the case studies. INSTEAD: the SELECTED WORK is opened the case titles appear in
      vertical alignemnt, left side aligned to left side of the wrods SELECTED WORK ... WHEN 'SELECTED WORKS' is open, 02-04 menu items
      fade+blur transition out"): A PHONE ON ITS SIDE -- the titles one under another over 02-04's place (the list no longer pushes
-     them), their left ink on SELECTED WORKS' (--m-works-w: the words' width, from the column's right), MENU -> 01's air above;
-     02-04 fade out through blur and take no tap. The column the clamp keeps: 01's row, the open list, a pitch over the bar's cap. */
-  html.mob.mobl:not(.mobt) .m-top{ top:calc(var(--pad) - .141em + clamp(1.5em, 100% - 2 * var(--pad) - 2.259em - 1px - max(var(--m-list-h, 2.8em), 3em), 3em)); }   /* 1px: MENU's seat (mnuSeat) moves the column by up to a pixel the clamp cannot see. 01's row, a pitch over the bar's cap, its cap, less MENU's -.141 -- less the list's own .3em foot, which the list carries */
+     them), 525e: their right ink on SELECTED WORKS' right ink, MENU -> 01's air above -- risen only as far as BLOG's baseline asks;
+     02-04 fade out through blur and take no tap. MENU -> 01 (--m-top-p, mnuSeat) closes only to keep the risen list a cap clear. */
+  html.mob.mobl:not(.mobt) .m-top{ top:calc(var(--pad) - .141em + var(--m-top-p, 3em)); }   /* 525e: MENU -> 01, solved by mnuSeat -- three pitches, closing toward 1.5 only when even the list risen to BLOG would stand closer than a cap to SELECTED WORKS (so the site's type never shrinks for the menu) */
   html.mob.mobl:not(.mobt) .m-list{ position:absolute; left:0; right:0; top:1em; }
-  html.mob.mobl:not(.mobt) .m-list-in{ display:block; width:var(--m-works-w, auto); margin-left:auto; padding:calc((var(--m-list-air) - .3) * 1em) 0 .3em; text-align:left; }   /* .3em foot: the last title's font descent stays inside the list's clip; the clamp's reserve gives it back */
-  html.mob.mobl:not(.mobt) .m-list button{ margin:0 auto 0 0; }
+  html.mob.mobl:not(.mobt) .m-list-in{ display:block; padding:calc((var(--m-list-air) - .3) * 1em) 0 .3em; text-align:right; }   /* 525e (his words: "right side of the paragraph should be aligned to right side of SELECTED WORKS") */   /* .3em foot: the last title's font descent stays inside the list's clip; the clamp's reserve gives it back */
+  html.mob.mobl:not(.mobt) .m-list button{ margin:0 0 0 auto; }   /* 525e: seated on its right ink (seatEdge), as SELECTED WORKS is */
   html.mob.mobl:not(.mobt) .m-menu.m-works-on .m-top .m-r.on:not(.m-works){ opacity:0; filter:blur(8px); pointer-events:none; }
   /* THE SHOWREEL, UNROTATED AND FULL SCREEN. The film box is the whole window less the bottom margin (paint()'s inline
      top / height give way, as they do to the reel's own fullscreen, which keeps this box) and the picture is contained
@@ -13198,7 +13198,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (MOB.land && MOB.tab){ let col = (document.documentElement.clientWidth - 2 * pad) / k; let x = 0; lines = names.length ? 1 : 0;   /* 525d: only a tablet on its side wraps */
         if (MOB.tab) col = Math.min(col, M_LIST_TAB * S / 2);   /* 522d: a tablet on its side wraps the titles in the capped list */
         names.forEach(t => { const w = W(t); if (x > 0 && x + S + w > col){ lines++; x = w; } else x += (x > 0 ? S : 0) + w; }); }   /* 525 T1: SUBTITLE */
-      const L = (2 * (air - .3) + lines) * S, u = MOB.land && !MOB.tab ? -.141 + 1.5 + 1 + Math.max(air - .3 + lines, 3) + 1 + .7   /* 525d: a phone on its side -- 01, the titles over 02-04, a pitch over the bar's cap */
+      const L = (2 * (air - .3) + lines) * S, u = MOB.land && !MOB.tab ? 1.5 + .7 + .7 + lines - .3 + 3   /* 525e: a phone on its side -- MENU -> 01 at its tightest (1.5), SELECTED WORKS' baseline (.7), a cap of air, the titles' baselines (lines - .3), BLOG's three pitches over the bar's baseline */
         : (MOB.land ? -.141 + 1.5 + 4 + 1 + .7 : -.141 + 3 + 4 + 1 + 4 + 3 - .159) + L / S;
       R.push({ what:'menu open, works expanded (vertical)', s:(vh - 2 * pad) / u }); }   /* 520a: the LAYOUT viewport's height (the root's clientHeight) -- a keyboard never changes the type */
     q('#ldCopy p').forEach(p => add('loader paragraph: ' + p.textContent.trim(), W(p.textContent.trim(), 1)));
@@ -13295,8 +13295,9 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     /* 525c: on its side the list's air is MENU -> 01's as the clamp will set it -- P = (R + 2) / 3 in [1.5, 3], R the room the
        bare titles leave; upright the token stands (three pitches) */
     if (MOB.land && mList.firstElementChild){ const li = mList.firstElementChild, ls = getComputedStyle(li), em = parseFloat(getComputedStyle(mMenu).fontSize) || 20;
-      const ph = !MOB.tab, bare = li.getBoundingClientRect().height - parseFloat(ls.paddingTop) - parseFloat(ls.paddingBottom), R = (mMenu.clientHeight - 2 * padPx() - (ph ? 1 : 0)) / em - (ph ? 2.559 : 5.56) - bare / em;   /* the phone: the clamp's 1px, MENU's seat */
-      const P = Math.min(3, Math.max(1.5, ph ? (R + 1) / 2 : (R + 2) / 3));   /* 525d: a phone on its side -- one air (above), 02-04 out: P = (R + 1) / 2 */
+      const ph = !MOB.tab, bare = li.getBoundingClientRect().height - parseFloat(ls.paddingTop) - parseFloat(ls.paddingBottom), R = (mMenu.clientHeight - 2 * padPx()) / em - (ph ? Math.max(5.56, 4.1 + bare / em) : 5.56 + bare / em);
+      const P = Math.min(3, Math.max(1.5, ph ? R : (R + 2) / 3));   /* 525e: a phone on its side -- MENU -> 01 three pitches unless even the list risen to BLOG would stand closer than a cap (.7) to SELECTED WORKS: the room less SELECTED WORKS' baseline (.7), the cap of air, the titles (lines - .3) and BLOG's three pitches = 4.1 + the titles (never less than the closed column's 5.56). A tablet: solved with its pushing list, (R + 2) / 3 */
+      if (ph) mMenu.style.setProperty('--m-top-p', (P * em).toFixed(3) + 'px'); else mMenu.style.removeProperty('--m-top-p');
       mMenu.style.setProperty('--m-list-air', (P - .7).toFixed(4)); mnuListFit(); }
     else mMenu.style.removeProperty('--m-list-air');
     if (mList.firstElementChild) mMenu.style.setProperty('--m-list-h', mList.firstElementChild.getBoundingClientRect().height.toFixed(3) + 'px');   /* 525c2: to the sub-pixel */
@@ -13311,12 +13312,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
         lb.style.top = (parseFloat(cs.top) + d).toFixed(2) + 'px'; tp.style.top = (parseFloat(getComputedStyle(tp).top) + d).toFixed(2) + 'px'; } }
     mMenu.querySelectorAll('.m-lbl, .m-top .m-no, .m-bot .m-it').forEach(e => seatEdge(e, 'left'));
     mMenu.querySelectorAll('.m-top .m-it, .m-bot .m-no').forEach(e => seatEdge(e, 'right'));
-    { const lft = MOB.land && !MOB.tab;   /* 525d: a phone on its side aligns the titles LEFT, on SELECTED WORKS' left ink */
-      mMenu.querySelectorAll('.m-list button').forEach(e => { e.style.marginLeft = e.style.marginRight = ''; seatEdge(e, lft ? 'left' : 'right'); });
-      const wk = mMenu.querySelector('.m-works .m-it'), tp = mMenu.querySelector('.m-top');
-      if (lft && wk && tp){ const t = (wk.textContent || '').trim(), p = t ? inkPx(wk, t[0]) : null;
-        mMenu.style.setProperty('--m-works-w', (tp.getBoundingClientRect().right - wk.getBoundingClientRect().left - (p ? p.l : 0)).toFixed(2) + 'px'); }
-      else mMenu.style.removeProperty('--m-works-w'); }
+    mMenu.querySelectorAll('.m-list button').forEach(e => { e.style.marginLeft = e.style.marginRight = ''; seatEdge(e, 'right'); });   /* 525e: every list on its right ink (a phone on its side too) */
+    /* 525e (his words: "bottom of the paragraph should be aligned to bottom of of the word BLOG - only IF the bottom of the paragraph would
+       overflow"): a phone on its side -- the last title's baseline never under BLOG's; the air gives way by exactly the overflow */
+    if (MOB.land && !MOB.tab && mList.firstElementChild){ const bs = mList.querySelectorAll('button'), last = bs[bs.length - 1], blog = [...mMenu.querySelectorAll('.m-bot .m-it')].pop();
+      const by = e => { const q = document.createElement('i'); q.style.cssText = 'display:inline-block;width:0;height:0;margin:0;padding:0;border:0;vertical-align:baseline;'; e.appendChild(q); const y = q.getBoundingClientRect().bottom; q.remove(); return y; };
+      const over = last && blog ? by(last) - by(blog) : 0, em = parseFloat(getComputedStyle(mMenu).fontSize) || 20;
+      if (over > .05){ const a = parseFloat(getComputedStyle(mMenu).getPropertyValue('--m-list-air')) || 2.3; mMenu.style.setProperty('--m-list-air', (a - over / em).toFixed(4)); mnuListFit(); } }
   }
   function mnuMeasure(){
     mnuSeat();
