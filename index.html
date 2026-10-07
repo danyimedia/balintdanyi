@@ -3586,7 +3586,16 @@
   #viewCase3 .c3-case .still.loading{ filter:blur(14px); }
   #viewCase3 .c3-case.film.boot:not(.live) .still{ filter:blur(14px); }
   /* the film the page LOADS with, while its video has yet to play: its first frame (the poster, or the loop's first frame), blurred -- never the player's thumbnail. A film arriving by a step keeps the still it already showed, sharp, until its video fades in over it */
-  #viewCase3 .c3-case.film.nofilm .still{ opacity:0; }
+  #viewCase3 .c3-case.film.nofilm:not(.phloop) .still{ opacity:0; }   /* a card with neither film nor loop: black as the film */
+  /* 525 THE LOOP UNDER ITS STILL (his iPhone, PREV / NEXT into Money20/20: "correct the transition glitch" -- the still
+     darkened to black and the film box stayed black). The rule above took a no-film card's still to 0 the moment it became
+     the film card, while its loop (444's placeholder, opacity 0 until it played) had not started: black for ~0.7 s after
+     every step, for good on a phone whose loop never starts. Now the hero's NO BLACK CARDS law (M512:HERO): the loop is
+     LAID OUT, opacity 1, UNDER its still from the moment it is made -- an iPhone is never asked to start a video it does
+     not render -- and the still leaves only once the loop plays. A flank shows its still, as a film flank does (445). */
+  #viewCase3 .c3-case.phloop .still{ z-index:1; }
+  #viewCase3 .c3-case.phloop video.film-ph{ opacity:1; transition:none; }
+  #viewCase3 .c3-case.film.phloop.live .still{ opacity:0; }
   #viewCase3 .c3-case iframe, #viewCase3 .c3-case video.film-ph{ position:absolute; left:0; top:0; border:0; display:block; transform-origin:0 0; pointer-events:none; opacity:0; transition:opacity .5s ease; }   /* 446: the placeholder lives under the film's own law -- 445's parallel rule missed origin 0 0 and the scale conjugated about centre */
   #viewCase3 .c3-case.film iframe.live, #viewCase3 .c3-case video.film-ph.live{ opacity:1; }
   #viewCase3 .c3-3d.rest .c3-case.pick{ pointer-events:auto; cursor:pointer; }
@@ -4040,16 +4049,34 @@
   html.mob .m-tog{ flex:1 1 auto; display:flex; justify-content:space-between; align-items:flex-start; height:1em; margin-right:.27em; }
   html.mob .m-tri{ display:block; width:1.1em; height:.58em; margin-top:.201em; background:currentColor; clip-path:polygon(0 0, 100% 0, 50% 100%); transition:transform .45s cubic-bezier(.76,0,.24,1); }
   html.mob .m-menu.m-works-on .m-tri{ transform:rotate(180deg); }
-  /* the case titles: BODY(CAPS), right-aligned under SELECTED WORKS, pushing SHOWREEL..ABOUT down */
+  /* the case titles: right-aligned under SELECTED WORKS, pushing SHOWREEL..ABOUT down.
+     525 T1 (his words: "the menu items under "SELECTED WORKS" is virtually unlcickable (or un-tappable) because the text is so
+     small ... make the sub-items under SELECTED WORKS the same size"): SUBTITLE, the menu's own register -- the size, weight
+     and tracking of SHOWREEL / CONTACT / ABOUT, inherited from the slide -- one row pitch (1em) each. They were BODY(CAPS),
+     half the size, at BODY's leading. Upright, a title's target is its whole row, margin to margin, as 02-04's rows are (the
+     ::after; .m-list clips it at the left margin): 1em tall, the rows touching, never overlapping.
+     525 T2 ("use a full letter height as paddig below the case-list and above the case-list"): --m-list-air, in em of
+     SUBTITLE, is the visible gap from SELECTED WORKS' baseline to the first title's cap top, and from the last title's
+     baseline to SHOWREEL's cap top: one CAP height (.7; 1 would be a full empty line). The rows' own gap is .3em (a pitch
+     less a cap), so the padding is the air less .3em. The SUBTITLE solve reads the same token (menu open, works expanded).
+     525 T3 ("slightly fade the blacks of the rest of the items on the menu (including numbering) ... (say 80% opacity). do
+     dot fade the "B-D x" at the bottom and the "MENU" at the top"): while the titles are out, every other item and its
+     number -- 02-04, 05-08 -- stands at --m-dim, moving with the list. MENU and the bar are never touched; SELECTED WORKS'
+     own row (01, the triangle, the words) is the open item -- the titles' heading -- and stays full black with them. The
+     fade is on the rows' children, so the rows' own reveal (.m-r, opacity through blur) runs over it untouched. */
+  html.mob{ --m-list-air:.7; --m-dim:.8; }
   html.mob .m-list{ height:0; overflow:hidden; transition:height .5s cubic-bezier(.76,0,.24,1); }
-  html.mob .m-list-in{ padding:.3em 0 .45em; text-align:right; }
+  html.mob .m-list-in{ padding:calc((var(--m-list-air) - .3) * 1em) 0; text-align:right; }
   html.mob .m-list button{
-    display:block; margin:0 -.0576em 0 auto; padding:0; border:0; background:none; color:inherit; font-family:inherit;
-    font-size:var(--m-body); font-weight:700; letter-spacing:var(--track-s); word-spacing:var(--wsp-s); line-height:var(--sm-lh);
+    display:block; position:relative; margin:0 0 0 auto; padding:0; border:0; background:none; color:inherit;
+    font:inherit; letter-spacing:inherit; word-spacing:inherit; line-height:1;
     text-transform:uppercase; white-space:nowrap; cursor:pointer; -webkit-tap-highlight-color:transparent;
     opacity:0; filter:blur(8px); transition:opacity .55s ease var(--d, 0ms), filter .55s ease var(--d, 0ms);
   }
+  html.mob .m-list button::after{ content:''; position:absolute; top:0; bottom:0; right:0; left:-100vw; }   /* upright: the row's target (M512:LAND takes it back in the column) */
   html.mob .m-menu.m-works-on .m-list button{ opacity:1; filter:blur(0); }
+  html.mob .m-top .m-row:not(.m-works) > *, html.mob .m-bot .m-row > *{ transition:opacity .5s cubic-bezier(.76,0,.24,1); }
+  html.mob .m-menu.m-works-on .m-top .m-row:not(.m-works) > *, html.mob .m-menu.m-works-on .m-bot .m-row > *{ opacity:var(--m-dim); }
 
   /* M512:HERO */
   /* THE HERO ON A PHONE (SPEC-512 sec. E, the mockup). The deck, SELECTED / WORKS and their seats are the desktop's own.
@@ -4581,21 +4608,25 @@
      pitches under it; 08 three pitches over the open bar's baseline) but each group takes a HALF, split at the middle
      with two margins between: 01-04 left (the number on the left margin, the item on the column's right edge), 05-08
      right (the item on the column's left edge, the number on the right margin). They cannot meet at any height. The
-     case titles run under SELECTED WORKS as right-aligned lines of BODY(CAPS), one SUBTITLE apart, wrapping in the
-     column (two lines on every landscape phone). The left column's one other neighbour is the open bar: MENU -> 01
-     is three pitches, closing toward 1.5 only when the window cannot hold the column with the titles open and a
-     pitch of air over the bar's cap top (below 257px tall at S 20 -- under every phone, bars and all). The SUBTITLE
-     solve measures the menu rows against this column (mColK). */
-  html.mob.mobl .m-top{ right:calc(50% + var(--pad)); top:calc(var(--pad) - .141em + clamp(1.5em, 100% - 2 * var(--pad) - 7.44em, 3em)); }
+     case titles run under SELECTED WORKS right-aligned, wrapping in the column, a SUBTITLE apart side by side -- 525 T1:
+     in SUBTITLE, one pitch per line (three lines at 932 and 844 wide, four at 667 and at 568). The left column's
+     one other neighbour is the open bar: MENU -> 01 is three pitches, closing toward 1.5 only when the window cannot hold
+     the column with the titles open and a pitch of air over the bar's cap top. 525 T4: the open list's height is the
+     list as drawn, --m-list-h (mnuSeat measures it as the slide sets out; it was a constant, 1.88em of the 7.44em, while
+     the titles were two lines of BODY) -- 5.56em is the rest: four rows, the pitch of air, the bar's cap, less MENU's
+     .141em. The SUBTITLE solve measures the menu rows against this column (mColK). */
+  html.mob.mobl .m-top{ right:calc(50% + var(--pad)); top:calc(var(--pad) - .141em + clamp(1.5em, 100% - 2 * var(--pad) - 5.56em - var(--m-list-h, 2.8em), 3em)); }
   html.mob.mobl .m-bot{ left:calc(50% + var(--pad)); }
   html.mob.mobl .m-list-in{ display:flex; flex-wrap:wrap; justify-content:flex-end; column-gap:var(--m-sub); }
-  html.mob.mobl .m-list button{ margin:0 -.0576em 0 0; }
+  html.mob.mobl .m-list button{ margin:0; }   /* 525 T1: SUBTITLE, seated on its ink (seatEdge) as the rows' words are */
+  html.mob.mobl .m-list button::after{ content:none; }   /* 525 T1: side by side in the column, a title's target is its own words -- a row-wide one would cover its neighbours */
   /* 522d: A TABLET ON ITS SIDE (his call, option A). Every landscape phone and the 16:10 / 3:2 tablets wrap the case titles
      4 + 2, right-aligned and clear of the 01 number; the 4:3 iPad Pro's column (1366 x 1024: 635px, 45.4em of BODY) is wider
      than any phone's, and they ran 5 + 1, the first line out under 01. The list is capped at the widest landscape phone's
      column in BODY (932 x 430: 418px at BODY 10, 41.8em -- 42em) and stands on the column's right edge; a narrower column
      (1133 x 744, 1180 x 820, 1280 x 800) keeps its own. The SUBTITLE solve counts the lines against the same cap
-     (M_LIST_TAB). */
+     (M_LIST_TAB). 525 T1: the titles are SUBTITLE now -- 42em of BODY is 21em of SUBTITLE, still the 932 phone's column;
+     both wrap 3 + 2 + 1 (the 1366 iPad's column, 22.3em, would take 3 + 3, the first line out under 01). */
   html.mob.mobl.mobt .m-list-in{ max-width:calc(42 * var(--m-body)); margin-left:auto; }
   /* THE SHOWREEL, UNROTATED AND FULL SCREEN. The film box is the whole window less the bottom margin (paint()'s inline
      top / height give way, as they do to the reel's own fullscreen, which keeps this box) and the picture is contained
@@ -13128,7 +13159,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      credit (the role wraps down to its longest word, the hairline's least -- 516b: its .6em basis and its .6em margins
      either side, 1.8em of BODY = .9 S -- the name whole; 518b: a credit breaks as SPEC-518 D3 draws it -- its longest word the
      least tail, the hairline's two .6em margins and its least length M_CR_LMIN, the name whole); the menu's other
-     rows (the item and its number, in the column on a landscape phone), MENU, and each case title under SELECTED WORKS;
+     rows (the item and its number, in the column on a landscape phone), MENU, and each case title under SELECTED WORKS
+     (525 T1: in SUBTITLE);
      the menu OPEN WITH SELECTED WORKS EXPANDED -- a vertical row: the top group (MENU's three pitches, four rows, the
      titles) and a pitch of air over the bottom group (landscape: the left column at its tightest 1.5 pitches, over the
      open bar's cap); the loader's paragraph lines and count (BODY; BALINT ---- DANYI is fitted to the margins by ldSolve,
@@ -13150,13 +13182,13 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       if (no && it && no !== '01' && no !== '05') add('menu row ' + no, k * (W(no) + M_GAP * S + W(it))); });
     add('menu label', W('Menu'));
     const names = q('#csPick button').map(b => b.textContent.trim()).filter(Boolean);
-    names.forEach(t => add('menu title: ' + t, k * W(t, 1)));
-    { const vh = document.documentElement.clientHeight || innerHeight, pad = padPx(), lh = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--sm-lh')) || 1.13) * S / 2;
+    names.forEach(t => add('menu title: ' + t, k * W(t)));   /* 525 T1: SUBTITLE */
+    { const vh = document.documentElement.clientHeight || innerHeight, pad = padPx(), air = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--m-list-air')) || .7;   /* 525 T2: the list's air, the CSS's own token */
       let lines = names.length;
       if (MOB.land){ let col = (document.documentElement.clientWidth - 2 * pad) / k; let x = 0; lines = names.length ? 1 : 0;
         if (MOB.tab) col = Math.min(col, M_LIST_TAB * S / 2);   /* 522d: a tablet on its side wraps the titles in the capped list */
-        names.forEach(t => { const w = W(t, 1); if (x > 0 && x + S + w > col){ lines++; x = w; } else x += (x > 0 ? S : 0) + w; }); }
-      const L = .75 * S + lines * lh, u = (MOB.land ? -.141 + 1.5 + 4 + 1 + .7 : -.141 + 3 + 4 + 1 + 4 + 3 - .159) + L / S;
+        names.forEach(t => { const w = W(t); if (x > 0 && x + S + w > col){ lines++; x = w; } else x += (x > 0 ? S : 0) + w; }); }   /* 525 T1: SUBTITLE */
+      const L = (2 * (air - .3) + lines) * S, u = (MOB.land ? -.141 + 1.5 + 4 + 1 + .7 : -.141 + 3 + 4 + 1 + 4 + 3 - .159) + L / S;
       R.push({ what:'menu open, works expanded (vertical)', s:(vh - 2 * pad) / u }); }   /* 520a: the LAYOUT viewport's height (the root's clientHeight) -- a keyboard never changes the type */
     q('#ldCopy p').forEach(p => add('loader paragraph: ' + p.textContent.trim(), W(p.textContent.trim(), 1)));
     add('loader count', W('100%', 1));
@@ -13246,6 +13278,10 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
      05-08 the other way round (a landscape phone: each column's edges), the case titles on SELECTED WORKS' edge (seatEdge reads
      a phone's bearings sub-pixel); seated as the slide sets out, and when the case titles are built */
   function mnuSeat(){
+    /* 525 T4: the case titles built as the slide sets out (no longer on the first tap) and the open list's height written
+       for the landscape column's clamp (M512:LAND: .m-top) -- before MENU / 01 are seated, which reads that clamp */
+    if (!mList.children.length) mnuList();
+    if (mList.firstElementChild) mMenu.style.setProperty('--m-list-h', mList.firstElementChild.offsetHeight + 'px');
     /* MENU's cap top on the top margin (its live baseline less M's ink height), 01-04 moved with it: they stand three
        pitches under it */
     const lb = mMenu.querySelector('.m-lbl'), tp = mMenu.querySelector('.m-top');
@@ -13305,6 +13341,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     mList.innerHTML = ''; mList.appendChild(inn);
     inn.querySelectorAll('button').forEach(e => seatEdge(e, 'right'));   /* 516c */
   }
+  /* 525 menu fix M1: an open list follows its titles through a resize (its px height is written once, as it opens) */
+  const mnuListFit = () => { if (!mMenu.classList.contains('m-works-on')) return; mList.style.transition = 'none'; mList.style.height = mList.scrollHeight + 'px'; void mList.offsetHeight; mList.style.transition = ''; };
   function mnuWorks(on, instant){
     if (on && !mList.children.length) mnuList();
     mMenu.classList.toggle('m-works-on', on);
@@ -13370,12 +13408,12 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); mnuGo(0); return; }
     if (/^(Arrow|Page)/.test(e.key) || e.key === ' ' || e.key === 'Home' || e.key === 'End') e.stopPropagation();   /* nothing moves under the slide */
   }, { capture:true });
-  addEventListener('resize', () => { if (MNU.p > 0){ mnuMeasure(); mnuSet(MNU.p); } });
+  addEventListener('resize', () => { if (MNU.p > 0){ mnuListFit(); mnuMeasure(); mnuSet(MNU.p); } });
   /* 512f: THE KEYBOARD. On an iPhone the on-screen keyboard shrinks only the VISUAL viewport and fires no window resize,
      and a tap on the icon leaves the field being typed into focused: a slide opened with the keyboard up travels to the
      band above it (mTravel reads visualViewport), and when the keyboard goes down only visualViewport's resize says so.
      The slide re-solves on it too, so the bar lands on the bottom margin and rows 05-08 come in. */
-  if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (MNU.p > 0){ mnuMeasure(); mnuSet(MNU.p); } });
+  if (window.visualViewport) visualViewport.addEventListener('resize', () => { if (MNU.p > 0){ mnuListFit(); mnuMeasure(); mnuSet(MNU.p); } });
   /* ================= CASE REGISTRY + TEMPORARY PICKER ==================
      Every case study lives in one JSON block and is written into the single
      case view on demand. The picker is a stopgap so all seven are reachable
@@ -16148,6 +16186,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     if (card.key === key) return;
     const cs = REC()[key]; card.key = key; card.el.dataset.key = key;   /* 507: the belt reads the LIVE ring, so it fills with posts in the reader */
     card.el.classList.toggle('nofilm', !cs.film);
+    card.el.classList.toggle('phloop', !cs.film && !!cs.loop);   /* 525: the loop stands in (444, below): it lies UNDER the still, which leaves once it plays -- never black */
     if (card.still){ card.still.remove(); card.still = null; }
     parkWarm(card);   /* 510: the kept film leaves by moveBefore, never by remove (card.cs is still the OLD case here) */
     if (card.iframe){ card.iframe.remove(); card.iframe = null; card.player = null; card.playing = false; }
@@ -16885,7 +16924,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
        the page moves (not the scale -- the move) it stops; back at the
        start it plays again; and not while a case is on its way in */
     const fc = filmCard();
-    if (fc && !fc.player) filmWire(fc);   /* 501: late-wire -- a stepped-to flank builds its embed here at the latest, and a late player.js wires the moment it exists */
+    if (fc && !fc.player && !(busy && mPhone())) filmWire(fc);   /* 525 step S3: a phone's step and its title land first (run() ends busy, then calls this). 501: late-wire -- a stepped-to flank builds its embed here at the latest, and a late player.js wires the moment it exists */
     const player = fc ? fc.player : null;
     if (player){
       const want = S < 0.5 && !userPaused && !busy;
@@ -16949,7 +16988,11 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
   /* parked: the last door's pose on that side, a window's worth further out */
   function parkOf(side){
     const d = deck, g = vGeo, sy = d.h / g.vh, o = side === 'R' ? d.dR[d.R - 1] : d.dL[d.L - 1];
-    if (!o) return { hinge:side, tx:side === 'R' ? g.W : -g.W, tz:d.zNear, deg:side === 'R' ? -d.tilt : d.tilt, sy, vis:0 };
+    if (!o){   /* 525 step S1 (his words: "correct the transition glitch"): no deck on this side (a phone) -- the card parks where that deck's FIRST door would stand, deckGeo's own solve, its far edge on the window's edge (or GAL_GAP0 past the film's, if further out): never a window beyond, which left the page empty between the leaving and the arriving card */
+      const t = d.tilt * Math.PI / 180, x = Math.max(g.vw / 2 + GAL_GAP0 * g.vw, side === 'R' ? g.W - d.cx0 : d.cx0);
+      const Xh = x * (d.P - (d.zNear - g.vw * Math.sin(t))) / d.P + g.vw * Math.cos(t);   /* the hinge in the film's plane, from its far edge on the screen */
+      return side === 'R' ? { hinge:'R', tx:Xh - g.vw / 2, tz:d.zNear, deg:-d.tilt, sy, vis:0, edge:true } : { hinge:'L', tx:g.vw / 2 - Xh, tz:d.zNear, deg:d.tilt, sy, vis:0, edge:true };
+    }
     const past = (side === 'R' ? (g.W - d.cx0) - o.xFar : d.cx0 - o.xFar) + g.vw;
     return side === 'R' ? { hinge:'R', tx:o.Xh - g.vw / 2 + past, tz:d.zNear, deg:-o.deg, sy, vis:0 } : { hinge:'L', tx:g.vw / 2 - o.Xh - past, tz:d.zNear, deg:o.deg, sy, vis:0 };
   }
@@ -17067,7 +17110,7 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
     cards.forEach(c => c.el.classList.remove('boot'));   // from here on every film arrives with its still already shown: no loading blur
     const fc = filmCard(); if (fc && fc.player && fc.playing){ fc.playing = false; fc.player.pause().catch(() => {}); }
     const dest = cards.find(c => c.q === steps);
-    if (dest) filmWire(dest);   /* 501: the destination's embed starts loading under the step, arriving as the belt does */
+    if (dest && !mPhone()) filmWire(dest);   /* 501: the destination's embed starts loading under the step, arriving as the belt does. 525 step S3: not on a phone -- iOS Safari runs the new frame's document on the page's own thread, and his step into Black Hat froze mid-move (10.600-10.750 s): the late-wire builds it once the step and the title have landed */
     slideHead(true);
     if (c3Up()) mRvLeave();   /* 516b fix: an upright phone's post -- its texts leave with the title */
     await step(steps > 0 ? 1 : -1, Math.abs(steps));
@@ -17139,7 +17182,8 @@ document.querySelectorAll('.c2-line').forEach(c2Pull);   /* 411: the contact pag
       const tR = it.from0 ? 1 - Math.pow(1 - t, ROT_LAG) : Math.pow(t, ROT_LAG);
       const p = { hinge:it.hinges[seg], tx:f.tx + (g.tx - f.tx) * t, tz:f.tz + (g.tz - f.tz) * t + Math.sin(Math.PI * e) * TRANS_SWELL * (it.from0 ? -1 : 1), deg:f.deg + (g.deg - f.deg) * tR, sy:f.sy + (g.sy - f.sy) * tR };
       it.card.el.style.transform = matrixOf(p, 0);
-      it.card.el.style.opacity = ((f.vis + (g.vis - f.vis) * t) * (it.card.q === 0 ? 1 : doorFade)).toFixed(3);
+      const fv = f.edge && g.vis ? 1 : f.vis, gv = g.edge && f.vis ? 1 : g.vis;   /* 525 step S2: between a seen slot and a window-edge park the card stays whole (42: it moves and turns, nothing else) -- park to park stays unseen */
+      it.card.el.style.opacity = ((fv + (gv - fv) * t) * (it.card.q === 0 ? 1 : doorFade)).toFixed(3);
     }
     if (all){ const q = stepQ; stepQ = null; cards.forEach(c => { c.pose = poseOf(c.q); }); cardsPaint(); q.done(); }
     return true;
