@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Showreel - Balint Danyi</title>
+<meta name="robots" content="noindex">
+<!-- 526 THE SHOWREEL'S OWN ADDRESS (his ask, 12.11.26: "keep Vimeo as the destination behind a tracked hop ... the URL can't
+     be something crazy"). balintdanyi.com/reel?<code> counts ONE opening of the showreel from that CV and hands the visitor
+     straight to Vimeo, which stays the destination and the player. This page is ON ITS OWN: no stylesheet, no web font, no
+     script of the site's -- nothing here can be broken by the site's own code ("vimeo ... is a clean way of always giving
+     access which might be a priority compared to metrics"). The visitor goes to Vimeo whatever happens: the moment the
+     count's pixel answers or fails, at the latest after 1.2 s, with no JavaScript by the meta refresh, and with neither by
+     the link on the page. No cookie, no identifier, nothing kept on their device. CV_GC empty = off: a straight hand-over. -->
+<meta property="og:type" content="video.other">
+<meta property="og:site_name" content="Balint Danyi">
+<meta property="og:title" content="Showreel - Balint Danyi">
+<meta property="og:description" content="Creative lead for video.">
+<meta property="og:url" content="https://balintdanyi.com/reel">
+<meta property="og:image" content="https://balintdanyi.com/portfoliocontent/CaseAssets/Lions24/Lions24First.jpg">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="720">
+<meta name="twitter:card" content="summary_large_image">
+<script>
+(function (){
+  var REEL = 'https://vimeo.com/balintdanyi/2026';
+  var CV_GC = 'balintdanyi';   /* 526b: his GoatCounter account (balintdanyi.goatcounter.com). Empty = nothing is sent, the hand-over stands */
+  var went = false;
+  var go = function (){ if (went) return; went = true; try { location.replace(REEL); } catch (x) { location.href = REEL; } };
+  try {
+    var q = (location.search || '').replace(/^\?/, '');
+    var code = /^[A-Za-z0-9][A-Za-z0-9_-]{0,23}$/.test(q) ? q : '';
+    if (!CV_GC || !code) return go();
+    var u = 'https://' + CV_GC + '.goatcounter.com/count?p=' + encodeURIComponent('/cv/' + code + '/showreel')
+      + '&t=' + encodeURIComponent(code + ' showreel') + (navigator.webdriver ? '&b=150' : '')
+      + '&rnd=' + Math.random().toString(36).slice(2);
+    var im = new Image();
+    im.onload = im.onerror = go;        /* counted, or refused: either way the visitor goes */
+    setTimeout(go, 1200);               /* and goes anyway if the count hangs */
+    im.src = u;
+  } catch (x) { go(); }
+})();
+</script>
+<noscript><meta http-equiv="refresh" content="0;url=https://vimeo.com/balintdanyi/2026"></noscript>
+<style>
+  html,body{ margin:0; height:100%; background:#F5F5F5; color:#000; }
+  body{ display:flex; align-items:flex-end; }
+  p{ margin:0; padding:24px; font:700 13px/1.2 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+     letter-spacing:.06em; text-transform:uppercase; }
+  a{ color:inherit; }
+</style>
+</head>
+<body>
+<p><a href="https://vimeo.com/balintdanyi/2026">Showreel</a></p>
+</body>
+</html>

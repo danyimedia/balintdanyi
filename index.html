@@ -5201,6 +5201,18 @@
   const MOB_PHONE_R = 1.7, MOB_PHONE_SIDE = 600;
   const MOB_TAB_K = 1.4;   /* 522b: HIS CALL -- a tablet's text is the phone's x 1.4: the SUBTITLE cap 20 -> 28, BODY 14, NOCAPS 15.3 */
   const MOB_VIEW = (() => { try { const m = /[?&]view=(phone|tablet|desktop)(?![\w-])/.exec(location.search); return m ? m[1] : ''; } catch (x) { return ''; } })();
+  /* 526 THE CV LINK'S CODE (his ask: "I just want to know if someone opened a link from my CV that's it"). The site counts
+     NOTHING of its own: no visitor, no page, no session. ONLY a landing that arrives with a CV's code -- balintdanyi.com/?k7,
+     a BARE token in the query (never a key=value, so ?view=, ?intro=, ?ink=, ?stance= and the rigs' cache-busters are not
+     codes) -- sends ONE count to GoatCounter: no cookies, no identifier, nothing kept on the visitor's device. The showreel
+     has its own page (/reel), which counts the same way and hands the visitor to Vimeo. CV_GC empty = off, nothing sent. */
+  const CV_GC = 'balintdanyi';   /* 526b: his GoatCounter account (balintdanyi.goatcounter.com), signed up 13.11.26. Empty would mean the site counts nothing at all */
+  const cvTag = q => (/^[A-Za-z0-9][A-Za-z0-9_-]{0,23}$/.test(q) ? q : '');
+  const cvCount = (what, code) => { try { if (!CV_GC || !code) return false;
+    const u = 'https://' + CV_GC + '.goatcounter.com/count?p=' + encodeURIComponent('/cv/' + code + '/' + what)
+      + '&t=' + encodeURIComponent(code + ' ' + what) + (navigator.webdriver ? '&b=150' : '') + '&rnd=' + Math.random().toString(36).slice(2);
+    new Image().src = u; return true; } catch (x) { return false; } };   /* their documented pixel; b=150 marks a headless browser as the bot it is, so a rig never counts */
+  try { cvCount('portfolio', cvTag(location.search.replace(/^\?/, ''))); } catch (x) {}
   /* 523: THE ENGINE -- WebKit (Safari on the Mac, every browser on iOS / iPadOS), read once. Safari-only fixes key on it so
      Chrome (Blink) runs exactly what it ran before 523: the covered landing (c3Cover), the About cards' rank z and their
      transform seat. jsdom (the smoke suite) counts as not-WebKit. */
